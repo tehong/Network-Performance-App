@@ -1,0 +1,14 @@
+{
+  "name": "MiKPI",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node_modules/react-native/packager/packager.sh"
+  },
+  "dependencies": {
+    "moment": "^2.10.6",
+    "react-native": "^0.13.1",
+    "react-timer-mixin": "^0.13.3",
+    "react-tween-state": "^0.1.3"
+  }
+}
