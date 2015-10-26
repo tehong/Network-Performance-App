@@ -74,7 +74,7 @@ var PerformanceCell = React.createClass({
         <View style={styles.textContainer}>
           <View style={styles.marketContainer}>
             <Text style={styles.marketTitle}>
-                {this.props.market.market}
+                {this.props.market.name}
             </Text>
           </View>
           <View style={styles.kpiValueContainer}>
@@ -147,14 +147,14 @@ var styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems:'stretch',
-    borderColor: "blue",
-    borderWidth: 2,
+    // borderColor: "blue",
+    // borderWidth: 2,
     marginTop: 13,
   },
   chartContainer: {
     flex: 3,
-    borderColor: "red",
-    borderWidth: 2,
+    // borderColor: "red",
+    // borderWidth: 2,
   },
   iconContainer: {
     flex: 2,
@@ -227,42 +227,42 @@ var styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "stretch",
-    borderColor: "green",
-    borderWidth: 2,
+    // borderColor: "green",
+    // borderWidth: 2,
   },
   threshold: {
     flex: 9,
     flexDirection: "row",
-    borderColor: "white",
-    borderWidth: 2,
+    // borderColor: "white",
+    // borderWidth: 2,
   },
   chartImage: {
     flex: 11,
-    borderColor: "blue",
-    borderWidth: 2,
+    // borderColor: "blue",
+    // borderWidth: 2,
   },
   chartSpace: {
     flex: 2,
-    borderColor: "yellow",
-    borderWidth: 2,
+    // borderColor: "yellow",
+    // borderWidth: 2,
   },
   thresholdValue: {
     flexDirection: "row",
     flex: 11,
     justifyContent: "space-between",
     alignItems: "center",
-    borderColor: "yellow",
-    borderWidth: 2,
+    // borderColor: "yellow",
+    // borderWidth: 2,
   },
   thresholdSpace: {
     flex: 2,
-    borderColor: "green",
-    borderWidth: 2,
+    // borderColor: "green",
+    // borderWidth: 2,
   },
   ttContainer: {
     alignItems: "flex-start",
-    borderColor: "red",
-    borderWidth: 1,
+    // borderColor: "red",
+    // borderWidth: 1,
   },
   tt: {
     color: "white",

@@ -1,0 +1,61 @@
+{
+  "result":
+  [
+    {
+      "area": "zones",
+      "name": "Stockton",
+      "category": "Data",
+      "parentKpi": "Retainability",
+      "dailyAverage": 97,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data": [99, 96, 99, 97, 96, 96, 99, 100, 97, 96, 100, 99]
+    },
+    {
+      "area": "zones",
+      "name": "Modesto",
+      "category": "Data",
+      "parentKpi": "Retainability",
+      "dailyAverage": 95,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data": [97, 90, 94, 97, 96, 92, 97, 90, 97, 98, 92, 96]
+    },
+    {
+      "area": "zones",
+      "name": "Sacramento",
+      "category": "Downlink",
+      "parentKpi": "Retainability",
+      "dailyAverage": 98,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data": [97, 100, 99, 97, 98, 96, 99, 100, 96, 98, 100, 97]
+    },
+    {
+      "area": "zones",
+      "name": "Others",
+      "category": "Uplink",
+      "parentKpi": "Retainability",
+      "dailyAverage": 99,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
+    }
+  ]
+}

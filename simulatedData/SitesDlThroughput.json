@@ -1,0 +1,61 @@
+{
+  "result":
+  [
+    {
+      "area": "zones",
+      "name": "Stockton",
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 1.5,
+      "unit": "Mbps",
+      "threshold":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data": [1.1, 1.2, 1.3, 1.5, 1.7, 1.0, 1.2, 1.6, 1.7, 1.2, 2.0, 1.9]
+    },
+    {
+      "area": "zones",
+      "name": "Modesto",
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 3.1,
+      "unit": "Mbps",
+      "threshold":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data": [2.1, 1.2, 3.3, 3.5, 2.7, 1.3, 4.2, 1.6, 2.7, 3.8, 2.7, 2.9]
+    },
+    {
+      "area": "zones",
+      "name": "Sacramento",
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 0.9,
+      "unit": "Mbps",
+      "threshold":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data": [1.1, 0.2, 1.3, 0.5, 0.7, 1.3, 1.2, 0.6, 0.7, 0.8, 1.7, 0.9]
+    },
+    {
+      "area": "zones",
+      "name": "Others",
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 1.9,
+      "unit": "Mbps",
+      "threshold":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data": [2.1, 1.2, 1.3, 2.5, 1.7, 2.3, 1.2, 1.6, 1.7, 2.8, 2.0, 1.9]
+    }
+  ]
+}

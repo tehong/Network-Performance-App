@@ -1,0 +1,89 @@
+{
+  "result":
+  [
+    {
+      "area": "sites",
+      "name": "Stockton1",
+      "category": "Data",
+      "parentKpi": "Accessibility",
+      "dailyAverage": 97,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 97,
+          "green": 99
+        },
+      "data": [99, 96, 99, 97, 96, 96, 99, 100, 97, 96, 100, 99]
+    },
+    {
+      "area": "sites",
+      "name": "Stockton2",
+      "category": "Data",
+      "parentKpi": "Accessibility",
+      "dailyAverage": 96,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 97,
+          "green": 99
+        },
+      "data": [95, 100, 94, 97, 95, 96, 94, 100, 96, 94, 100, 96]
+    },
+    {
+      "area": "sites",
+      "name": "Stockton3",
+      "category": "Data",
+      "parentKpi": "Accessibility",
+      "dailyAverage": 98,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 97,
+          "green": 99
+        },
+      "data": [97, 96, 99, 96, 99, 97, 99, 100, 97, 98, 100, 99]
+    },
+    {
+      "area": "sites",
+      "name": "Stockton4",
+      "category": "Data",
+      "parentKpi": "Accessibility",
+      "dailyAverage": 99,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 97,
+          "green": 99
+        },
+      "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
+    },
+    {
+      "area": "sites",
+      "name": "Stockton5",
+      "category": "Data",
+      "parentKpi": "Accessibility",
+      "dailyAverage": 97,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 97,
+          "green": 99
+        },
+      "data": [99, 90, 96, 99, 98, 96, 99, 100, 97, 98, 96, 95]
+    },
+    {
+      "area": "sites",
+      "name": "Stockton6",
+      "category": "Data",
+      "parentKpi": "Accessibility",
+      "dailyAverage": 99,
+      "unit": "%",
+      "threshold":
+        {
+          "red": 97,
+          "green": 99
+        },
+      "data": [100, 99, 97, 99, 98, 100, 99, 100, 100, 99, 97, 99]
+    }
+  ]
+}

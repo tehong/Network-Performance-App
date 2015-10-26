@@ -10,17 +10,17 @@ var {
   StyleSheet,
 } = React;
 
-var AccNavTitle = React.createClass({
+var DltNavTitle = React.createClass({
   render() {
     var styles = getNavBarStyles();
     return (
         // <Image underlayColor="transparent" source={{uri: 'Logo_ATT', isStatic: true}} />
         <View style={styles.container}>
-          <Text style={styles.title}>Accessibility </Text>
+          <Text style={styles.title}>DL Throughput </Text>
           <Text style={styles.icon}>{Moment().format("YYYY-MM-DD")}</Text>
         </View>
     );
   }
 });
 
-module.exports = AccNavTitle;
+module.exports = DltNavTitle;

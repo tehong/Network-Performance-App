@@ -14,7 +14,7 @@ var {
 var TimerMixin = require('react-timer-mixin');
 
 var PerformanceCell = require('./PerformanceCell');
-var ZoneScreen = require('./ZoneScreen');
+var SharedScreen = require('./SharedScreen');
 var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoATT = require('./components/icons/LogoATT');
@@ -48,7 +48,7 @@ var resultsCache = {
 
 var LOADING = {};
 
-var MarketScreen = React.createClass({
+var SiteScreen = React.createClass({
 
   mixins: [TimerMixin],
 
@@ -70,7 +70,26 @@ var MarketScreen = React.createClass({
   },
 
   componentDidMount: function() {
-    this.getMarkets('');
+    var parentKpi = this.props.parentKpi;
+    var query = parentKpi;
+    switch(parentKpi) {
+      case "Accessibility":
+        break;
+      case "Availability":
+        break;
+      case "Retainability":
+        break;
+      case "Throughput":
+        if (this.props.category === "Downlink") {
+          var query = "DlThroughput";
+        } else {
+          var query = "UlThroughput";
+        }
+        break;
+      case "Mobility":
+        break;
+    }
+    this.getMarkets(query);
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
@@ -88,11 +107,30 @@ var MarketScreen = React.createClass({
     }
   },
   fetchData: function(query, queryString) {
-    var markets = require('../simulatedData/markets.json');
-    if (markets) {
+    switch(query.toLowerCase()) {
+      case "accessibility":
+        var sites = require('../simulatedData/SitesAccessibility.json');
+        break;
+      case "availability":
+        var Sites = require('../simulatedData/SitesAvailability.json');
+        break;
+      case "retainability":
+        var sites = require('../simulatedData/SitesRetainability.json');
+        break;
+      case "dlthroughput":
+        var sites = require('../simulatedData/SitesDlThroughput.json');
+        break;
+      case "ulthroughput":
+        var sites = require('../simulatedData/SitesUlThroughput.json');
+        break;
+      case "mobility":
+        var sites = require('../simulatedData/SitesMobility.json');
+        break;
+    }
+    if (sites) {
         LOADING[query] = false;
-        resultsCache.totalForQuery[query] = markets.result.length;
-        resultsCache.dataForQuery[query] = markets.result;
+        resultsCache.totalForQuery[query] = sites.result.length;
+        resultsCache.dataForQuery[query] = sites.result;
         // resultsCache.nextPageNumberForQuery[query] = 2;
 
         if (this.state.filter !== query) {
@@ -103,7 +141,7 @@ var MarketScreen = React.createClass({
         this.setState({
           isLoading: false,
           // dataSource: this.getDataSource(responseData.movies),
-          dataSource: this.getDataSource(markets.result),
+          dataSource: this.getDataSource(sites.result),
         });
     } else {
         LOADING[query] = false;
@@ -149,7 +187,11 @@ var MarketScreen = React.createClass({
   getMarkets: function(query: string) {
     this.timeoutID = null;
 
-    this.setState({filter: query});
+    // NOTE: Since we are not really query via HTTP but directly via simulatedData files
+    //       and there is no UI refresh, we update the state.filter directly for now
+    //       THIS IS AN ABNORMAL USAGE!
+    this.state.filter = query;
+    // this.setState({filter: query});
 
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
     if (cachedResultsForQuery) {
@@ -275,18 +317,15 @@ var MarketScreen = React.createClass({
         var titleComponent = MobNavTitle;
         break;
     }
-
     if (Platform.OS === 'ios') {
-
       this.props.toRoute({
         titleComponent: titleComponent,
         leftCorner: BackButton,
         rightCorner: LogoATT,
-        component: ZoneScreen,
-        headerStyle: styles.header,
+        component: SharedScreen,
         passProps: {
-          category: market.category,
-          parentKpi: market.parentKpi,
+          title: market.title,
+          market: market,
         }
       });
     } else {
@@ -436,10 +475,7 @@ var styles = StyleSheet.create({
   rowSeparatorHide: {
     opacity: 0.0,
   },
-  header: {
-    backgroundColor: "#1C75BC",
-  },
 });
 
-module.exports = MarketScreen;
+module.exports = SiteScreen;
 //

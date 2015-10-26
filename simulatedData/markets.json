@@ -2,7 +2,8 @@
   "result":
   [
     {
-      "market": "Central Valley",
+      "area": "market",
+      "name": "Central Valley",
       "category": "Data",
       "parentKpi": "Accessibility",
       "dailyAverage": 97,
@@ -15,7 +16,8 @@
       "data": [99, 96, 99, 97, 96, 96, 99, 100, 97, 96, 100, 99]
     },
     {
-      "market": "Central Valley",
+      "area": "market",
+      "name": "Central Valley",
       "category": "Data",
       "parentKpi": "Retainability",
       "dailyAverage": 99,
@@ -28,7 +30,8 @@
       "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
     },
     {
-      "market": "Central Valley",
+      "area": "market",
+      "name": "Central Valley",
       "category": "Downlink",
       "parentKpi": "Throughput",
       "dailyAverage": 3.1,
@@ -41,7 +44,8 @@
       "data": [2.1, 1.2, 3.3, 3.5, 2.7, 1.3, 4.2, 1.6, 2.7, 3.8, 2.7, 2.9]
     },
     {
-      "market": "Central Valley",
+      "area": "market",
+      "name": "Central Valley",
       "category": "Uplink",
       "parentKpi": "Throughput",
       "dailyAverage": 1.1,

@@ -1,0 +1,61 @@
+{
+  "result":
+  [
+    {
+      "area": "zones",
+      "name": "Stockton",
+      "category": "Uplink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 0.5,
+      "unit": "Mbps",
+      "threshold":
+        {
+          "red": 0.2,
+          "green": 0.5
+        },
+      "data": [0.5, 0.2, 0.3, 0.5, 0.7, 0.4, 0.2, 0.6, 0.7, 0.2, 0.7, 0.6]
+    },
+    {
+      "area": "zones",
+      "name": "Modesto",
+      "category": "Uplink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 0.3,
+      "unit": "Mbps",
+      "threshold":
+        {
+          "red": 0.2,
+          "green": 0.5
+        },
+      "data": [0.1, 0.4, 0.3, 0.5, 0.7, 0.3, 0.2, 0.2, 0.7, 0.4, 0.3, 0.2]
+    },
+    {
+      "area": "zones",
+      "name": "Sacramento",
+      "category": "Uplink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 0.9,
+      "unit": "Mbps",
+      "threshold":
+        {
+          "red": 0.2,
+          "green": 0.5
+        },
+      "data": [1.1, 0.2, 1.3, 0.5, 0.7, 1.3, 1.2, 0.6, 0.7, 0.8, 1.7, 0.9]
+    },
+    {
+      "area": "zones",
+      "name": "Others",
+      "category": "Uplink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 0.4,
+      "unit": "Mbps",
+      "threshold":
+        {
+          "red": 0.2,
+          "green": 0.5
+        },
+      "data": [0.5, 0.2, 0.3, 0.5, 0.7, 0.3, 0.2, 0.6, 0.2, 0.3, 0.6, 0.4]
+    }
+  ]
+}
