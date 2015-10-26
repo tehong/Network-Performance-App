@@ -256,6 +256,7 @@ var ZoneScreen = React.createClass({
         leftCorner: BackButton,
         rightCorner: LogoATT,
         component: SiteScreen,
+        headerStyle: styles.header,
         passProps: {
           category: market.category,
           parentKpi: market.parentKpi,
@@ -407,6 +408,9 @@ var styles = StyleSheet.create({
   },
   rowSeparatorHide: {
     opacity: 0.0,
+  },
+  header: {
+    backgroundColor: "#1C75BC",
   },
 });
 
