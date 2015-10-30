@@ -2,7 +2,7 @@
 
 var React = require('react-native');
 var Moment = require('moment');
-var getNavBarStyles = require('./getNavBarStyles');
+var getNavBarStyles = require('../../styles/getNavBarStyles');
 
 var {
   View,

@@ -24,6 +24,8 @@ var RetNavTitle = require('./components/icons/RetNavTitle');
 var DltNavTitle = require('./components/icons/DltNavTitle');
 var UltNavTitle = require('./components/icons/UltNavTitle');
 var MobNavTitle = require('./components/icons/MobNavTitle');
+var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
+
 
 /**
  * This is for demo purposes only, and rate limited.
@@ -152,37 +154,6 @@ var ZoneScreen = React.createClass({
           isLoading: false,
         });
     }
-    /*
-    fetch(queryString)
-      .then((response) => response.json())
-      .catch((error) => {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = undefined;
-
-        this.setState({
-          dataSource: this.getDataSource([]),
-          isLoading: false,
-        });
-      })
-      .then((responseData) => {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = responseData.total;
-        resultsCache.dataForQuery[query] = responseData.movies;
-        resultsCache.nextPageNumberForQuery[query] = 2;
-
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
-        }
-        console.log(responseData);
-
-        this.setState({
-          isLoading: false,
-          dataSource: this.getDataSource(responseData.movies),
-        });
-      })
-      .done();
-      */
   },
   getMarkets: function(query: string) {
     this.timeoutID = null;
@@ -283,17 +254,6 @@ var ZoneScreen = React.createClass({
     // if (!this.hasMore() || !this.state.isLoadingTail) {
       return <View style={styles.scrollSpinner} />;
     // }
-    /*
-    if (Platform.OS === 'ios') {
-      return <ActivityIndicatorIOS style={styles.scrollSpinner} />;
-    } else {
-      return (
-        <View  style={{alignItems: 'center'}}>
-          <ProgressBarAndroid styleAttr="Large"/>
-        </View>
-      );
-    }
-    */
   },
 
   renderSeparator: function(
@@ -382,37 +342,6 @@ var NoMarkets = React.createClass({
   }
 });
 
-var styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  centerText: {
-    alignItems: 'center',
-  },
-  noMoviesText: {
-    marginTop: 80,
-    color: '#888888',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#eeeeee',
-  },
-  scrollSpinner: {
-    marginVertical: 20,
-  },
-  rowSeparator: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    height: 1,
-    marginLeft: 4,
-  },
-  rowSeparatorHide: {
-    opacity: 0.0,
-  },
-  header: {
-    backgroundColor: "#1C75BC",
-  },
-});
-
+var styles = getAreaScreenStyles();
 module.exports = ZoneScreen;
 //

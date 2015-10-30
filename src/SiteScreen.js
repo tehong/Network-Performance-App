@@ -24,6 +24,7 @@ var RetNavTitle = require('./components/icons/RetNavTitle');
 var DltNavTitle = require('./components/icons/DltNavTitle');
 var UltNavTitle = require('./components/icons/UltNavTitle');
 var MobNavTitle = require('./components/icons/MobNavTitle');
+var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 
 /**
  * This is for demo purposes only, and rate limited.
@@ -152,37 +153,6 @@ var SiteScreen = React.createClass({
           isLoading: false,
         });
     }
-    /*
-    fetch(queryString)
-      .then((response) => response.json())
-      .catch((error) => {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = undefined;
-
-        this.setState({
-          dataSource: this.getDataSource([]),
-          isLoading: false,
-        });
-      })
-      .then((responseData) => {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = responseData.total;
-        resultsCache.dataForQuery[query] = responseData.movies;
-        resultsCache.nextPageNumberForQuery[query] = 2;
-
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
-        }
-        console.log(responseData);
-
-        this.setState({
-          isLoading: false,
-          dataSource: this.getDataSource(responseData.movies),
-        });
-      })
-      .done();
-      */
   },
   getMarkets: function(query: string) {
     this.timeoutID = null;
@@ -219,75 +189,7 @@ var SiteScreen = React.createClass({
     this.fetchData(query, queryString);
   },
 
-  /*
-  hasMore: function(): boolean {
-    var query = this.state.filter;
-    if (!resultsCache.dataForQuery[query]) {
-      return true;
-    }
-    return (
-      resultsCache.totalForQuery[query] !==
-      resultsCache.dataForQuery[query].length
-    );
-  },
-  */
-
   onEndReached: function() {
-  /*
-    var query = this.state.filter;
-    if (!this.hasMore() || this.state.isLoadingTail) {
-      // We're already fetching or have all the elements so noop
-      return;
-    }
-
-    if (LOADING[query]) {
-      return;
-    }
-
-    LOADING[query] = true;
-    this.setState({
-      queryNumber: this.state.queryNumber + 1,
-      isLoadingTail: true,
-    });
-
-    var page = resultsCache.nextPageNumberForQuery[query];
-    invariant(page != null, 'Next page number for "%s" is missing', query);
-    fetch(this._urlForQueryAndPage(query, page))
-      .then((response) => response.json())
-      .catch((error) => {
-        console.error(error);
-        LOADING[query] = false;
-        this.setState({
-          isLoadingTail: false,
-        });
-      })
-      .then((responseData) => {
-        var marketsForQuery = resultsCache.dataForQuery[query].slice();
-
-        LOADING[query] = false;
-        // We reached the end of the list before the expected number of results
-        if (!responseData.markets) {
-          resultsCache.totalForQuery[query] = marketsForQuery.length;
-        } else {
-          for (var i in responseData.markets) {
-            marketsForQuery.push(responseData.markets[i]);
-          }
-          resultsCache.dataForQuery[query] = marketsForQuery;
-          resultsCache.nextPageNumberForQuery[query] += 1;
-        }
-
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
-        }
-
-        this.setState({
-          isLoadingTail: false,
-          dataSource: this.getDataSource(resultsCache.dataForQuery[query]),
-        });
-      })
-      .done();
-  */
   },
 
   getDataSource: function(markets: Array<any>): ListView.DataSource {
@@ -447,35 +349,7 @@ var NoMarkets = React.createClass({
     );
   }
 });
-
-var styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  centerText: {
-    alignItems: 'center',
-  },
-  noMoviesText: {
-    marginTop: 80,
-    color: '#888888',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#eeeeee',
-  },
-  scrollSpinner: {
-    marginVertical: 20,
-  },
-  rowSeparator: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    height: 1,
-    marginLeft: 4,
-  },
-  rowSeparatorHide: {
-    opacity: 0.0,
-  },
-});
+var styles = getAreaScreenStyles();
 
 module.exports = SiteScreen;
 //

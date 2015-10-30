@@ -26,7 +26,7 @@ var {
 } = React;
 
 var getImageSource = require('./getImageSource');
-var getStyleFromScore = require('./getStyleFromScore');
+var getStyleFromScore = require('./styles/getStyleFromScore');
 var getTextFromScore = require('./getTextFromScore');
 
 var SharedScreen = React.createClass({

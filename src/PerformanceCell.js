@@ -27,11 +27,11 @@ var {
   View
 } = React;
 
-var getStyleFromScore = require('./getStyleFromScore');
 var getImageSource = require('./getImageSource');
 var getTextFromScore = require('./getTextFromScore');
 var getImageFromAverage = require('./getImageFromAverage');
 var getImageFromParentKPI = require('./getImageFromParentKPI');
+var GraphHostingView = require('./GraphHostingView');
 
 var PerformanceCell = React.createClass({
   render: function() {
@@ -101,7 +101,9 @@ var PerformanceCell = React.createClass({
     return(
       <View style={styles.chartContainer}>
         <View style={styles.chart}>
-          <Image style={styles.chartImage} source={{uri: "BG_Chart_Bands", isStatic: true}}/>
+          <Image style={styles.chartImage} source={{uri: "BG_Chart_Bands", isStatic: true}}>
+            <GraphHostingView style={styles.hostView} />
+          </Image>
           <View style={styles.chartSpace}></View>
         </View>
         <View style={styles.threshold}>
@@ -231,14 +233,23 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   threshold: {
-    flex: 9,
+    flex: 10,
     flexDirection: "row",
     // borderColor: "white",
     // borderWidth: 2,
   },
   chartImage: {
-    flex: 11,
+    flex: 29,
     // borderColor: "blue",
+    // borderWidth: 2,
+  },
+  hostView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "stretch",
+    // height: 100,
+    // width: 100,
+    // borderColor: "red",
     // borderWidth: 2,
   },
   chartSpace: {

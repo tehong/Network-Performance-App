@@ -27,35 +27,6 @@ var PerfNavTitle = require('./components/icons/PerfNavTitle');
 var Login = require('./components/icons/Login');
 var LogoATT = require('./components/icons/LogoATT');
 
-/*
-var NavigationBarRouteMapper = {
-
-  LeftButton: function(route, navigator, index, navState) {
-    var previousRoute = navState.routeStack[index - 1];
-    return (
-      <TouchableOpacity
-        onPress={() => navigator.pop()}
-        style={styles.navBarLeftButton}>
-        <Image source={{uri: 'BTN_Back', isStatic: true}} />
-      </TouchableOpacity>
-    );
-  },
-
-  RightButton: function(route, navigator, index, navState) {
-    return (
-      <Image source={{uri: 'Logo_ATT', isStatic: true}} />
-    );
-  },
-
-  Title: function(route, navigator, index, navState) {
-    return (
-      <Text>Performance</Text>
-    );
-  },
-
-};
-*/
-
 var LoginScreen = React.createClass({
 
   // run by one time when a component is created
@@ -93,27 +64,6 @@ var LoginScreen = React.createClass({
     this.setState({memoryWarnings: this.state.memoryWarnings + 1})
     this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
   },
-  /*
-          <Text style={styles.welcome}>
-            Welcome to React Native!
-          </Text>
-          <Text style={styles.instructions}>
-            To get started, edit index.ios.js
-          </Text>
-          <Text style={styles.instructions}>
-            Press Cmd+R to reload,{'\n'}
-            Cmd+D or shake for dev menu
-          </Text>
-          <Image style={styles.icon} source={{uri: 'http://facebook.github.io/react/img/logo_og.png'}}
-          <Image style={styles.backgroundImage} source={require('image!BG_Blue_Gradient')}>
-            <View style={styles.inputContainer}>
-              <Image style={styles.logo} source={require('image!Logo_Mi_KPI')}/>
-          <Image style={styles.backgroundImage} source={require('image!BG_Blue_Gradient')}/>
-            </View>
-          </Image>
-        <View style={styles.container}>
-        </View>
-          */
   render: function() {
     var TouchableElement = TouchableHighlight;  // for iOS or Android variation
     // NOTE: Can't use "require()" for background image to stretch it, need to use uri mothod!

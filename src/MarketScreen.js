@@ -24,6 +24,7 @@ var RetNavTitle = require('./components/icons/RetNavTitle');
 var DltNavTitle = require('./components/icons/DltNavTitle');
 var UltNavTitle = require('./components/icons/UltNavTitle');
 var MobNavTitle = require('./components/icons/MobNavTitle');
+var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 
 /**
  * This is for demo purposes only, and rate limited.
@@ -408,38 +409,7 @@ var NoMarkets = React.createClass({
     );
   }
 });
-
-var styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  centerText: {
-    alignItems: 'center',
-  },
-  noMoviesText: {
-    marginTop: 80,
-    color: '#888888',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#eeeeee',
-  },
-  scrollSpinner: {
-    marginVertical: 20,
-  },
-  rowSeparator: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    height: 1,
-    marginLeft: 4,
-  },
-  rowSeparatorHide: {
-    opacity: 0.0,
-  },
-  header: {
-    backgroundColor: "#1C75BC",
-  },
-});
+var styles = getAreaScreenStyles();
 
 module.exports = MarketScreen;
 //

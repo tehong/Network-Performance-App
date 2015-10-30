@@ -2,7 +2,7 @@
 
 var React = require('react-native');
 var Moment = require('moment');
-var getNavBarStyles = require('./getNavBarStyles');
+var getNavBarStyles = require('../../styles/getNavBarStyles');
 
 var {
   View,
@@ -16,7 +16,7 @@ var PerfNavTitle = React.createClass({
     return (
         // <Image underlayColor="transparent" source={{uri: 'Logo_ATT', isStatic: true}} />
         <View style={styles.container}>
-          <Text style={styles.title}>Performance </Text>
+          <Text style={styles.title}>Area Performance </Text>
           <Text style={styles.icon}>{Moment().format("YYYY-MM-DD")}</Text>
         </View>
     );
