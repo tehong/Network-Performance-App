@@ -5,7 +5,7 @@
       "area": "zones",
       "name": "Stockton",
       "category": "Data",
-      "parentKpi": "Accessibility",
+      "parentKpi": "Availability",
       "dailyAverage": 97,
       "unit": "%",
       "thresholds":
@@ -33,7 +33,7 @@
       "area": "zones",
       "name": "Modesto",
       "category": "Data",
-      "parentKpi": "Accessibility",
+      "parentKpi": "Availability",
       "dailyAverage": 96,
       "unit": "%",
       "thresholds":
@@ -61,7 +61,7 @@
       "area": "zones",
       "name": "Sacramento",
       "category": "Downlink",
-      "parentKpi": "Accessibility",
+      "parentKpi": "Availability",
       "dailyAverage": 98,
       "unit": "%",
       "thresholds":
@@ -89,7 +89,7 @@
       "area": "zones",
       "name": "Others",
       "category": "Uplink",
-      "parentKpi": "Accessibility",
+      "parentKpi": "Availability",
       "dailyAverage": 99,
       "unit": "%",
       "thresholds":

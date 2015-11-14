@@ -1,30 +1,40 @@
 //
-//  SparklinePlotManager.swift
-//  RNiOSCorePlotExample
+//  SparklineView.swift
+//  MiKPI
 //
-//  Created by Eric Hong on 10/29/15.
+//  Created by Eric Hong on 11/9/15.
 //  Copyright © 2015 Facebook. All rights reserved.
 //
 
 import UIKit
 import CorePlot
 
+class SparklineView: UIView {
 
+  // let dataDictionary = ["0":96, "1":97, "2":99, "3":100, "4":95, "5":97, "6":99, "7":94, "8":90, "9":100, "10":80, "11":99, "12":97]
 
-@objc(SparklinePlotViewManager)
-class SparklinePlotViewManager: RCTViewManager {
-
-  // RCT_EXPORT_MODULE()
+  var _threshold:Float = 0.0
+  var _isPlot:Bool = false
+  var _dataArray = [(String, Int)]()
+    /*
+    // Only override drawRect: if you perform custom drawing.
+    // An empty implementation adversely affects performance during animation.
+    override func drawRect(rect: CGRect) {
+        // Drawing code
+    }
+    */
+  func setRedThreshold(value:Float) {
+    _threshold = value
+  }
   
-  let dataArray = [("1", 96), ("2", 97), ("3",99), ("4",100), ("5",95), ("6", 97), ("7", 99), ("8", 94), ("9", 90), ("10", 100), ("11", 80), ("12", 99), ("13", 97)]
-  
-  @objc override func view() -> UIView
-  {
-    let viewContainter:UIView = UIView()
+  // !!! Encountered "unrecognized selector sent to instance" error due to that RN Obj-c code expects NSArray but Swift is only NSArray, thus using
+  //    Obj-c code instead
+  func setDataArray(dataArray: [[AnyObject]]) {
+    print(dataArray)
     let sparklineView: CPTGraphHostingView = CPTGraphHostingView()
     let sparklineController:SparklineViewController = SparklineViewController()
-
-    viewContainter.userInteractionEnabled = false;
+    
+    self.userInteractionEnabled = false;
     sparklineView.userInteractionEnabled = false;
     
     // let viewController: ViewController = ViewController();
@@ -36,32 +46,31 @@ class SparklinePlotViewManager: RCTViewManager {
     
     // sparklineView.backgroundColor = UIColor.redColor()
     
-    viewContainter.addSubview(sparklineView);
-
+    self.addSubview(sparklineView);
+    
     
     /*
     // make dictionary for views
     let viewsDictionary = ["sparklineView":sparklineView]
     
     let view1_constraint_H = NSLayoutConstraint.constraintsWithVisualFormat(
-      "H:[sparklineView(>=350)]",
-      options: NSLayoutFormatOptions(rawValue: 0),
-      metrics: nil, views: viewsDictionary)
+    "H:[sparklineView(>=350)]",
+    options: NSLayoutFormatOptions(rawValue: 0),
+    metrics: nil, views: viewsDictionary)
     let view1_constraint_V = NSLayoutConstraint.constraintsWithVisualFormat(
-      "V:[sparklineView(>=500)]",
-      options: NSLayoutFormatOptions(rawValue:0),
-      metrics: nil, views: viewsDictionary)
+    "V:[sparklineView(>=500)]",
+    options: NSLayoutFormatOptions(rawValue:0),
+    metrics: nil, views: viewsDictionary)
     
     sparklineView.addConstraints(view1_constraint_H)
     sparklineView.addConstraints(view1_constraint_V)
     */
     
-    
     // Now make the sparklineView stretch to the viewContainer
     let leftConstraint = NSLayoutConstraint(item:sparklineView,
       attribute:NSLayoutAttribute.Left,
       relatedBy:NSLayoutRelation.Equal,
-      toItem:viewContainter,
+      toItem:self,
       attribute:NSLayoutAttribute.Left,
       multiplier:1.0,
       constant:0)
@@ -69,7 +78,7 @@ class SparklinePlotViewManager: RCTViewManager {
     let topConstraint = NSLayoutConstraint(item:sparklineView,
       attribute:NSLayoutAttribute.Top,
       relatedBy:NSLayoutRelation.Equal,
-      toItem:viewContainter,
+      toItem:self,
       attribute:NSLayoutAttribute.Top,
       multiplier:1.0,
       constant:0)
@@ -77,7 +86,7 @@ class SparklinePlotViewManager: RCTViewManager {
     let rightConstraint = NSLayoutConstraint(item:sparklineView,
       attribute:NSLayoutAttribute.Right,
       relatedBy:NSLayoutRelation.Equal,
-      toItem:viewContainter,
+      toItem:self,
       attribute:NSLayoutAttribute.Right,
       multiplier:1.0,
       constant:0)
@@ -85,21 +94,23 @@ class SparklinePlotViewManager: RCTViewManager {
     let bottomConstraint = NSLayoutConstraint(item:sparklineView,
       attribute:NSLayoutAttribute.Bottom,
       relatedBy:NSLayoutRelation.Equal,
-      toItem:viewContainter,
+      toItem:self,
       attribute:NSLayoutAttribute.Bottom,
       multiplier:1.0,
       constant:0)
-        
+    
     // IMPORTANT - always add contraints to the top view or the referenced view not the new view!
-    viewContainter.addConstraint(leftConstraint)
-    viewContainter.addConstraint(topConstraint)
-    viewContainter.addConstraint(rightConstraint)
-    viewContainter.addConstraint(bottomConstraint)
-
-
+    self.addConstraint(leftConstraint)
+    self.addConstraint(topConstraint)
+    self.addConstraint(rightConstraint)
+    self.addConstraint(bottomConstraint)
+    
     sparklineController.plot(dataArray, graphView: sparklineView)
 
+  }
+  
+  func setPlot(value:Bool) {
+    _isPlot = value
     
-    return viewContainter;
   }
 }

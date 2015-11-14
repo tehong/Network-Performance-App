@@ -87,7 +87,7 @@ var LoginScreen = React.createClass({
                   value={this.state.password}
                   placeholder=' PASSWORD'
                   placeholderTextColor='grey'
-                  secureTextEntry="true"
+                  secureTextEntry={true}
                 />
               </View>
               <View style={styles.loginButtonContainer}>
@@ -225,7 +225,7 @@ var styles = StyleSheet.create({
   },
   loginText: {
     flex: 1,
-    textAlign: 'left',
+    alignItems: 'stretch',
     marginTop: 5,
     padding: 2,
     backgroundColor: '#105D95',
@@ -249,7 +249,7 @@ var styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    textAlign: 'center',
+    alignItems: 'center',
     color: '#ffffff',
     // marginBottom: 8,
     borderWidth: 2,

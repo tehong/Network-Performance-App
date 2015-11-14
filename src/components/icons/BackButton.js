@@ -23,7 +23,7 @@ var BackButton = React.createClass({
     return (
       <TouchableHighlight  underlayColor="transparent" onPress={this.backToPrevious}>
         <Image style={styles.icon} underlayColor="transparent"
-          source={require('image!BTN_Back')}
+          source={{uri: "BTN_Back", isStatic: true}}
         />
       </TouchableHighlight>
     );
@@ -35,7 +35,7 @@ var styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginTop: 5,
-    marginLeft: 10 
+    marginLeft: 10
   }
 });
 

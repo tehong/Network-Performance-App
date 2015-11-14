@@ -8,7 +8,7 @@
       "parentKpi": "Availability",
       "dailyAverage": 97,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 97,
           "green": 99
@@ -22,7 +22,7 @@
       "parentKpi": "Availability",
       "dailyAverage": 96,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 97,
           "green": 99
@@ -36,7 +36,7 @@
       "parentKpi": "Availability",
       "dailyAverage": 98,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 97,
           "green": 99
@@ -50,7 +50,7 @@
       "parentKpi": "Availability",
       "dailyAverage": 99,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 97,
           "green": 99
@@ -64,7 +64,7 @@
       "parentKpi": "Availability",
       "dailyAverage": 97,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 97,
           "green": 99
@@ -78,7 +78,7 @@
       "parentKpi": "Availability",
       "dailyAverage": 99,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 97,
           "green": 99

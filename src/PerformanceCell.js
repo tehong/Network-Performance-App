@@ -32,12 +32,13 @@ var getTextFromScore = require('./getTextFromScore');
 var getImageFromAverage = require('./getImageFromAverage');
 var getImageFromParentKPI = require('./getImageFromParentKPI');
 var GraphHostingView = require('./GraphHostingView');
+var threshold = "99.0"
 
 var PerformanceCell = React.createClass({
   render: function() {
     var dailyAverage = this.props.market.dailyAverage;
-    var redThreshold = this.props.market.threshold.red;
-    var greenThreshold = this.props.market.threshold.green;
+    var redThreshold = this.props.market.thresholds.red;
+    var greenThreshold = this.props.market.thresholds.green;
     var TouchableElement = TouchableHighlight;
     if (Platform.OS === 'android') {
       TouchableElement = TouchableNativeFeedback;
@@ -98,11 +99,26 @@ var PerformanceCell = React.createClass({
     );
   },
   chartView: function() {
+    var parentKpi = this.props.market.parentKpi;
+    var redThreshold = this.props.market.thresholds.red;
+    var greenThreshold = this.props.market.thresholds.green;
+    var yellowLowThreshold = redThreshold + 1;
+    var yellowHighThreshold = greenThreshold;
+    var unit = this.props.market.unit;
+    var data = this.props.market.data;
+    if (parentKpi.toLowerCase() == "throughput") {
+      yellowLowThreshold = redThreshold;
+    }
     return(
       <View style={styles.chartContainer}>
         <View style={styles.chart}>
           <Image style={styles.chartImage} source={{uri: "BG_Chart_Bands", isStatic: true}}>
-            <GraphHostingView style={styles.hostView} />
+            <GraphHostingView
+              plot={true}
+              redThreshold={redThreshold}
+              dataArray={data}
+              style={styles.hostView}
+            />
           </Image>
           <View style={styles.chartSpace}></View>
         </View>
@@ -110,15 +126,15 @@ var PerformanceCell = React.createClass({
           <View style={styles.thresholdValue}>
             <View style={styles.ttContainer}>
               <Text style={styles.tt}>GREEN</Text>
-              <Text style={styles.tv}>&gt;99%</Text>
+              <Text style={styles.tv}>&gt;{greenThreshold}{unit}</Text>
             </View>
-            <View style={styles.ttContainer}>
+            <View style={styles.tyContainer}>
               <Text style={styles.tt}>YELLOW</Text>
-              <Text style={styles.tv}>98-99%</Text>
+              <Text style={styles.tv}>{yellowLowThreshold}-{yellowHighThreshold}{unit}</Text>
             </View>
             <View style={styles.ttContainer}>
               <Text style={styles.tt}>RED</Text>
-              <Text style={styles.tv}>&lt;97%</Text>
+              <Text style={styles.tv}>&lt;{redThreshold}{unit}</Text>
             </View>
           </View>
           <View style={styles.thresholdSpace}>
@@ -271,8 +287,15 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   ttContainer: {
+    flex: 17,
     alignItems: "flex-start",
-    // borderColor: "red",
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
+  tyContainer: {
+    flex: 20,
+    alignItems: "flex-start",
+    // borderColor: "yellow",
     // borderWidth: 1,
   },
   tt: {
@@ -282,7 +305,7 @@ var styles = StyleSheet.create({
   },
   tv: {
     color: "white",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
   },
 });

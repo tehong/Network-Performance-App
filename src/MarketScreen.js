@@ -25,6 +25,7 @@ var DltNavTitle = require('./components/icons/DltNavTitle');
 var UltNavTitle = require('./components/icons/UltNavTitle');
 var MobNavTitle = require('./components/icons/MobNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
+var getSortedDataArray = require('./getSortedDataArray');
 
 /**
  * This is for demo purposes only, and rate limited.
@@ -89,7 +90,7 @@ var MarketScreen = React.createClass({
     }
   },
   fetchData: function(query, queryString) {
-    var markets = require('../simulatedData/markets.json');
+    var markets = require('../simulatedData/Markets.json');
     if (markets) {
         LOADING[query] = false;
         resultsCache.totalForQuery[query] = markets.result.length;
@@ -250,7 +251,9 @@ var MarketScreen = React.createClass({
   },
 
   getDataSource: function(markets: Array<any>): ListView.DataSource {
-    return this.state.dataSource.cloneWithRows(markets);
+    // Sort by red then yellow then green backgroundImage
+    var sortedMarkets = getSortedDataArray(markets);
+    return this.state.dataSource.cloneWithRows(sortedMarkets);
   },
 
   selectMarket: function(market: Object) {

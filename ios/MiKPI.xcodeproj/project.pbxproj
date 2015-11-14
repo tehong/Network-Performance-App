@@ -16,9 +16,10 @@
 		00E356F31AD99517003FC87E /* MiKPITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* MiKPITests.m */; };
 		071A60EC1BDC80CC00F339E9 /* RNMixpanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 071A60EB1BDC80CC00F339E9 /* RNMixpanel.m */; };
 		071A60F81BDC811F00F339E9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 071A60F71BDC811F00F339E9 /* LaunchScreen.xib */; };
-		076ADF4F1BE308C300C5C29F /* SparklinePlotViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076ADF4B1BE308C300C5C29F /* SparklinePlotViewManager.swift */; };
+		0733B3951BF49C3B0017D245 /* SparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0733B3941BF49C3B0017D245 /* SparklineView.swift */; };
+		076ADF4F1BE308C300C5C29F /* SparklineViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076ADF4B1BE308C300C5C29F /* SparklineViewManager.swift */; };
 		076ADF501BE308C300C5C29F /* SparklineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076ADF4C1BE308C300C5C29F /* SparklineViewController.swift */; };
-		076ADF511BE308C300C5C29F /* MiKPI-Bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 076ADF4D1BE308C300C5C29F /* MiKPI-Bridge.m */; };
+		076ADF511BE308C300C5C29F /* RN_SparklineViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 076ADF4D1BE308C300C5C29F /* RN_SparklineViewManager.m */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
 		139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139FDEF41B06529B00C62182 /* libRCTWebSocket.a */; };
@@ -123,10 +124,11 @@
 		071A60EA1BDC80CC00F339E9 /* RNMixpanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNMixpanel.h; sourceTree = "<group>"; };
 		071A60EB1BDC80CC00F339E9 /* RNMixpanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNMixpanel.m; sourceTree = "<group>"; };
 		071A60F71BDC811F00F339E9 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
+		0733B3941BF49C3B0017D245 /* SparklineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SparklineView.swift; sourceTree = "<group>"; };
 		076ADF401BE308C300C5C29F /* MiKPI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MiKPI-Bridging-Header.h"; sourceTree = "<group>"; };
-		076ADF4B1BE308C300C5C29F /* SparklinePlotViewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SparklinePlotViewManager.swift; sourceTree = "<group>"; };
+		076ADF4B1BE308C300C5C29F /* SparklineViewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SparklineViewManager.swift; sourceTree = "<group>"; };
 		076ADF4C1BE308C300C5C29F /* SparklineViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SparklineViewController.swift; sourceTree = "<group>"; };
-		076ADF4D1BE308C300C5C29F /* MiKPI-Bridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MiKPI-Bridge.m"; sourceTree = "<group>"; };
+		076ADF4D1BE308C300C5C29F /* RN_SparklineViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RN_SparklineViewManager.m; sourceTree = "<group>"; };
 		139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTSettings.xcodeproj; path = "../node_modules/react-native/Libraries/Settings/RCTSettings.xcodeproj"; sourceTree = "<group>"; };
 		139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "../node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* MiKPI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiKPI.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -257,9 +259,10 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				071A60F71BDC811F00F339E9 /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				076ADF4B1BE308C300C5C29F /* SparklinePlotViewManager.swift */,
+				076ADF4D1BE308C300C5C29F /* RN_SparklineViewManager.m */,
+				0733B3941BF49C3B0017D245 /* SparklineView.swift */,
+				076ADF4B1BE308C300C5C29F /* SparklineViewManager.swift */,
 				076ADF4C1BE308C300C5C29F /* SparklineViewController.swift */,
-				076ADF4D1BE308C300C5C29F /* MiKPI-Bridge.m */,
 				076ADF401BE308C300C5C29F /* MiKPI-Bridging-Header.h */,
 			);
 			name = MiKPI;
@@ -620,10 +623,11 @@
 			files = (
 				071A60EC1BDC80CC00F339E9 /* RNMixpanel.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
-				076ADF511BE308C300C5C29F /* MiKPI-Bridge.m in Sources */,
+				0733B3951BF49C3B0017D245 /* SparklineView.swift in Sources */,
+				076ADF511BE308C300C5C29F /* RN_SparklineViewManager.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				076ADF501BE308C300C5C29F /* SparklineViewController.swift in Sources */,
-				076ADF4F1BE308C300C5C29F /* SparklinePlotViewManager.swift in Sources */,
+				076ADF4F1BE308C300C5C29F /* SparklineViewManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

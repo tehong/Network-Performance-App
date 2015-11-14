@@ -8,7 +8,7 @@
       "parentKpi": "Retainability",
       "dailyAverage": 97,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 95,
           "green": 98
@@ -22,7 +22,7 @@
       "parentKpi": "Retainability",
       "dailyAverage": 95,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 95,
           "green": 98
@@ -36,7 +36,7 @@
       "parentKpi": "Retainability",
       "dailyAverage": 98,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 95,
           "green": 98
@@ -50,7 +50,7 @@
       "parentKpi": "Retainability",
       "dailyAverage": 99,
       "unit": "%",
-      "threshold":
+      "thresholds":
         {
           "red": 95,
           "green": 98

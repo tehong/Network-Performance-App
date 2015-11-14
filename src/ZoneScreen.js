@@ -25,6 +25,7 @@ var DltNavTitle = require('./components/icons/DltNavTitle');
 var UltNavTitle = require('./components/icons/UltNavTitle');
 var MobNavTitle = require('./components/icons/MobNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
+var getSortedDataArray = require('./getSortedDataArray');
 
 
 /**
@@ -195,7 +196,8 @@ var ZoneScreen = React.createClass({
   },
 
   getDataSource: function(markets: Array<any>): ListView.DataSource {
-    return this.state.dataSource.cloneWithRows(markets);
+    var sortedMarkets = getSortedDataArray(markets);
+    return this.state.dataSource.cloneWithRows(sortedMarkets);
   },
 
   selectMarket: function(market: Object) {

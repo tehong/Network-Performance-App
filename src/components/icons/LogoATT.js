@@ -14,7 +14,7 @@ var LogoATT = React.createClass({
         <Image
           style={styles.icon}
           underlayColor="transparent"
-          source={require('image!Logo_ATT')}
+          source={{uri: "Logo_ATT", isStatic: true}}
         />
     );
   }
@@ -25,7 +25,7 @@ var styles = StyleSheet.create({
     width: 45,
     height: 20,
     marginTop: 5,
-    marginRight: 10 
+    marginRight: 10
   }
 });
 

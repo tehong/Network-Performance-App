@@ -17,7 +17,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     var graph:CPTXYGraph?
     var plotSpace:CPTXYPlotSpace?
     var dataSourceLinePlot:CPTScatterPlot?
-    var plotData = [[String:Int]]()
+    var plotData = [[String:Float]]()
     var dateArray = Dictionary<Int, String>()
     let cptPrimeColor = CPTColor(componentRed: 43/255, green: 136/255, blue: 184/255, alpha: 1)
 
@@ -57,18 +57,25 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
         return maxY
     }
     // This function transform the [(dateStr, number)] such as [("2015-09-10 13:00", 98)] to [[String:Int]] "x", "y" pairs, e.g. [[x:"2015-09-10 13:00", y:98]]
-    func generateData(dataArray:[(String, Int)]) {
+  
+    // However, the "x", "y" pairs will needed to be sorted by the precedent of the data
+  
+    func generateData(dataArray:[[AnyObject]]) {
         // data comes with the latest first so we need to set up the x number in reverse
         var i = dataArray.count - 1  // count down to 0
         for item in dataArray {
-            plotData.append(["x":i, "y":item.1])
+            let xValue = (item[0] as! NSString).floatValue
+            let yValue = (item[1] as! Float)
+            // print(xValue)
+            // print(yValue)
+            plotData.append(["x":xValue, "y":yValue])
             // let dateStr:NSString = NSString(string: item.0).substringFromIndex(5)
-            let dateStr:NSString = NSString(string: item.0).substringFromIndex(0)
+            let dateStr:NSString = NSString(string: String(xValue)).substringFromIndex(0)
 
             dateArray[i] = dateStr as String
             i--
         }
-        // print(plotData)
+        print(plotData)
         // print(dateArray)
     }
 
@@ -76,13 +83,13 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
         super.viewDidLoad()
     }
 
-    func plot(dataArray:[(String, Int)], graphView:CPTGraphHostingView)
+    func plot(dataArray:[[AnyObject]], graphView:CPTGraphHostingView)
     {
         reset()
         let bounds:CGRect = graphView.bounds
         graph!.frame = bounds
 
-        // no paddings on all sides
+        // some paddings on all sides
         graph!.paddingBottom = 5
         graph!.paddingLeft = 5
         graph!.paddingRight = 5
@@ -253,8 +260,15 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
 
         // let dataOut = index as (UnsafeMutablePointer<Int8>,Int32) // cast the C pointer to Swift pointer
         // let original:Int = idx as Int
-        let i:Int = Int(idx)
-        let num: Int = Int(plotData[i][key]!)
+        let i:Float = Float(idx)
+        var num: Float = 0.0
+        for item in plotData {
+          // make sure we get the correct x value
+          if item["x"] == i {
+            num = Float(item[key]!)
+          }
+        }
+        // let num: Int = Int(plotData[i][key]!)
         return num
 
         // return i + 1

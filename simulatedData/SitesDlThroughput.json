@@ -8,7 +8,7 @@
       "parentKpi": "Throughput",
       "dailyAverage": 1.5,
       "unit": "Mbps",
-      "threshold":
+      "thresholds":
         {
           "red": 1,
           "green": 2
@@ -22,7 +22,7 @@
       "parentKpi": "Throughput",
       "dailyAverage": 3.1,
       "unit": "Mbps",
-      "threshold":
+      "thresholds":
         {
           "red": 1,
           "green": 2
@@ -36,7 +36,7 @@
       "parentKpi": "Throughput",
       "dailyAverage": 0.9,
       "unit": "Mbps",
-      "threshold":
+      "thresholds":
         {
           "red": 1,
           "green": 2
@@ -50,7 +50,7 @@
       "parentKpi": "Throughput",
       "dailyAverage": 1.9,
       "unit": "Mbps",
-      "threshold":
+      "thresholds":
         {
           "red": 1,
           "green": 2
