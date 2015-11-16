@@ -10,12 +10,16 @@ import UIKit
 import CorePlot
 
 class SparklineView: UIView {
-
+  
+  
   // let dataDictionary = ["0":96, "1":97, "2":99, "3":100, "4":95, "5":97, "6":99, "7":94, "8":90, "9":100, "10":80, "11":99, "12":97]
 
-  var _threshold:Float = 0.0
+  var _redThreshold:Float = 0.0
   var _isPlot:Bool = false
   var _dataArray = [(String, Int)]()
+  let sparklineView: CPTGraphHostingView = CPTGraphHostingView()
+  let sparklineController:SparklineViewController = SparklineViewController()
+
     /*
     // Only override drawRect: if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.
@@ -23,16 +27,10 @@ class SparklineView: UIView {
         // Drawing code
     }
     */
-  func setRedThreshold(value:Float) {
-    _threshold = value
-  }
   
-  // !!! Encountered "unrecognized selector sent to instance" error due to that RN Obj-c code expects NSArray but Swift is only NSArray, thus using
-  //    Obj-c code instead
-  func setDataArray(dataArray: [[AnyObject]]) {
-    print(dataArray)
-    let sparklineView: CPTGraphHostingView = CPTGraphHostingView()
-    let sparklineController:SparklineViewController = SparklineViewController()
+  func setupView() {
+    // let sparklineView: CPTGraphHostingView = CPTGraphHostingView()
+    // let sparklineController:SparklineViewController = SparklineViewController()
     
     self.userInteractionEnabled = false;
     sparklineView.userInteractionEnabled = false;
@@ -104,13 +102,26 @@ class SparklineView: UIView {
     self.addConstraint(topConstraint)
     self.addConstraint(rightConstraint)
     self.addConstraint(bottomConstraint)
-    
-    sparklineController.plot(dataArray, graphView: sparklineView)
 
   }
   
-  func setPlot(value:Bool) {
-    _isPlot = value
-    
+  func setRedThreshold(value:Float) {
+    _redThreshold = value
+    if (!_isPlot) {
+      setupView()
+    }
   }
+  
+  // !!! Encountered "unrecognized selector sent to instance" error due to that RN Obj-c code expects NSArray but Swift is only NSArray, thus using
+  //    Obj-c code instead
+  func setDataArray(dataArray: [[AnyObject]]) {
+    print(dataArray)
+    
+    if(_redThreshold == 0.0) {
+      setupView()
+    }
+    sparklineController.plot(dataArray, redThreshold: _redThreshold, graphView: sparklineView)
+    _isPlot = true;
+  }
+  
 }

@@ -15,7 +15,7 @@ var GraphHostingView = React.createClass({
     * Used to style and layout the `MapView`.  See `StyleSheet.js` and
     * `ViewStylePropTypes.js` for more info.
     */
-   plot: React.PropTypes.bool,
+   // plot: React.PropTypes.bool,
    redThreshold: React.PropTypes.number,
    dataArray: React.PropTypes.arrayOf(
      React.PropTypes.arrayOf(

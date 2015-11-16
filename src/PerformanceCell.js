@@ -114,13 +114,18 @@ var PerformanceCell = React.createClass({
         <View style={styles.chart}>
           <Image style={styles.chartImage} source={{uri: "BG_Chart_Bands", isStatic: true}}>
             <GraphHostingView
-              plot={true}
+              // plot={true}
               redThreshold={redThreshold}
               dataArray={data}
               style={styles.hostView}
             />
           </Image>
-          <View style={styles.chartSpace}></View>
+          <View style={styles.chartSideContainer}>
+            <View style={styles.threshArrowContainer}>
+              <Image style={styles.threshImage} source={{uri: "Icon_Chart_Indicator", isStatic: true}}/>
+              <Text style={styles.chartThresh}>{redThreshold}{unit}</Text>
+            </View>
+          </View>
         </View>
         <View style={styles.threshold}>
           <View style={styles.thresholdValue}>
@@ -268,10 +273,34 @@ var styles = StyleSheet.create({
     // borderColor: "red",
     // borderWidth: 2,
   },
-  chartSpace: {
-    flex: 2,
+  chartSideContainer: {
+    flex: 4,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "stretch",
     // borderColor: "yellow",
     // borderWidth: 2,
+  },
+  threshArrowContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  threshImage: {
+    flex: 1,
+    height: 9,
+    marginRight: 1,
+    // borderColor: "purple",
+    // borderWidth: 1,
+  },
+  chartThresh: {
+    flex: 4,
+    fontSize: 9,
+    fontWeight: "700",
+    height: 10,
+    // borderColor: "blue",
+    // borderWidth: 1,
   },
   thresholdValue: {
     flexDirection: "row",

@@ -26,6 +26,7 @@ var MarketScreen = require('./MarketScreen');
 var PerfNavTitle = require('./components/icons/PerfNavTitle');
 var Login = require('./components/icons/Login');
 var LogoATT = require('./components/icons/LogoATT');
+var BackButton = require('./components/icons/BackButton');
 
 var LoginScreen = React.createClass({
 
@@ -122,7 +123,7 @@ var LoginScreen = React.createClass({
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         titleComponent: PerfNavTitle,
-        leftCorner: Login,
+        leftCorner: BackButton,
         rightCorner: LogoATT,
         component: MarketScreen,
         headerStyle: styles.header,
