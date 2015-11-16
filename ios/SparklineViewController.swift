@@ -248,7 +248,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     redThreshLinePlot.identifier = kRedThreshLine
     lineStyle = redThreshLinePlot.dataLineStyle!.mutableCopy() as! CPTMutableLineStyle
     lineStyle.lineWidth = 1.0
-    lineStyle.lineColor = CPTColor.blackColor()
+    lineStyle.lineColor = CPTColor(componentRed: 60/255, green: 60/255, blue: 60/255, alpha: 1)
     lineStyle.dashPattern = [4, 3]
     redThreshLinePlot.dataLineStyle = lineStyle
     redThreshLinePlot.dataSource = self

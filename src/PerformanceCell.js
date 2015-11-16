@@ -289,7 +289,7 @@ var styles = StyleSheet.create({
   },
   threshImage: {
     flex: 1,
-    height: 9,
+    height: 10,
     marginRight: 1,
     // borderColor: "purple",
     // borderWidth: 1,
@@ -298,6 +298,7 @@ var styles = StyleSheet.create({
     flex: 4,
     fontSize: 9,
     fontWeight: "700",
+    color: "#3C3C3C",
     height: 10,
     // borderColor: "blue",
     // borderWidth: 1,
