@@ -124,8 +124,11 @@ var styles = StyleSheet.create({
   },
   header: {
     // flex: 1,
-    backgroundColor: "#08426A",
-    fontSize: 7,
+    // backgroundColor: "#08426A",
+    backgroundColor: "#005A76",
+    // backgroundColor: 'rgba(0, 0, 0, 0)',
+    // backgroundColor: 'transparent',
+
   },
 });
 

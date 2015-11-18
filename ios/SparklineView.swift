@@ -14,9 +14,10 @@ class SparklineView: UIView {
   
   // let dataDictionary = ["0":96, "1":97, "2":99, "3":100, "4":95, "5":97, "6":99, "7":94, "8":90, "9":100, "10":80, "11":99, "12":97]
 
-  var _redThreshold:Float = 0.0
-  var _isPlot:Bool = false
-  var _dataArray = [(String, Int)]()
+  var _greenThreshold:Double?
+  var _yScale:[Double]?   // [0] => minimum value of y axis, [1] => y axis length
+  var _dataArray = [[AnyObject]]?()
+  
   let sparklineView: CPTGraphHostingView = CPTGraphHostingView()
   let sparklineController:SparklineViewController = SparklineViewController()
 
@@ -105,23 +106,33 @@ class SparklineView: UIView {
 
   }
   
-  func setRedThreshold(value:Float) {
-    _redThreshold = value
-    if (!_isPlot) {
-      setupView()
-    }
+  func setGreenThreshold(value:Double) {
+    _greenThreshold = value
+    plot()
   }
+  
+  func setYScale(value:[AnyObject]) {
+    let yMinValue:Double = (value[0] as! NSNumber).doubleValue
+    let yLength:Double = (value[1] as! NSNumber).doubleValue
+
+    _yScale = [yMinValue, yLength]
+    // print(_yScale!)
+    plot()
+  }
+  
   
   // !!! Encountered "unrecognized selector sent to instance" error due to that RN Obj-c code expects NSArray but Swift is only NSArray, thus using
   //    Obj-c code instead
   func setDataArray(dataArray: [[AnyObject]]) {
-    print(dataArray)
-    
-    if(_redThreshold == 0.0) {
-      setupView()
-    }
-    sparklineController.plot(dataArray, redThreshold: _redThreshold, graphView: sparklineView)
-    _isPlot = true;
+    // print(dataArray)
+    _dataArray = dataArray
+    plot()
   }
   
+  func plot() {
+    if (_dataArray != nil && _greenThreshold != nil && _yScale != nil) {
+      setupView()
+      sparklineController.plot(_dataArray!, greenThreshold: _greenThreshold!, yScale: _yScale!, graphView: sparklineView)
+    }
+  }
 }

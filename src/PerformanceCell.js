@@ -31,7 +31,7 @@ var getImageSource = require('./getImageSource');
 var getTextFromScore = require('./getTextFromScore');
 var getImageFromAverage = require('./getImageFromAverage');
 var getImageFromParentKPI = require('./getImageFromParentKPI');
-var GraphHostingView = require('./GraphHostingView');
+var SparklineView= require('./SparklineView');
 var threshold = "99.0"
 
 var PerformanceCell = React.createClass({
@@ -61,6 +61,49 @@ var PerformanceCell = React.createClass({
         </Image>
       </TouchableElement>
     );
+  },
+  // find the Y location and Y length
+  //   [0] => Y Location
+  //   [1] => Y Length
+  findYScale: function() {
+    var yScale = [];
+    var data = this.props.market.data;
+    var maxY = 0.0;
+    yScale[0] = 0.0;
+    yScale[1] = 0.0;
+    for (var i in data) {
+      var item = data[i][1];
+      if (item > maxY) {
+        maxY = item;
+      }
+    }
+    var minY = maxY;
+
+    // find minY
+    for (var i in data) {
+      var item = data[i][1];
+      if (item < minY) {
+        minY = item;
+      }
+    }
+
+    // This algorithm centers the redThreshold line horizontally on the chart by finding the right display location and length of y-axis
+
+    var greenThreshold = this.props.market.thresholds.green;
+    if (greenThreshold >= maxY) {
+      yScale[0] = minY
+      yScale[1] = (greenThreshold - minY) * 2
+    } else if (greenThreshold <= minY) {
+      yScale[0] = greenThreshold - (maxY - greenThreshold)
+      yScale[1] = (maxY - greenThreshold) * 2
+    } else if (greenThreshold - minY >= maxY - greenThreshold) {
+      yScale[0] = minY
+      yScale[1] = (greenThreshold - minY) * 2
+    } else {
+      yScale[0] = greenThreshold - (maxY - greenThreshold)
+      yScale[1] = (maxY - greenThreshold) * 2
+    }
+    return yScale;
   },
   kpiView: function() {
     var kpiImage = getImageFromParentKPI(this.props.market.category, this.props.market.parentKpi);
@@ -104,26 +147,47 @@ var PerformanceCell = React.createClass({
     var greenThreshold = this.props.market.thresholds.green;
     var yellowLowThreshold = redThreshold + 1;
     var yellowHighThreshold = greenThreshold;
+    var redDir =  redThreshold > greenThreshold?">":"<";
+    var greenDir =  redThreshold > greenThreshold?"<":">";
     var unit = this.props.market.unit;
     var data = this.props.market.data;
     if (parentKpi.toLowerCase() == "throughput") {
       yellowLowThreshold = redThreshold;
     }
+    var yScale = this.findYScale();
+    var yMinValue = Math.round(yScale[0] * 10) / 10;
+    var yMaxValue = Math.round((yMinValue + yScale[1]) * 10) / 10 ;
+    var yUnit = "";
+    if (yMinValue < 0) {
+      yMinValue = 0;
+    }
+    /*
+    if (unit === "%" && yMaxValue > 100) {
+      yMaxValue = 100;
+    }
+    */
+    if (unit === "%") {
+      var yUnit = unit;
+    }
     return(
       <View style={styles.chartContainer}>
         <View style={styles.chart}>
           <Image style={styles.chartImage} source={{uri: "BG_Chart_Bands", isStatic: true}}>
-            <GraphHostingView
-              // plot={true}
-              redThreshold={redThreshold}
+            <SparklineView
+              greenThreshold={greenThreshold}
+              yScale={yScale}
               dataArray={data}
               style={styles.hostView}
             />
           </Image>
           <View style={styles.chartSideContainer}>
+            <Text style={styles.yMaxValue}>{yMaxValue}{yUnit}</Text>
             <View style={styles.threshArrowContainer}>
               <Image style={styles.threshImage} source={{uri: "Icon_Chart_Indicator", isStatic: true}}/>
-              <Text style={styles.chartThresh}>{redThreshold}{unit}</Text>
+              <Text style={styles.chartThresh}>{greenThreshold}{yUnit}</Text>
+            </View>
+            <View style={styles.yMinValueContainer}>
+              <Text style={styles.yMinValue}>{yMinValue}{yUnit}</Text>
             </View>
           </View>
         </View>
@@ -131,7 +195,7 @@ var PerformanceCell = React.createClass({
           <View style={styles.thresholdValue}>
             <View style={styles.ttContainer}>
               <Text style={styles.tt}>GREEN</Text>
-              <Text style={styles.tv}>&gt;{greenThreshold}{unit}</Text>
+              <Text style={styles.tv}>{greenDir}{greenThreshold}{unit}</Text>
             </View>
             <View style={styles.tyContainer}>
               <Text style={styles.tt}>YELLOW</Text>
@@ -139,7 +203,7 @@ var PerformanceCell = React.createClass({
             </View>
             <View style={styles.ttContainer}>
               <Text style={styles.tt}>RED</Text>
-              <Text style={styles.tv}>&lt;{redThreshold}{unit}</Text>
+              <Text style={styles.tv}>{redDir}{redThreshold}{unit}</Text>
             </View>
           </View>
           <View style={styles.thresholdSpace}>
@@ -220,15 +284,18 @@ var styles = StyleSheet.create({
     color: 'black',
     fontSize: 13,
     fontWeight: '600',
+    fontFamily: 'Helvetica Neue',
   },
   marketTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: 'white',
+    fontFamily: 'Helvetica Neue',
   },
   parentKpi: {
     color: '#555555',
     fontSize: 16,
+    fontFamily: 'Helvetica Neue',
   },
   dailyAverage: {
     flexDirection: "row",
@@ -239,11 +306,13 @@ var styles = StyleSheet.create({
     color: 'white',
     fontSize: 38,
     fontWeight: '600',
+    fontFamily: 'Helvetica Neue',
   },
   unit: {
     color: 'white',
     fontSize: 20,
     fontWeight: '500',
+    fontFamily: 'Helvetica Neue',
   },
   chart: {
     flex: 31,
@@ -281,6 +350,24 @@ var styles = StyleSheet.create({
     // borderColor: "yellow",
     // borderWidth: 2,
   },
+  yMaxValue: {
+    flex: 4,
+    fontSize: 9,
+    fontWeight: "700",
+    fontFamily: 'Helvetica Neue',
+    color: "#3C3C3C",
+  },
+  yMinValueContainer: {
+    flex: 4,
+    alignItems: "flex-start",
+    justifyContent: "flex-end",
+  },
+  yMinValue: {
+    fontSize: 9,
+    fontWeight: "700",
+    fontFamily: 'Helvetica Neue',
+    color: "#3C3C3C",
+  },
   threshArrowContainer: {
     flex: 1,
     flexDirection: "row",
@@ -298,6 +385,7 @@ var styles = StyleSheet.create({
     flex: 4,
     fontSize: 9,
     fontWeight: "700",
+    fontFamily: 'Helvetica Neue',
     color: "#3C3C3C",
     height: 10,
     // borderColor: "blue",
@@ -332,11 +420,13 @@ var styles = StyleSheet.create({
     color: "white",
     fontSize: 10,
     fontWeight: "400",
+    fontFamily: 'Helvetica Neue',
   },
   tv: {
     color: "white",
     fontSize: 12,
     fontWeight: "600",
+    fontFamily: 'Helvetica Neue',
   },
 });
 

@@ -22,8 +22,8 @@ var {
   TouchableHighlight,
 } = React;
 
-var MarketScreen = require('./MarketScreen');
-var PerfNavTitle = require('./components/icons/PerfNavTitle');
+var AreaScreen = require('./AreaScreen');
+var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var Login = require('./components/icons/Login');
 var LogoATT = require('./components/icons/LogoATT');
 var BackButton = require('./components/icons/BackButton');
@@ -69,25 +69,22 @@ var LoginScreen = React.createClass({
     var TouchableElement = TouchableHighlight;  // for iOS or Android variation
     // NOTE: Can't use "require()" for background image to stretch it, need to use uri mothod!
     return (
-          <Image style={styles.backgroundImage} source={{uri: 'BG_Blue_Gradient', isStatic: true}}>
+          <Image style={styles.backgroundImage} source={{uri: 'BG_Gradient_MiKPI', isStatic: true}}>
             <View style={styles.container}>
-              <View style={styles.logoContainer}>
-                <Image style={styles.logo} source={{uri: 'Logo_Mi_KPI', isStatic: true}}/>
-                <View style={styles.logoSpacing}>
-                </View>
+              <View style={styles.logoSpacing}>
               </View>
               <View style={styles.loginContainer}>
                 <TextInput style={styles.loginText}
                   onChangeText={(login) => this.setState({login})}
                   value={this.state.login}
-                  placeholder=' USERNAME'
-                  placeholderTextColor='grey'
+                  placeholder='   USERNAME'
+                  placeholderTextColor='#7AA5AD'
                 />
-              <TextInput style={styles.loginText}
+                <TextInput style={styles.loginText}
                   onChangeText={(password) => this.setState({password})}
                   value={this.state.password}
-                  placeholder=' PASSWORD'
-                  placeholderTextColor='grey'
+                  placeholder='   PASSWORD'
+                  placeholderTextColor='#7AA5AD'
                   secureTextEntry={true}
                 />
               </View>
@@ -102,12 +99,10 @@ var LoginScreen = React.createClass({
                   onPress={this.onPressLogin}>
                   <Text style={styles.loginButtonText}>LOGIN</Text>
                 </TouchableElement>
-            </View>
+              </View>
               <View style={styles.forgotContainer}>
-                <View style={styles.forgotSpacing}>
-                </View>
                 <Text style={styles.forgot} onPress={() => LinkingIOS.openURL('http://www.3ten8.com')}>
-                  FORGOTTEN PASSWORD
+                  Forgotten Username or Password
                 </Text>
               </View>
             </View>
@@ -125,13 +120,13 @@ var LoginScreen = React.createClass({
         titleComponent: PerfNavTitle,
         leftCorner: BackButton,
         rightCorner: LogoATT,
-        component: MarketScreen,
+        component: AreaScreen,
         headerStyle: styles.header,
       });
       /*
       this.props.navigator.push({
         renderScene: {(route, navigator) =>
-          <MarketScreen
+          <AreaScreen
             name={route.name}
             onForward={() => {
               var nextIndex = route.index + 1;
@@ -188,6 +183,8 @@ var styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    // borderWidth: 1,
+    // borderColor: '#00BBF0',
   },
   container: {
     justifyContent: 'space-around',
@@ -209,17 +206,17 @@ var styles = StyleSheet.create({
     flex: 4,
     width: 120,
     paddingTop: 15,
-    //borderWidth: 2,
+    // borderWidth: 1,
     // borderColor: '#00DDFF',
     // backgroundColor: 'rgba(0, 0, 0, 0)',
   },
   logoSpacing: {
-    flex: 1,
+    flex: 4,
     // borderWidth: 2,
     // borderColor: '#CCDD00',
   },
   loginContainer: {
-    flex: 3,
+    flex: 2,
     width: 240,
     // borderWidth: 2,
     // borderColor: '#00DD00',
@@ -228,62 +225,56 @@ var styles = StyleSheet.create({
     flex: 1,
     alignItems: 'stretch',
     marginTop: 5,
-    padding: 2,
-    backgroundColor: '#105D95',
+    padding: 3,
+    // backgroundColor: '#105D95',
+    backgroundColor: '#0B858B',
     color: 'white',
     borderRadius: 1,
     fontSize: 17,
+    fontFamily: 'Helvetica Neue',
     borderWidth: 1,
-    borderColor: '#769EC0',
+    borderColor: '#91C6C2',
   },
   loginButtonContainer: {
-    alignItems: 'center',
-    flex: 2,
+    flex: 1,
     flexDirection: "row",
-    // borderWidth: 2,
-    // borderColor: '#FF00CC',
-  },
-  loginButtonSpacing: {
-    flex: 0,
-    // borderWidth: 2,
-    // borderColor: '#FFCC00',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginTop: 22,
   },
   button: {
-    flex: 1,
-    alignItems: 'center',
-    color: '#ffffff',
-    // marginBottom: 8,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    borderRadius: 3,
-    width: 100,
+    alignItems: 'stretch',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 1,
+    backgroundColor: 'white',
+    width: 80,
+    height: 23,
     marginRight: 10,
-    marginTop: 20,
+    marginLeft: 10,
   },
   loginButtonText: {
-    alignItems: 'center',
     textAlign: 'center',
     fontSize: 14,
+    fontFamily: 'Helvetica Neue',
     backgroundColor: 'white',
     color: '#105D95',
   },
   forgotContainer: {
-    flex: 3,
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    // borderWidth: 2,
+    marginTop: 30,
+    // borderWidth: 1,
     // borderColor: '#CC00CC',
   },
-  forgotSpacing: {
-    flex: 4,
-    // borderWidth: 2,
-    // borderColor: '#CCFFCC',
-  },
   forgot: {
-    flex: 1,
     textAlign: 'center',
     color: 'white',
     textDecorationLine: 'underline',
-    fontSize: 11,
+    fontSize: 9,
+    fontFamily: 'Helvetica Neue',
     fontWeight: "500",
   },
   navBar: {
@@ -291,11 +282,13 @@ var styles = StyleSheet.create({
   },
   navBarText: {
     fontSize: 16,
+    fontFamily: 'Helvetica Neue',
     marginVertical: 10,
   },
   navBarTitleText: {
     color: "#08426A",
     fontWeight: '500',
+    fontFamily: 'Helvetica Neue',
     marginVertical: 9,
   },
   navBarLeftButton: {
@@ -313,7 +306,8 @@ var styles = StyleSheet.create({
     backgroundColor: '#EAEAEA',
   },
   header: {
-    backgroundColor: "#1C75BC",
+    // backgroundColor: "#1C75BC",
+    backgroundColor: "#066D7E",
   },
 });
 // AppRegistry.registerComponent('LoginScreen', () => LoginScreen);

@@ -18,7 +18,7 @@
 function getSortedDataArray(dataArray: Array<any>): Array<any> {
   dataArray.sort(
     function(a,b) {
-      // red = 1, yellow = 0, green = -1 , we need to to put red in lower place
+      // red = 1, yellow = 0, green = -1 , we need to to put red in lower place i.e. front of the array
       var aStatus = 0;  // default to red
       var bStatus = 0;  // default to red
       // get a status
@@ -29,6 +29,10 @@ function getSortedDataArray(dataArray: Array<any>): Array<any> {
         // green
         aStatus = 1;
       }
+      // if redThreshold > greeThreshold, we need to reverse the direction
+      if (a["thresholds"]["red"] > a["thresholds"]["green"]) {
+        aStatus = -aStatus;
+      }
       // get b status
       if (b["dailyAverage"] <= b["thresholds"]["red"]) {
         // red
@@ -36,6 +40,10 @@ function getSortedDataArray(dataArray: Array<any>): Array<any> {
       } else if (b["dailyAverage"] >= b["thresholds"]["green"]) {
         // green
         bStatus = 1;
+      }
+      // if redThreshold > greeThreshold, we need to reverse the direction
+      if (b["thresholds"]["red"] > b["thresholds"]["green"]) {
+        bStatus = -bStatus;
       }
       return aStatus - bStatus;
     }

@@ -14,7 +14,9 @@
 
 RCT_EXTERN_METHOD(view)
 
-RCT_EXPORT_VIEW_PROPERTY(redThreshold, float)
+RCT_EXPORT_VIEW_PROPERTY(greenThreshold, double)
+RCT_EXPORT_VIEW_PROPERTY(yScale, NSArray)
+
 // RCT_EXPORT_VIEW_PROPERTY(plot, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(dataArray, NSArrayArray)
 

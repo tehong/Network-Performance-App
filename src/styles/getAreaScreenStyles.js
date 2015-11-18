@@ -48,7 +48,8 @@ function getAreaScreenStyles(): StyleSheet {
       opacity: 0.0,
     },
     header: {
-      backgroundColor: "#1C75BC",
+      // backgroundColor: "#1C75BC",
+      backgroundColor: "#066D7E",
     },
   });
   return styles;

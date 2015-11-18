@@ -31,11 +31,14 @@ function getNavBarStyles(): StyleSheet {
       marginTop: 5,
       color: 'white',
       fontWeight: "500",
+      fontFamily: 'Helvetica Neue',
     },
     icon: {
-      fontSize: 10,
+      fontSize: 13,
       marginTop: 5,
+      fontWeight: "300",
       color: 'white',
+      fontFamily: 'Helvetica Neue',
     },
   });
   return styles;

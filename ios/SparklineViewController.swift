@@ -15,17 +15,17 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   
   // class constants
   let kDataLine = "DataLine"
-  let kRedThreshLine = "RedThresholdLine"
+  let kGreenThreshLIne = "greenThresholdLine"
 
   // var annotation = CPTPlotSpaceAnnotation?()
   var histogramOption = CPTScatterPlotHistogramOption.SkipSecond
   var graph:CPTXYGraph?
   var plotSpace:CPTXYPlotSpace?
   var dataSourceLinePlot:CPTScatterPlot?
-  var plotData = [[String:Float]]()
+  var plotData = [[String:Double]]()
   var dateArray = Dictionary<Int, String>()
   let cptPrimeColor = CPTColor(componentRed: 43/255, green: 136/255, blue: 184/255, alpha: 1)
-  var _redThreshold:Float = 0.0
+  var _greenThreshold:Double = 0.0
   
   
   func reset() {
@@ -75,21 +75,21 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
       }
     }
     
-    // This algorithm centers the redThreshold line horizontally on the chart by finding the right display location and length of y-axis
+    // This algorithm centers the greenThreshold line horizontally on the chart by finding the right display location and length of y-axis
     
-    let redThreshold:Double = Double(_redThreshold)
-    if (redThreshold >= maxY) {
+    let greenThreshold:Double = Double(_greenThreshold)
+    if (greenThreshold >= maxY) {
       yReturn["location"] = minY
-      yReturn["length"] = (redThreshold - minY) * 2
-    } else if (redThreshold <= minY) {
-      yReturn["location"] = redThreshold - (maxY - redThreshold)
-      yReturn["length"] = (maxY - redThreshold) * 2
-    } else if (redThreshold - minY >= maxY - redThreshold) {
+      yReturn["length"] = (greenThreshold - minY) * 2
+    } else if (greenThreshold <= minY) {
+      yReturn["location"] = greenThreshold - (maxY - greenThreshold)
+      yReturn["length"] = (maxY - greenThreshold) * 2
+    } else if (greenThreshold - minY >= maxY - greenThreshold) {
       yReturn["location"] = minY
-      yReturn["length"] = (redThreshold - minY) * 2
+      yReturn["length"] = (greenThreshold - minY) * 2
     } else {
-      yReturn["location"] = redThreshold - (maxY - redThreshold)
-      yReturn["length"] = (maxY - redThreshold) * 2
+      yReturn["location"] = greenThreshold - (maxY - greenThreshold)
+      yReturn["length"] = (maxY - greenThreshold) * 2
     }
     
     return yReturn
@@ -112,10 +112,8 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     // data comes with the latest first so we need to set up the x number in reverse
     var i = dataArray.count - 1  // count down to 0
     for item in dataArray {
-      let xValue = (item[0] as! NSString).floatValue
-      let yValue = (item[1] as! Float)
-      // print(xValue)
-      // print(yValue)
+      let xValue = (item[0] as! NSString).doubleValue
+      let yValue = (item[1] as! Double)
       plotData.append(["x":xValue, "y":yValue])
       // let dateStr:NSString = NSString(string: item.0).substringFromIndex(5)
       let dateStr:NSString = NSString(string: String(xValue)).substringFromIndex(0)
@@ -123,7 +121,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
       dateArray[i] = dateStr as String
       i--
     }
-    print(plotData)
+    // print(plotData)
     // print(dateArray)
   }
   
@@ -140,10 +138,10 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     graph!.frame = bounds
     
     // some paddings on all sides
-    graph!.paddingBottom = 5
+    graph!.paddingBottom = 3
     graph!.paddingLeft = 0
     graph!.paddingRight = 0
-    graph!.paddingTop = 5
+    graph!.paddingTop = 3
     
     // create graph
 
@@ -221,9 +219,10 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     
   }
   
-  func plot(dataArray:[[AnyObject]], redThreshold: Float, graphView:CPTGraphHostingView)
+  // yScale: [0] => yMinValue, [1] => yLength
+  func plot(dataArray:[[AnyObject]], greenThreshold: Double, yScale: [Double], graphView:CPTGraphHostingView)
   {
-    _redThreshold = redThreshold
+    _greenThreshold = greenThreshold
     setUpChart(graphView)
     
     // data needs to be there before the plot gets created!
@@ -245,7 +244,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     // Red Threshold Line plot:
     
     let redThreshLinePlot: CPTScatterPlot = CPTScatterPlot()
-    redThreshLinePlot.identifier = kRedThreshLine
+    redThreshLinePlot.identifier = kGreenThreshLIne
     lineStyle = redThreshLinePlot.dataLineStyle!.mutableCopy() as! CPTMutableLineStyle
     lineStyle.lineWidth = 1.0
     lineStyle.lineColor = CPTColor(componentRed: 60/255, green: 60/255, blue: 60/255, alpha: 1)
@@ -279,17 +278,17 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
       locationY = 0.0
     }
     */
-    var maxX:Float = 0.0
+    var maxX:Double = 0.0
     for item in plotData {
       if item["x"] > maxX {
         maxX = item["x"]!
       }
     }
     
-    var yLocLen:Dictionary<String, Double> = findYLocationAndLength()
+    // var yLocLen:Dictionary<String, Double> = findYLocationAndLength()
 
     let xRange: CPTPlotRange = CPTPlotRange(location: locationX, length: Double(maxX) + (-locationX))
-    let yRange: CPTPlotRange = CPTPlotRange(location: yLocLen["location"]!, length: yLocLen["length"]!)
+    let yRange: CPTPlotRange = CPTPlotRange(location: yScale[0], length: yScale[1])
     // plotSpace!.globalXRange = globalXRange
     // plotSpace!.globalYRange = globalYRange
     
@@ -343,17 +342,17 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   func numberForPlot(plot: CPTPlot, field fieldEnum: UInt, recordIndex idx: UInt) -> AnyObject? {
     let identifier:String = plot.identifier as! String
     let key: String = (fieldEnum == UInt(CPTScatterPlotField.X.rawValue) ? "x" : "y")
-    var num: Float = 0.0
+    var num: Double = 0.0
 
     if (identifier == kDataLine ) {
     
       // let dataOut = index as (UnsafeMutablePointer<Int8>,Int32) // cast the C pointer to Swift pointer
       // let original:Int = idx as Int
-      let i:Float = Float(idx)
+      let i:Double = Double(idx)
       for item in plotData {
         // make sure we get the correct x value
         if item["x"] == i {
-          num = Float(item[key]!)
+          num = Double(item[key]!)
         }
       }
       // let num: Int = Int(plotData[i][key]!)
@@ -365,14 +364,14 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
               num = 0.0
               break
             case 1:
-              num = (Float)(plotData.count - 1)
+              num = (Double)(plotData.count - 1)
               break
             default:
               break
           }
           break
         case "y":
-          num = _redThreshold;
+          num = _greenThreshold;
           break
         default:
           break

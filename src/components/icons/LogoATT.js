@@ -22,10 +22,10 @@ var LogoATT = React.createClass({
 
 var styles = StyleSheet.create({
   icon: {
-    width: 45,
-    height: 20,
+    width: 55,
+    height: 25,
     marginTop: 5,
-    marginRight: 10
+    marginRight: 13
   }
 });
 

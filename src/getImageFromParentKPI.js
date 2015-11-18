@@ -39,6 +39,9 @@ function getImageFromParentKPI(category: string, parentKPI: string): string {
         kpiImage = "Icon_DT";
       }
       break;
+    case "tnol":
+      var kpiImage = "Icon_T";
+      break;
     case "mobility":
       var kpiImage = "Icon_MO";
       break;

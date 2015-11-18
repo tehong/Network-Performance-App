@@ -220,6 +220,13 @@ var styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF'
   },
+  backgroundImage: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: 1024,
+    height: 768
+  },
 });
 
 

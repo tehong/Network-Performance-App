@@ -14,16 +14,16 @@ var {
 var TimerMixin = require('react-timer-mixin');
 
 var PerformanceCell = require('./PerformanceCell');
-var SiteScreen = require('./SiteScreen');
+var SectorScreen = require('./SectorScreen');
 var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoATT = require('./components/icons/LogoATT');
-var AccNavTitle = require('./components/icons/AccNavTitle');
-var AvaNavTitle = require('./components/icons/AvaNavTitle');
-var RetNavTitle = require('./components/icons/RetNavTitle');
-var DltNavTitle = require('./components/icons/DltNavTitle');
-var UltNavTitle = require('./components/icons/UltNavTitle');
-var MobNavTitle = require('./components/icons/MobNavTitle');
+var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
+var AvaNavTitle = require('./components/icons/sectors/AvaNavTitle');
+var RetNavTitle = require('./components/icons/sectors/RetNavTitle');
+var DltNavTitle = require('./components/icons/sectors/DltNavTitle');
+var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
+var MobNavTitle = require('./components/icons/sectors/MobNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./getSortedDataArray');
 
@@ -228,11 +228,12 @@ var ZoneScreen = React.createClass({
         titleComponent: titleComponent,
         leftCorner: BackButton,
         rightCorner: LogoATT,
-        component: SiteScreen,
+        component: SectorScreen,
         headerStyle: styles.header,
         passProps: {
           category: market.category,
           parentKpi: market.parentKpi,
+          parentEntityId: market.entityId,
         }
       });
     } else {
