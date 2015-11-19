@@ -238,9 +238,11 @@ var styles = StyleSheet.create({
   loginButtonContainer: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    marginTop: 22,
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    marginTop: 24,
+    // borderColor: 'yellow',
+    // borderWidth: 2,
   },
   button: {
     alignItems: 'stretch',
@@ -249,10 +251,12 @@ var styles = StyleSheet.create({
     borderColor: 'white',
     borderRadius: 1,
     backgroundColor: 'white',
-    width: 80,
+    width: 110,
     height: 23,
     marginRight: 10,
     marginLeft: 10,
+    // borderColor: 'yellow',
+    // borderWidth: 2,
   },
   loginButtonText: {
     textAlign: 'center',

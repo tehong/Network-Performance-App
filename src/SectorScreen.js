@@ -227,6 +227,7 @@ var SectorScreen = React.createClass({
         leftCorner: BackButton,
         rightCorner: LogoATT,
         component: SectorDetailScreen,
+        headerStyle: styles.header,
         passProps: {
           title: market.title,
           market: market,
