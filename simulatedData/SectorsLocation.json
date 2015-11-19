@@ -1,0 +1,77 @@
+{
+  "result":
+  [
+    {
+      "name": "Stockton1",
+      "geoEntity": "sector",
+      "entityId": 1000,
+      "parentEntityId": 100,
+      "latitude": 37.947016,
+      "longitude": -121.297073
+    },
+    {
+      "name": "Stockton2",
+      "geoEntity": "sector",
+      "entityId": 1001,
+      "parentEntityId": 100,
+      "latitude": 38.015090,
+      "longitude": -121.309448
+    },
+    {
+      "name": "Stockton3",
+      "geoEntity": "sector",
+      "entityId": 1002,
+      "parentEntityId": 100,
+      "latitude": 37.986823,
+      "longitude": -121.262473
+    },
+    {
+      "name": "Modesto1",
+      "geoEntity": "sector",
+      "entityId": 1100,
+      "parentEntityId": 110,
+      "latitude": 37.644294,
+      "longitude": -120.997581
+    },
+    {
+      "name": "Modesto2",
+      "geoEntity": "sector",
+      "entityId": 1101,
+      "parentEntityId": 111,
+      "latitude": 37.690765,
+      "longitude": -121.030197
+    },
+    {
+      "name": "Modesto3",
+      "geoEntity": "sector",
+      "entityId": 1102,
+      "parentEntityId": 112,
+      "latitude": 37.681528,
+      "longitude": -120.951919
+    },
+    {
+      "name": "Sacramento1",
+      "geoEntity": "sector",
+      "entityId": 1200,
+      "parentEntityId": 120,
+      "latitude": 38.610836,
+      "longitude": -121.484118
+    },
+    {
+      "name": "Sacramento2",
+      "geoEntity": "sector",
+      "entityId": 1201,
+      "parentEntityId": 120,
+      "latitude": 38.505596,
+      "longitude": -121.496478
+    },
+    {
+      "name": "Sacramento3",
+      "geoEntity": "sector",
+      "entityId": 1202,
+      "parentEntityId": 120,
+      "latitude": 38.539977,
+      "longitude": -121.409274
+    }
+  ]
+}

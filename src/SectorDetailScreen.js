@@ -25,15 +25,293 @@ var {
   View,
   MapView,
   Modal,
+  ListView,
   TouchableHighlight,
 } = React;
 
+var API_URL = 'http://api.rottentomatoes.com/api/public/v1.0/';
+var API_KEYS = [
+  '7waqfqbprs7pajbz28mqf6vz',
+  // 'y4vwv8m33hed9ety83jmv52f', Fallback api_key
+];
+
+var resultsCache = {
+  dataForQuery: {},
+  // nextPageNumberForQuery: {},
+  totalForQuery: {},
+};
+
+var LOADING = {};
+// var tabNumber = 0;
+
+
+
 var SectorDetailScreen = React.createClass({
+
+  getInitialState: function() {
+    return {
+      tabNumber: 0,
+      isLoading: false,
+      isLoadingTail: false,
+      sectorKpiData: {},
+      sectorLocation: {},
+      mapRegion: null,
+      mapRegionInput: null,
+      annotations: null,
+      isFirstLoad: true,
+      filter: '',
+      queryNumber: 0,
+    };
+  },
+
+  componentWillMount: function() {
+  },
+
+  componentDidMount: function() {
+    // var query = this.props.markets.entityId;
+    this.setState({
+      tabNumber: 0,
+    });
+    // get all 7 sector KPI files
+    this.getSectorKPI("accessibility");
+    this.getSectorKPI("retainability");
+    this.getSectorKPI("dlthroughput");
+    this.getSectorKPI("ulthroughput");
+    this.getSectorKPI("tnol");
+    this.getSectorKPI("volteaccessibility");
+    this.getSectorKPI("volteretainability");
+    this.getSectorLocation();
+  },
+
+  _urlForQueryAndPage: function(query: string, pageNumber: number): string {
+    var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
+    if (query) {
+      return (
+        API_URL + 'movies.json?apikey=' + apiKey + '&q=' +
+        encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
+      );
+    } else {
+      // With no query, load latest markets
+      var queryString = API_URL + 'lists/movies/in_theaters.json?apikey=' + apiKey +
+        '&page_limit=20&page=' + pageNumber
+      return queryString;
+    }
+  },
+  refreshSectorData: function(query:string, result:{}) {
+        if (query === "location") {
+          this.findSectorLocation(result);
+        } else {
+          this.findSectorKpiData(result);
+        }
+  },
+  fetchData: function(query, queryString) {
+    switch(query.toLowerCase()) {
+      case "accessibility":
+        var sectors = require('../simulatedData/SectorsAccessibility.json');
+        break;
+      case "retainability":
+        var sectors = require('../simulatedData/SectorsRetainability.json');
+        break;
+      case "dlthroughput":
+        var sectors = require('../simulatedData/SectorsDlThroughput.json');
+        break;
+      case "ulthroughput":
+        var sectors = require('../simulatedData/SectorsUlThroughput.json');
+        break;
+      case "tnol":
+        var sectors = require('../simulatedData/SectorsTNOL.json');
+        break;
+      case "accessibility":
+        var sectors = require('../simulatedData/SectorsVolteAccessibility.json');
+        break;
+      case "retainability":
+        var sectors = require('../simulatedData/SectorsVolteRetainability.json');
+        break;
+      case "location":
+        var sectors = require('../simulatedData/SectorsLocation.json');
+        break;
+    }
+    if (sectors) {
+        LOADING[query] = false;
+        resultsCache.totalForQuery[query] = sectors.result.length;
+        resultsCache.dataForQuery[query] = sectors.result;
+        // resultsCache.nextPageNumberForQuery[query] = 2;
+
+        if (this.state.filter !== query) {
+          // do not update state if the query is stale
+          return;
+        }
+
+        // this gets the right data from the results
+        this.refreshSectorData(query, sectors.result);
+        this.setState({
+          isLoading: false,
+        });
+    } else {
+        LOADING[query] = false;
+        resultsCache.dataForQuery[query] = undefined;
+
+        this.setState({
+          isLoading: false,
+        });
+    }
+  },
+  findSectorLocation: function(result) {
+    for (var i=0; i<result.length; i++) {
+      var item = result[i];
+      if (this.props.market.entityId === item.entityId) {
+        var location = {
+          "name": item.name,
+          "latitude": item.latitude,
+          "longitude": item.longitude,
+        }
+        var key = item.entityId;
+        this.state.sectorLocation[key] = location;
+        var region = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.26,
+          longitudeDelta: 0.26
+        }
+        this._onRegionInputChanged(region);
+        break;
+      }
+    }
+  },
+  findSectorKpiData: function(result) {
+    for (var i=0; i<result.length; i++) {
+      var item = result[i];
+      if (this.props.market.entityId === item.entityId) {
+        var kpiData = {
+          "category": item.category,
+          "parentKpi": item.parentKpi,
+          "dailyAverage": item.dailyAverage,
+          "unit": item.unit,
+          "thresholds": item.thresholds,
+        }
+        var kpiKey = item.category.toLowerCase() + "-" + item.parentKpi.toLowerCase();
+        this.state.sectorKpiData[kpiKey] = kpiData;
+        break;
+      }
+    }
+  },
+  getSectorLocation: function() {
+    this.getSectorKPI("location");
+  },
+  getSectorKPI: function(query: string) {
+    this.timeoutID = null;
+
+    // NOTE: Since we are not really query via HTTP but directly via simulatedData files
+    //       and there is no UI refresh, we update the state.filter directly for now
+    //       THIS IS AN ABNORMAL USAGE!
+    this.state.filter = query;
+    // this.setState({filter: query});
+
+    var cachedResultsForQuery = resultsCache.dataForQuery[query];
+    if (cachedResultsForQuery) {
+      if (!LOADING[query]) {
+        this.refreshSectorData(query, cachedResultsForQuery);
+        this.setState({
+          isLoading: false
+        });
+      } else {
+        this.setState({isLoading: true});
+      }
+      return;
+    }
+
+    LOADING[query] = true;
+    resultsCache.dataForQuery[query] = null;
+    this.setState({
+      isLoading: true,
+      queryNumber: this.state.queryNumber + 1,
+      isLoadingTail: false,
+    });
+
+    var queryString = this._urlForQueryAndPage(query, 1);
+    // now fetch data
+    this.fetchData(query, queryString);
+  },
+
+  onEndReached: function() {
+  },
+
+  onPressPerformance: function() {
+    this.setState({
+      tabNumber: 0,
+    });
+  },
+  onPressDiagnosis: function() {
+    this.setState({
+      tabNumber: 1,
+    });
+  },
+  onPressRemedy: function() {
+    this.setState({
+      tabNumber: 2,
+    });
+  },
+  _getAnnotations(region) {
+    var title = "";
+    if (this.state.sectorLocation[this.props.market.entityId]) {
+      title = this.props.areaName + " - " + this.state.sectorLocation[this.props.market.entityId].name;
+    }
+    return [{
+      longitude: region.longitude,
+      latitude: region.latitude,
+      title: title,
+    }];
+  },
+  _onRegionChange(region) {
+    this.setState({
+      mapRegionInput: region,
+    });
+  },
+  _onRegionChangeComplete(region) {
+    if (this.state.isFirstLoad) {
+      this.setState({
+        mapRegionInput: region,
+        annotations: this._getAnnotations(region),
+        isFirstLoad: false,
+      });
+    }
+  },
+  _onRegionInputChanged(region) {
+    this.setState({
+      mapRegion: region,
+      mapRegionInput: region,
+      annotations: this._getAnnotations(region),
+    });
+  },
+
+
   render: function() {
     var TouchableElement = TouchableHighlight;  // for iOS or Android variation
+    // var textBlock =  SectorDiagnosis;
+    // var textBlock =  SectorRemedy;
+    // var textBlock =  SectorKpiList;
+    var buttonStyle1 = styles.buttonText2;
+    var buttonStyle2 = styles.buttonText2;
+    var buttonStyle3 = styles.buttonText2;
+    switch(this.state.tabNumber) {
+      case 0:
+        buttonStyle1 = styles.buttonText1;
+        break;
+      case 1:
+        buttonStyle2 = styles.buttonText1;
+        break;
+      case 2:
+        buttonStyle3 = styles.buttonText1;
+        break;
+    };
     return (
       <View style={styles.container}>
-        <MapView style={styles.map}>
+        <MapView style={styles.map}
+          onRegionChange={this._onRegionChange}
+          onRegionChangeComplete={this._onRegionChangeComplete}
+          region={this.state.mapRegion || undefined}
+          annotations={this.state.annotations || undefined}
+          >
           <View style={styles.sectorNameOverlap}>
             <Text style={styles.sectorName}>Text</Text>
           </View>
@@ -43,21 +321,21 @@ var SectorDetailScreen = React.createClass({
             <TouchableElement
               style={styles.button}
               onPress={this.onPressPerformance}>
-              <Text style={styles.buttonText}>Performace</Text>
+              <Text style={buttonStyle1}>Performance</Text>
             </TouchableElement>
             <TouchableElement
               style={styles.button}
               onPress={this.onPressDiagnosis}>
-              <Text style={styles.buttonText}>Diagnosis</Text>
+              <Text style={buttonStyle2}>Diagnosis</Text>
             </TouchableElement>
             <TouchableElement
               style={styles.button}
               onPress={this.onPressRemedy}>
-              <Text style={styles.buttonText}>Remedy</Text>
+              <Text style={buttonStyle3}>Remedy</Text>
             </TouchableElement>
           </View>
           <View style={styles.kpiListContainer}>
-            <SectorKpiList/>
+            <SectorDetails tabNumber={this.state.tabNumber} sectorKpiData={this.state.sectorKpiData}/>
           </View>
         </View>
       </View>
@@ -65,35 +343,210 @@ var SectorDetailScreen = React.createClass({
   },
 });
 
+/*
 var SectorKpiList = React.createClass({
+  render: function() {
+        return (
+          <ScrollView contentContainerStyle={styles.contentContainer}>
+            <View style={styles.kpiRowContainer}>
+              <Text style={styles.ratingTitle}>KPI1</Text>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <Text style={styles.ratingTitle}>KPI2</Text>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <Text style={styles.ratingTitle}>KPI3</Text>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <Text style={styles.ratingTitle}>KPI4</Text>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <Text style={styles.ratingTitle}>KPI5</Text>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <Text style={styles.ratingTitle}>KPI6</Text>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <Text style={styles.ratingTitle}>KPI7</Text>
+            </View>
+          </ScrollView>
+        );
+  }
+});
+*/
+
+var SectorDetails = React.createClass({
+  render: function() {
+    switch (this.props.tabNumber) {
+      case 0:
+        var data = this.props.sectorKpiData;
+        return (
+          <ScrollView contentContainerStyle={styles.contentContainer}>
+            <View style={styles.kpiRowContainer}>
+              <KpiDetails kpiKey={"data-accessibility"} data={data["data-accessibility"]}/>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <KpiDetails kpiKey={"data-retainability"} data={data["data-retainability"]}/>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <KpiDetails kpiKey={"downlink-throughput"} data={data["downlink-throughput"]}/>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <KpiDetails kpiKey={"uplink-throughput"} data={data["uplink-throughput"]}/>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <KpiDetails kpiKey={"data-tnol"} data={data["data-tnol"]}/>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <KpiDetails kpiKey={"volte-accessibility"} data={data["volte-accessibility"]}/>
+            </View>
+            <View style={styles.kpiRowContainer}>
+              <KpiDetails kpiKey={"volte-retainability"} data={data["volte-retainability"]}/>
+            </View>
+          </ScrollView>
+        );
+        break;
+      case 1:
+        return (
+          <ScrollView contentContainerStyle={styles.contentContainer}>
+            <Text style={styles.headText}>Throughput Degrdation Common Issues</Text>
+            <View style={styles.subHeadContainer}>
+              <Text style={styles.subHeadText1}>Diagnosis - </Text>
+              <Text style={styles.subHeadText2}>Ericsson Probable Causes</Text>
+            </View>
+            <Text style={styles.issueText}>1. Downlink Interference.</Text>
+            <Text style={styles.issueText}>2. Bad BLER - bad RF environment.</Text>
+            <Text style={styles.issueText}>3. Incorrect MIMO Parameters.</Text>
+            <Text style={styles.issueText}>4. Possible low demand.</Text>
+            <Text style={styles.issueText}>5. Incorrect scheduler type.</Text>
+            <Text style={styles.issueText}>6. Slow CQI frequencies.</Text>
+            <Text style={styles.issueText}>7. Others (VSWR, Backhaul capacity).</Text>
+            <Image style={styles.diag} source={{uri: "DL_Throughput_Diag", isStatic: true}}/>
+          </ScrollView>
+        );
+        break;
+      case 2:
+        return (
+          <ScrollView contentContainerStyle={styles.contentContainer}>
+            <Text style={styles.headText}>Ericsson Throughput Remedy Steps</Text>
+            <View style={styles.subHeadContainer}>
+              <Text style={styles.subHeadText1}>Step 01 - </Text>
+              <Text style={styles.subHeadText2}>Check Alarms and Logs</Text>
+            </View>
+            <Text style={styles.issueText}>Check alarms and performance logs.
+              Find the root causes of these alarms and peformance issues
+              and correct them one by one</Text>
+            <View style={styles.subHeadContainer}>
+              <Text style={styles.subHeadText1}>Step 02 - </Text>
+              <Text style={styles.subHeadText2}>Correct Configuration Problems</Text>
+            </View>
+            <Text style={styles.issueText}>Review existing configuration and
+              see if there are any anomalies amongst the traffic affecting configurations.
+              Correct them or reprovision them if needed.</Text>
+            <View style={styles.subHeadContainer}>
+              <Text style={styles.subHeadText1}>Step 03 - </Text>
+              <Text style={styles.subHeadText2}>Check Software Status</Text>
+            </View>
+            <Text style={styles.issueText}>Inspect and monitor software processes on the user plane.
+            Restart rogue processes if needed.</Text>
+            <View style={styles.subHeadContainer}>
+              <Text style={styles.subHeadText1}>Step 04 - </Text>
+              <Text style={styles.subHeadText2}>Restart or Replace Faulty Unit</Text>
+            </View>
+            <Text style={styles.issueText}>If there are any faulty unit detected,
+            Restart or replace them on as needed basis.</Text>
+          </ScrollView>
+        );
+        break;
+    }
+  },
+});
+
+var getIconFromKpiData = require("./getIconFromKpiData");
+var KpiDetails = React.createClass({
+  render: function() {
+    var data = this.props.data;
+    if (!data) {
+      return(
+        <Text>No data available</Text>
+      );
+    }
+    var kpiKey = this.props.kpiKey;
+    var icon = getIconFromKpiData(kpiKey, data);
+    return this.getKpiDetails(icon, data);
+  },
+  getKpiDetails: function(icon:string, data:{}) {
+    var styleColor = "#00A9E9"
+    if(icon.indexOf("Red") > -1) {
+      styleColor = "#DD1F27";
+    } else if (icon.indexOf("Yellow") > -1) {
+      styleColor = "#D99A12";
+    }
+    var styleText = StyleSheet.create({
+      text: {
+        color:styleColor,
+        fontFamily: 'Helvetica Neue',
+      },
+    });
+    return (
+      <View style={styles.kpiEntryContainer}>
+        <View style={styles.kpiIconContainer}>
+          <Image style={styles.kpiIcon} source={{uri: icon, isStatic: true}}/>
+        </View>
+        <View style={styles.kpiTextContainer}>
+          <Text style={[styleText.text, styles.kpiCatText]}>{data.category}</Text>
+          <Text style={[styleText.text, styles.kpiNameText]}>{data.parentKpi}</Text>
+        </View>
+        <View style={styles.dailyAverageContainer}>
+          <Text style={[styleText.text, styles.dailyAverage]}>{data.dailyAverage}</Text>
+          <Text style={[styleText.text, styles.kpiUnit]}>{data.unit}</Text>
+        </View>
+      </View>
+    );
+  }
+});
+/*
+var SectorDiagnosis = React.createClass({
+  render: function() {
+        return (
+          <ScrollView contentContainerStyle={styles.contentContainer}>
+            <Text style={styles.headText}>Throughput Degrdation Common Issues</Text>
+            <View style={styles.subHeadContainer}>
+              <Text style={styles.subHeadText1}>Diagnosis - </Text>
+              <Text style={styles.subHeadText2}>Ericsson Problem</Text>
+            </View>
+            <Text style={styles.issueText}>KPI3</Text>
+          </ScrollView>
+        );
+        break;
+  },
+});
+
+var SectorRemedy = React.createClass({
   render: function() {
     return (
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.kpiRowContainer}>
-          <Text style={styles.ratingTitle}>KPI1</Text>
+        <Text style={styles.headText}>Ericsson Throughput Issue</Text>
+        <View style={styles.subHeadContainer}>
+          <Text style={styles.subHeadText1}>Step 01 - </Text>
+          <Text style={styles.subHeadText2}>Check Power</Text>
         </View>
-        <View style={styles.kpiRowContainer}>
-          <Text style={styles.ratingTitle}>KPI2</Text>
+        <Text style={styles.issueText}>check power</Text>
+        <View style={styles.subHeadContainer}>
+          <Text style={styles.subHeadText1}>Step 02 - </Text>
+          <Text style={styles.subHeadText2}>Power Cycle</Text>
         </View>
-        <View style={styles.kpiRowContainer}>
-          <Text style={styles.ratingTitle}>KPI3</Text>
+        <Text style={styles.issueText}>power cyclc</Text>
+        <View style={styles.subHeadContainer}>
+          <Text style={styles.subHeadText1}>Step 03 - </Text>
+          <Text style={styles.subHeadText2}>Fix Issue</Text>
         </View>
-        <View style={styles.kpiRowContainer}>
-          <Text style={styles.ratingTitle}>KPI4</Text>
-        </View>
-        <View style={styles.kpiRowContainer}>
-          <Text style={styles.ratingTitle}>KPI5</Text>
-        </View>
-        <View style={styles.kpiRowContainer}>
-          <Text style={styles.ratingTitle}>KPI6</Text>
-        </View>
-        <View style={styles.kpiRowContainer}>
-          <Text style={styles.ratingTitle}>KPI7</Text>
-        </View>
+        <Text style={styles.issueText}>Fix issue</Text>
       </ScrollView>
     );
   },
 });
+*/
 
 var styles = StyleSheet.create({
   container: {
@@ -109,7 +562,7 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   kpiContainer: {
-    flex: 7,
+    flex: 8,
     // borderColor: "violet",
     // borderWidth: 2,
   },
@@ -130,8 +583,8 @@ var styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: 'center',
     alignItems: 'stretch',
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: 16,
+    marginRight: 16,
     marginTop: 5,
     marginBottom: 5,
     backgroundColor: '#D4E6EF',
@@ -140,18 +593,35 @@ var styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    // alignItems: 'stretch',
+    alignItems: 'stretch',
     justifyContent: 'center',
-    backgroundColor: '#00A9E9',
+    backgroundColor: 'white',
     // borderColor: "green",
     // borderWidth: 1,
   },
-  buttonText: {
+  buttonText1: {
     textAlign: 'center',
-    fontSize: 11,
+    fontSize: 12,
+    fontWeight: "500",
     fontFamily: 'Helvetica Neue',
-    backgroundColor: 'transparent',
+    backgroundColor: '#00A9E9',
     color: '#D4E6EF',
+    paddingTop: 8,
+    paddingBottom: 8,
+    // borderColor: "yellow",
+    // borderWidth: 1,
+  },
+  buttonText2: {
+    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: "500",
+    fontFamily: 'Helvetica Neue',
+    backgroundColor: '#D4E6EF',
+    color: '#00A9E9',
+    paddingTop: 8,
+    paddingBottom: 8,
+    // borderColor: "red",
+    // borderWidth: 1,
   },
   kpiListContainer: {
     flex:10,
@@ -159,16 +629,127 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   contentContainer: {
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 35,
+    paddingRight: 25,
     // borderColor: "pink",
     // borderWidth: 2,
   },
+  headText: {
+    marginTop: 10,
+    marginBottom: 4,
+    fontFamily: 'Helvetica Neue',
+    fontSize: 16,
+    fontWeight: "400",
+    color: "#888A8D",
+  },
+  subHeadContainer: {
+    flexDirection: "row",
+    marginTop: 6,
+    marginBottom: 6,
+  },
+  subHeadText1: {
+    fontFamily: 'Helvetica Neue',
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#48C4F3",
+  },
+  subHeadText2: {
+    fontFamily: 'Helvetica Neue',
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#03AEEE",
+  },
+  issueText: {
+    fontFamily: 'Helvetica Neue',
+    fontSize: 11,
+    fontWeight: "400",
+  },
+  diag: {
+    marginTop: 10,
+    height:160,
+    width:300,
+    paddingLeft: 15,
+    paddingRight: 15,
+  },
   kpiRowContainer: {
     flex: 1,
-    padding: 10,
-    borderColor: "blue",
-    borderWidth: 1,
+    paddingLeft: 7,
+    paddingTop: 5,
+    paddingBottom: 5,
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
+  kpiEntryContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent:"flex-start",
+    alignItems:"stretch",
+    // borderColor: "red",
+    // borderWidth: 1,
+  },
+  kpiIconContainer: {
+    flex:2,
+    justifyContent: "center",
+    alignItems: "center",
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
+  kpiIcon: {
+    height: 29,
+    width: 29,
+    // borderColor: "purple",
+    // borderWidth: 1,
+  },
+  kpiTextContainer: {
+    flex: 13,
+    flexDirection:"column",
+    justifyContent:"flex-start",
+    paddingLeft: 14,
+    paddingTop: 2,
+    alignItems:"flex-start",
+    // borderColor: "yellow",
+    // borderWidth: 1,
+  },
+  dailyAverageContainer: {
+    flex: 5,
+    flexDirection:"row",
+    justifyContent:"center",
+    alignItems:"center",
+    paddingTop: 6,
+    // borderColor: "green",
+    // borderWidth: 1,
+  },
+  kpiCatText: {
+    flex:1,
+    fontSize: 10,
+    fontWeight: "800",
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
+  kpiNameText: {
+    flex:4,
+    fontSize: 14,
+    fontWeight: "400",
+    // borderColor: "pink",
+    // borderWidth: 1,
+  },
+  dailyAverage: {
+    flex:1,
+    fontSize: 22,
+    fontWeight: "800",
+    textAlign: "right",
+    marginTop: 0,
+    // borderColor: "gray",
+    // borderWidth: 1,
+  },
+  kpiUnit: {
+    flex:1,
+    fontSize: 9,
+    fontWeight: "800",
+    textAlign: "left",
+    marginTop: 5,
+    // borderColor: "violet",
+    // borderWidth: 1,
   },
   separator: {
     backgroundColor: 'rgba(0, 0, 0, 0.1)',

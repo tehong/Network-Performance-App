@@ -24,6 +24,9 @@ function getImageFromParentKPI(category: string, parentKPI: string): string {
         kpiImage = "Icon_VA";
       }
       break;
+    case "availability":
+      var kpiImage = "Icon_AV";
+      break;
     case "retainability":
       var kpiImage = "Icon_DR";
       if (cat == "volte") {
@@ -38,9 +41,6 @@ function getImageFromParentKPI(category: string, parentKPI: string): string {
       break;
     case "tnol":
       var kpiImage = "Icon_T";
-      break;
-    case "retainability":
-      var kpiImage = "Icon_AV";
       break;
     case "mobility":
       var kpiImage = "Icon_MO";

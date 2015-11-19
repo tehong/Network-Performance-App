@@ -76,22 +76,31 @@ var SectorScreen = React.createClass({
 
   componentDidMount: function() {
     var parentKpi = this.props.parentKpi;
-    var query = parentKpi;
-    switch(parentKpi) {
-      case "Accessibility":
-        break;
-      case "Availability":
-        break;
-      case "Retainability":
-        break;
-      case "Throughput":
-        if (this.props.category === "Downlink") {
-          var query = "DlThroughput";
+    var cat = this.props.category.toLowerCase();
+    switch(parentKpi.toLowerCase()) {
+      case "accessibility":
+        if (cat === "data") {
+          var query = "accessibility";
         } else {
-          var query = "UlThroughput";
+          var query = "volteaccessiblity";
         }
         break;
-      case "Mobility":
+      case "retainability":
+        if (cat === "data") {
+          var query = "retainability";
+        } else {
+          var query = "volteretainability";
+        }
+        break;
+      case "throughput":
+        if (cat === "downlink") {
+          var query = "dlthroughput";
+        } else {
+          var query = "ulthroughput";
+        }
+        break;
+      case "tnol":
+        var query = "dlthroughput";
         break;
     }
     this.getMarkets(query);
@@ -116,9 +125,6 @@ var SectorScreen = React.createClass({
       case "accessibility":
         var sectors = require('../simulatedData/SectorsAccessibility.json');
         break;
-      case "availability":
-        var Sectors = require('../simulatedData/SectorsAvailability.json');
-        break;
       case "retainability":
         var sectors = require('../simulatedData/SectorsRetainability.json');
         break;
@@ -128,8 +134,14 @@ var SectorScreen = React.createClass({
       case "ulthroughput":
         var sectors = require('../simulatedData/SectorsUlThroughput.json');
         break;
-      case "mobility":
-        var sectors = require('../simulatedData/SectorsMobility.json');
+      case "tnol":
+        var Sectors = require('../simulatedData/SectorsTNOL.json');
+        break;
+      case "volteaccessiblity":
+        var sectors = require('../simulatedData/SectorsVolteAccessibility.json');
+        break;
+      case "volteretainability":
+        var sectors = require('../simulatedData/SectorsVolteRetainability.json');
         break;
     }
     if (sectors) {
@@ -218,6 +230,7 @@ var SectorScreen = React.createClass({
         passProps: {
           title: market.title,
           market: market,
+          areaName: this.props.areaName,
         }
       });
     } else {

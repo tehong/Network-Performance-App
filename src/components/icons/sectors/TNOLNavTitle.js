@@ -10,17 +10,17 @@ var {
   StyleSheet,
 } = React;
 
-var MobNavTitle = React.createClass({
+var TNOLNavTitle = React.createClass({
   render() {
     var styles = getNavBarStyles();
     return (
         // <Image underlayColor="transparent" source={{uri: 'Logo_ATT', isStatic: true}} />
         <View style={styles.container}>
-          <Text style={styles.title}>Sector Mobility </Text>
+          <Text style={styles.title}>Sector TNoL </Text>
           <Text style={styles.icon}>{Moment().format("MM/DD/YYYY")}</Text>
         </View>
     );
   }
 });
 
-module.exports = MobNavTitle;
+module.exports = TNOLNavTitle;

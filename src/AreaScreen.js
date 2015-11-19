@@ -19,11 +19,12 @@ var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoATT = require('./components/icons/LogoATT');
 var AccNavTitle = require('./components/icons/zones/AccNavTitle');
-var AvaNavTitle = require('./components/icons/zones/AvaNavTitle');
+var VolteAccNavTitle = require('./components/icons/zones/VolteAccNavTitle');
 var RetNavTitle = require('./components/icons/zones/RetNavTitle');
+var VolteRetNavTitle = require('./components/icons/zones/VolteRetNavTitle');
 var DltNavTitle = require('./components/icons/zones/DltNavTitle');
 var UltNavTitle = require('./components/icons/zones/UltNavTitle');
-var MobNavTitle = require('./components/icons/zones/MobNavTitle');
+var TNOLNavTitle = require('./components/icons/zones/TNOLNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./getSortedDataArray');
 
@@ -257,26 +258,32 @@ var AreaScreen = React.createClass({
   },
 
   selectMarket: function(market: Object) {
+    var cat = market.category.toLowerCase();
     var parentKpi = market.parentKpi;
-    switch(parentKpi) {
-      case "Accessibility":
-        var titleComponent = AccNavTitle;
+    switch(parentKpi.toLowerCase()) {
+      case "accessibility":
+        if (cat === "data") {
+          var titleComponent = AccNavTitle;
+        } else {
+          var titleComponent = VolteAccNavTitle;
+        }
         break;
-      case "Availability":
-        var titleComponent = AvaNavTitle;
+      case "retainability":
+        if (cat === "data") {
+          var titleComponent = RetNavTitle;
+        } else {
+          var titleComponent = VolteRetNavTitle;
+        }
         break;
-      case "Retainability":
-        var titleComponent = RetNavTitle;
-        break;
-      case "Throughput":
-        if (market.category === "Downlink") {
+      case "throughput":
+        if (cat === "downlink") {
           var titleComponent = DltNavTitle;
         } else {
           var titleComponent = UltNavTitle;
         }
         break;
-      case "Mobility":
-        var titleComponent = MobNavTitle;
+      case "tnol":
+        var titleComponent = TNOLNavTitle;
         break;
     }
     // var newTitleComponent = React.render(<titleComponent area={"Zone"}/>);
@@ -292,6 +299,7 @@ var AreaScreen = React.createClass({
         passProps: {
           category: market.category,
           parentKpi: market.parentKpi,
+          areaName: market.name,
         }
       });
     } else {

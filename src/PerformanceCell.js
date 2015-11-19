@@ -281,7 +281,7 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   category: {
-    color: 'black',
+    color: 'rgba(0,0,0,0.5)',
     fontSize: 13,
     fontWeight: '600',
     fontFamily: 'Helvetica Neue',
@@ -293,7 +293,7 @@ var styles = StyleSheet.create({
     fontFamily: 'Helvetica Neue',
   },
   parentKpi: {
-    color: '#555555',
+    color: 'rgba(85,85,85,0.7)',
     fontSize: 16,
     fontFamily: 'Helvetica Neue',
   },
@@ -304,13 +304,13 @@ var styles = StyleSheet.create({
   },
   dailyValue: {
     color: 'white',
-    fontSize: 38,
-    fontWeight: '600',
+    fontSize: 42,
+    fontWeight: '700',
     fontFamily: 'Helvetica Neue',
   },
   unit: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '500',
     fontFamily: 'Helvetica Neue',
   },
@@ -353,9 +353,9 @@ var styles = StyleSheet.create({
   yMaxValue: {
     flex: 4,
     fontSize: 9,
-    fontWeight: "700",
+    fontWeight: "800",
     fontFamily: 'Helvetica Neue',
-    color: "#3C3C3C",
+    color: "rgba(60,60,60,0.8)",
   },
   yMinValueContainer: {
     flex: 4,
@@ -364,9 +364,9 @@ var styles = StyleSheet.create({
   },
   yMinValue: {
     fontSize: 9,
-    fontWeight: "700",
+    fontWeight: "800",
     fontFamily: 'Helvetica Neue',
-    color: "#3C3C3C",
+    color: "rgba(60,60,60,0.8)",
   },
   threshArrowContainer: {
     flex: 1,
@@ -384,9 +384,9 @@ var styles = StyleSheet.create({
   chartThresh: {
     flex: 4,
     fontSize: 9,
-    fontWeight: "700",
+    fontWeight: "800",
     fontFamily: 'Helvetica Neue',
-    color: "#3C3C3C",
+    color: "rgba(60,60,60,0.8)",
     height: 10,
     // borderColor: "blue",
     // borderWidth: 1,
@@ -417,8 +417,8 @@ var styles = StyleSheet.create({
     // borderWidth: 1,
   },
   tt: {
-    color: "white",
-    fontSize: 10,
+    color: "rgba(255,255,255, 0.7)",
+    fontSize: 9,
     fontWeight: "400",
     fontFamily: 'Helvetica Neue',
   },

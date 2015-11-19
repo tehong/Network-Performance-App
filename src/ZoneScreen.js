@@ -19,11 +19,12 @@ var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoATT = require('./components/icons/LogoATT');
 var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
-var AvaNavTitle = require('./components/icons/sectors/AvaNavTitle');
+var VolteAccNavTitle = require('./components/icons/sectors/VolteAccNavTitle');
 var RetNavTitle = require('./components/icons/sectors/RetNavTitle');
+var VolteRetNavTitle = require('./components/icons/sectors/VolteRetNavTitle');
 var DltNavTitle = require('./components/icons/sectors/DltNavTitle');
 var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
-var MobNavTitle = require('./components/icons/sectors/MobNavTitle');
+var TNOLNavTitle = require('./components/icons/sectors/TNOLNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./getSortedDataArray');
 
@@ -74,25 +75,34 @@ var ZoneScreen = React.createClass({
 
   componentDidMount: function() {
     var parentKpi = this.props.parentKpi;
-    var query = parentKpi;
-    switch(parentKpi) {
-      case "Accessibility":
-        break;
-      case "Availability":
-        break;
-      case "Retainability":
-        break;
-      case "Throughput":
-        if (this.props.category === "Downlink") {
-          var query = "DlThroughput";
+    var cat = this.props.category.toLowerCase();
+    switch(parentKpi.toLowerCase()) {
+      case "accessibility":
+        if (cat === "data") {
+          var query = "accessibility";
         } else {
-          var query = "UlThroughput";
+          var query = "volteaccessiblity";
         }
         break;
-      case "Mobility":
+      case "retainability":
+        if (cat === "data") {
+          var query = "retainability";
+        } else {
+          var query = "volteretainability";
+        }
+        break;
+      case "throughput":
+        if (cat === "downlink") {
+          var query = "dlthroughput";
+        } else {
+          var query = "ulthroughput";
+        }
+        break;
+      case "tnol":
+        var query = "tnol";
         break;
     }
-    this.getMarkets(query);
+    this.getZoneKPI(query);
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
@@ -114,9 +124,6 @@ var ZoneScreen = React.createClass({
       case "accessibility":
         var zones = require('../simulatedData/ZonesAccessibility.json');
         break;
-      case "availability":
-        var Zones = require('../simulatedData/ZonesAvailability.json');
-        break;
       case "retainability":
         var zones = require('../simulatedData/ZonesRetainability.json');
         break;
@@ -126,8 +133,14 @@ var ZoneScreen = React.createClass({
       case "ulthroughput":
         var zones = require('../simulatedData/ZonesUlThroughput.json');
         break;
-      case "mobility":
-        var zones = require('../simulatedData/ZonesMobility.json');
+      case "volteaccessiblity":
+        var Zones = require('../simulatedData/ZonesVolteAccessibility.json');
+        break;
+      case "volteretainability":
+        var Zones = require('../simulatedData/ZonesVolteRetainability.json');
+        break;
+      case "tnol":
+        var zones = require('../simulatedData/ZonesTNOL.json');
         break;
     }
     if (zones) {
@@ -156,7 +169,7 @@ var ZoneScreen = React.createClass({
         });
     }
   },
-  getMarkets: function(query: string) {
+  getZoneKPI: function(query: string) {
     this.timeoutID = null;
 
     // NOTE: Since we are not really query via HTTP but directly via simulatedData files
@@ -200,27 +213,33 @@ var ZoneScreen = React.createClass({
     return this.state.dataSource.cloneWithRows(sortedMarkets);
   },
 
-  selectMarket: function(market: Object) {
+  selectSector: function(market: Object) {
     var parentKpi = market.parentKpi;
-    switch(parentKpi) {
-      case "Accessibility":
-        var titleComponent = AccNavTitle;
+    var cat = market.category.toLowerCase();
+    switch(parentKpi.toLowerCase()) {
+      case "accessibility":
+        if (cat === "data") {
+          var titleComponent = AccNavTitle;
+        } else {
+          var titleComponent = VolteAccNavTitle;
+        }
         break;
-      case "Availability":
-        var titleComponent = AvaNavTitle;
+      case "retainability":
+        if (cat === "data") {
+          var titleComponent = RetNavTitle;
+        } else {
+          var titleComponent = VolteRetNavTitle;
+        }
         break;
-      case "Retainability":
-        var titleComponent = RetNavTitle;
-        break;
-      case "Throughput":
-        if (market.category === "Downlink") {
+      case "throughput":
+        if (cat === "downlink") {
           var titleComponent = DltNavTitle;
         } else {
           var titleComponent = UltNavTitle;
         }
         break;
-      case "Mobility":
-        var titleComponent = MobNavTitle;
+      case "tnol":
+        var titleComponent = TNOLNavTitle;
         break;
     }
     if (Platform.OS === 'ios') {
@@ -234,6 +253,7 @@ var ZoneScreen = React.createClass({
           category: market.category,
           parentKpi: market.parentKpi,
           parentEntityId: market.entityId,
+          areaName: this.props.areaName,
         }
       });
     } else {
@@ -250,7 +270,7 @@ var ZoneScreen = React.createClass({
     var filter = event.nativeEvent.text.toLowerCase();
 
     this.clearTimeout(this.timeoutID);
-    this.timeoutID = this.setTimeout(() => this.getMarkets(filter), 100);
+    this.timeoutID = this.setTimeout(() => this.getZoneKPI(filter), 100);
   },
 
   renderFooter: function() {
@@ -282,7 +302,7 @@ var ZoneScreen = React.createClass({
     return (
       <PerformanceCell
         key={market.id}
-        onSelect={() => this.selectMarket(market)}
+        onSelect={() => this.selectSector(market)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         market={market}

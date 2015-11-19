@@ -10,17 +10,17 @@ var {
   StyleSheet,
 } = React;
 
-var AvaNavTitle = React.createClass({
+var VolteAccNavTitle = React.createClass({
   render() {
     var styles = getNavBarStyles();
     return (
         // <Image underlayColor="transparent" source={{uri: 'Logo_ATT', isStatic: true}} />
         <View style={styles.container}>
-          <Text style={styles.title}>Zone Availability </Text>
+          <Text style={styles.title}>Zone VoLTE Accessiblity </Text>
           <Text style={styles.icon}>{Moment().format("MM/DD/YYYY")}</Text>
         </View>
     );
   }
 });
 
-module.exports = AvaNavTitle;
+module.exports = VolteAccNavTitle;
