@@ -23,8 +23,22 @@ function getAreaScreenStyles(): StyleSheet {
   var styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: 'white',
+      alignItems: 'stretch',
+      backgroundColor: 'rgba(10,10,10,0.8)',
     },
+    /*
+    imageContainer: {
+      flex: 1,
+      alignItems: 'stretch'
+    },
+    backgroundImage: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'stretch',
+      // borderWidth: 1,
+      // borderColor: '#00BBF0',
+    },
+    */
     centerText: {
       alignItems: 'center',
     },

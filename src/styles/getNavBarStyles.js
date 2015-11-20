@@ -27,14 +27,14 @@ function getNavBarStyles(): StyleSheet {
       alignItems: 'center',
     },
     title: {
-      fontSize: 14,
+      fontSize: 16,
       marginTop: 5,
       color: 'white',
       fontWeight: "500",
       fontFamily: 'Helvetica Neue',
     },
     icon: {
-      fontSize: 13,
+      fontSize: 15,
       marginTop: 5,
       fontWeight: "300",
       color: 'white',

@@ -9,6 +9,7 @@ var {
   StyleSheet,
   Text,
   View,
+  Image,
 } = React;
 
 var TimerMixin = require('react-timer-mixin');
@@ -372,7 +373,8 @@ var AreaScreen = React.createClass({
       <NoMarkets
         filter={this.state.filter}
         isLoading={this.state.isLoading}
-      /> :
+      />
+      :
       <ListView
         ref="listview"
         dataSource={this.state.dataSource}
@@ -383,20 +385,11 @@ var AreaScreen = React.createClass({
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps={true}
         showsVerticalScrollIndicator={false}
-      />;
+      />
         /*renderSeparator={this.renderSeparator}*/
 
     return (
       <View style={styles.container}>
-        {/*
-        <SearchBar
-          onSearchChange={this.onSearchChange}
-          isLoading={this.state.isLoading}
-          onFocus={() =>
-            this.refs.listview && this.refs.listview.getScrollResponder().scrollTo(0, 0)}
-        />
-        <View style={styles.separator} />
-        */}
         {content}
       </View>
     );
@@ -411,7 +404,7 @@ var NoMarkets = React.createClass({
     } else if (!this.props.isLoading) {
       // If we're looking at the latest markets, aren't currently loading, and
       // still have no results, show a message
-      text = 'No markets found';
+      text = 'No area found';
     }
 
     return (

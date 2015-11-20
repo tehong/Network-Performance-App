@@ -32,7 +32,6 @@ var getTextFromScore = require('./getTextFromScore');
 var getImageFromAverage = require('./getImageFromAverage');
 var getImageFromParentKPI = require('./getImageFromParentKPI');
 var SparklineView= require('./SparklineView');
-var threshold = "99.0"
 
 var PerformanceCell = React.createClass({
   render: function() {
@@ -169,6 +168,9 @@ var PerformanceCell = React.createClass({
     if (unit === "%") {
       var yUnit = unit;
     }
+    else {
+      unit = ""
+    }
     return(
       <View style={styles.chartContainer}>
         <View style={styles.chart}>
@@ -280,21 +282,21 @@ var styles = StyleSheet.create({
     // borderColor: "yellow",
     // borderWidth: 2,
   },
-  category: {
-    color: 'rgba(0,0,0,0.7)',
-    fontSize: 12,
-    fontWeight: '600',
-    fontFamily: 'Helvetica Neue',
-  },
   marketTitle: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
     color: 'white',
     fontFamily: 'Helvetica Neue',
   },
+  category: {
+    color: 'rgba(0,0,0,0.7)',
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: 'Helvetica Neue',
+  },
   parentKpi: {
-    color: 'rgba(85,85,85,1.0)',
-    fontSize: 14,
+    color: 'rgba(30,30,30,0.7)',
+    fontSize: 16,
     fontFamily: 'Helvetica Neue',
   },
   dailyAverage: {
@@ -304,13 +306,13 @@ var styles = StyleSheet.create({
   },
   dailyValue: {
     color: 'white',
-    fontSize: 35,
+    fontSize: 48,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
   },
   unit: {
     color: 'white',
-    fontSize: 15,
+    fontSize: 16,
     paddingTop: 5,
     fontWeight: '500',
     fontFamily: 'Helvetica Neue',
@@ -324,7 +326,7 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   threshold: {
-    flex: 10,
+    flex: 11,
     flexDirection: "row",
     // borderColor: "white",
     // borderWidth: 2,
@@ -353,7 +355,7 @@ var styles = StyleSheet.create({
   },
   yMaxValue: {
     flex: 4,
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: "900",
     fontFamily: 'Helvetica Neue',
     color: "rgba(60,60,60,1.0)",
@@ -364,7 +366,7 @@ var styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   yMinValue: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: "900",
     fontFamily: 'Helvetica Neue',
     color: "rgba(60,60,60,1.0)",
@@ -385,7 +387,7 @@ var styles = StyleSheet.create({
   },
   chartThresh: {
     flex: 2,
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: "900",
     fontFamily: 'Helvetica Neue',
     color: "rgba(60,60,60,1.0)",
@@ -420,13 +422,13 @@ var styles = StyleSheet.create({
   },
   tt: {
     color: "rgba(255,255,255, 0.7)",
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: "400",
     fontFamily: 'Helvetica Neue',
   },
   tv: {
     color: "white",
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: "600",
     fontFamily: 'Helvetica Neue',
   },

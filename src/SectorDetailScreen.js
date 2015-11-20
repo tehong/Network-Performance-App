@@ -343,38 +343,6 @@ var SectorDetailScreen = React.createClass({
   },
 });
 
-/*
-var SectorKpiList = React.createClass({
-  render: function() {
-        return (
-          <ScrollView contentContainerStyle={styles.contentContainer}>
-            <View style={styles.kpiRowContainer}>
-              <Text style={styles.ratingTitle}>KPI1</Text>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <Text style={styles.ratingTitle}>KPI2</Text>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <Text style={styles.ratingTitle}>KPI3</Text>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <Text style={styles.ratingTitle}>KPI4</Text>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <Text style={styles.ratingTitle}>KPI5</Text>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <Text style={styles.ratingTitle}>KPI6</Text>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <Text style={styles.ratingTitle}>KPI7</Text>
-            </View>
-          </ScrollView>
-        );
-  }
-});
-*/
-
 var SectorDetails = React.createClass({
   render: function() {
     switch (this.props.tabNumber) {
@@ -468,7 +436,7 @@ var KpiDetails = React.createClass({
     var data = this.props.data;
     if (!data) {
       return(
-        <Text>No data available</Text>
+        <Text style={styles.noData}>No data available</Text>
       );
     }
     var kpiKey = this.props.kpiKey;
@@ -601,7 +569,7 @@ var styles = StyleSheet.create({
   },
   buttonText1: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: "500",
     fontFamily: 'Helvetica Neue',
     backgroundColor: '#00A9E9',
@@ -613,7 +581,7 @@ var styles = StyleSheet.create({
   },
   buttonText2: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: "500",
     fontFamily: 'Helvetica Neue',
     backgroundColor: '#D4E6EF',
@@ -638,42 +606,41 @@ var styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 4,
     fontFamily: 'Helvetica Neue',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "400",
     color: "#888A8D",
   },
   subHeadContainer: {
     flexDirection: "row",
     marginTop: 6,
-    marginBottom: 6,
+    marginBottom: 7,
   },
   subHeadText1: {
     fontFamily: 'Helvetica Neue',
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: "600",
     color: "#48C4F3",
   },
   subHeadText2: {
     fontFamily: 'Helvetica Neue',
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: "800",
     color: "#03AEEE",
   },
   issueText: {
     fontFamily: 'Helvetica Neue',
-    fontSize: 11,
+    fontSize: 15,
     fontWeight: "400",
   },
   diag: {
+    alignSelf: "stretch",
     marginTop: 10,
-    height:160,
-    width:300,
-    paddingLeft: 15,
-    paddingRight: 15,
+    height: 187,
+    width: 350,
   },
   kpiRowContainer: {
     flex: 1,
-    paddingLeft: 7,
+    paddingLeft: 3,
     paddingTop: 5,
     paddingBottom: 5,
     // borderColor: "blue",
@@ -695,8 +662,8 @@ var styles = StyleSheet.create({
     // borderWidth: 1,
   },
   kpiIcon: {
-    height: 29,
-    width: 29,
+    height: 35,
+    width: 35,
     // borderColor: "purple",
     // borderWidth: 1,
   },
@@ -721,21 +688,21 @@ var styles = StyleSheet.create({
   },
   kpiCatText: {
     flex:1,
-    fontSize: 10,
-    fontWeight: "800",
+    fontSize: 13,
+    fontWeight: "900",
     // borderColor: "blue",
     // borderWidth: 1,
   },
   kpiNameText: {
     flex:4,
-    fontSize: 14,
-    fontWeight: "400",
+    fontSize: 17,
+    fontWeight: "300",
     // borderColor: "pink",
     // borderWidth: 1,
   },
   dailyAverage: {
     flex:1,
-    fontSize: 22,
+    fontSize: 27,
     fontWeight: "800",
     textAlign: "right",
     marginTop: 0,
@@ -744,12 +711,17 @@ var styles = StyleSheet.create({
   },
   kpiUnit: {
     flex:1,
-    fontSize: 9,
+    fontSize: 13,
     fontWeight: "800",
     textAlign: "left",
     marginTop: 5,
     // borderColor: "violet",
     // borderWidth: 1,
+  },
+  noData: {
+    fontSize: 20,
+    fontWeight: "300",
+    fontFamily: 'Helvetica Neue',
   },
   separator: {
     backgroundColor: 'rgba(0, 0, 0, 0.1)',

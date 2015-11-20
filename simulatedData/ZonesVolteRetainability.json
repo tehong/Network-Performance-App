@@ -42,20 +42,6 @@
           "green": 99
         },
       "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
-    },
-    {
-      "area": "zones",
-      "name": "Others",
-      "category": "Uplink",
-      "parentKpi": "Accessibility",
-      "dailyAverage": 99,
-      "unit": "%",
-      "thresholds":
-        {
-          "red": 97,
-          "green": 99
-        },
-      "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
     }
   ]
 }

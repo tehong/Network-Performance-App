@@ -21,6 +21,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
+*.jsbundle
 
 # Android/IJ
 #
@@ -32,3 +33,6 @@ local.properties
 #
 node_modules/
 npm-debug.log
+
+# private
+*_new

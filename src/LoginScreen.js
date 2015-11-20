@@ -71,8 +71,7 @@ var LoginScreen = React.createClass({
     return (
           <Image style={styles.backgroundImage} source={{uri: 'BG_Gradient_MiKPI', isStatic: true}}>
             <View style={styles.container}>
-              <View style={styles.logoSpacing}>
-              </View>
+              <Image style={styles.logo} source={{uri: 'Logo_Mi_KPI', isStatic: true}}/>
               <View style={styles.loginContainer}>
                 <TextInput style={styles.loginText}
                   onChangeText={(login) => this.setState({login})}
@@ -100,11 +99,9 @@ var LoginScreen = React.createClass({
                   <Text style={styles.loginButtonText}>LOGIN</Text>
                 </TouchableElement>
               </View>
-              <View style={styles.forgotContainer}>
-                <Text style={styles.forgot} onPress={() => LinkingIOS.openURL('http://www.3ten8.com')}>
-                  Forgotten Username or Password
-                </Text>
-              </View>
+              <Text style={styles.forgot} onPress={() => LinkingIOS.openURL('http://www.3ten8.com')}>
+                Forgotten Username or Password
+              </Text>
             </View>
           </Image>
     );
@@ -122,6 +119,7 @@ var LoginScreen = React.createClass({
         rightCorner: LogoATT,
         component: AreaScreen,
         headerStyle: styles.header,
+        hideNavigationBar: {false}, 
       });
       /*
       this.props.navigator.push({
@@ -189,78 +187,73 @@ var styles = StyleSheet.create({
   container: {
     justifyContent: 'space-around',
     alignItems: 'center',
-    height: 300,
-    width: 280,
+    height: 350,
+    width: 300,
     backgroundColor: 'rgba(0, 0, 0, 0)',
     // borderWidth: 2,
     // borderColor: '#00BBF0',
   },
-  logoContainer: {
-    flex: 3,
-    alignItems: 'center',
-    padding: 2,
-    // borderWidth: 2,
-    // borderColor: '#0000CC',
-  },
   logo: {
     flex: 4,
-    width: 120,
-    paddingTop: 15,
+    width: 130,
+    height: 80,
+    marginBottom: 15,
     // borderWidth: 1,
-    // borderColor: '#00DDFF',
-    // backgroundColor: 'rgba(0, 0, 0, 0)',
-  },
-  logoSpacing: {
-    flex: 4,
-    // borderWidth: 2,
-    // borderColor: '#CCDD00',
+    // borderColor: '#F0000F',
   },
   loginContainer: {
-    flex: 2,
-    width: 240,
+    flex: 5,
+    width: 300,
+    marginTop: 5,
+    justifyContent: 'space-between',
     // borderWidth: 2,
     // borderColor: '#00DD00',
   },
-  loginText: {
-    flex: 1,
-    alignItems: 'stretch',
-    marginTop: 5,
-    padding: 3,
-    // backgroundColor: '#105D95',
-    backgroundColor: '#0B858B',
-    color: 'white',
-    borderRadius: 1,
-    fontSize: 17,
-    fontFamily: 'Helvetica Neue',
-    borderWidth: 1,
-    borderColor: '#91C6C2',
-  },
   loginButtonContainer: {
-    flex: 1,
+    flex: 3,
     flexDirection: "row",
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    marginTop: 24,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+    width: 300,
     // borderColor: 'yellow',
     // borderWidth: 2,
+  },
+  forgot: {
+    flex: 2,
+    marginTop: 40,
+    textAlign: 'center',
+    color: 'white',
+    textDecorationLine: 'underline',
+    fontSize: 14,
+    fontFamily: 'Helvetica Neue',
+    fontWeight: "500",
+    // borderWidth: 1,
+    // borderColor: '#CC00CC',
+  },
+  loginText: {
+    flex: 1,
+    backgroundColor: '#0B858B',
+    color: 'white',
+    fontSize: 20,
+    fontFamily: 'Helvetica Neue',
+    fontWeight: "400",
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: '#91C6C2',
   },
   button: {
     alignItems: 'stretch',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'white',
-    borderRadius: 1,
     backgroundColor: 'white',
-    width: 110,
-    height: 23,
-    marginRight: 10,
-    marginLeft: 10,
+    width: 130,
+    height: 40,
     // borderColor: 'yellow',
     // borderWidth: 2,
   },
   loginButtonText: {
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: 'Helvetica Neue',
     backgroundColor: 'white',
     color: '#105D95',
@@ -270,39 +263,6 @@ var styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 30,
-    // borderWidth: 1,
-    // borderColor: '#CC00CC',
-  },
-  forgot: {
-    textAlign: 'center',
-    color: 'white',
-    textDecorationLine: 'underline',
-    fontSize: 9,
-    fontFamily: 'Helvetica Neue',
-    fontWeight: "500",
-  },
-  navBar: {
-    backgroundColor: 'white',
-  },
-  navBarText: {
-    fontSize: 16,
-    fontFamily: 'Helvetica Neue',
-    marginVertical: 10,
-  },
-  navBarTitleText: {
-    color: "#08426A",
-    fontWeight: '500',
-    fontFamily: 'Helvetica Neue',
-    marginVertical: 9,
-  },
-  navBarLeftButton: {
-    paddingLeft: 10,
-  },
-  navBarRightButton: {
-    paddingRight: 10,
-  },
-  navBarButtonText: {
-    color: "#08426A",
   },
   scene: {
     flex: 1,

@@ -42,20 +42,6 @@
           "green": 98
         },
       "data": [97, 100, 99, 97, 98, 96, 99, 100, 96, 98, 100, 97]
-    },
-    {
-      "area": "zones",
-      "name": "Others",
-      "category": "Uplink",
-      "parentKpi": "Retainability",
-      "dailyAverage": 99,
-      "unit": "%",
-      "thresholds":
-        {
-          "red": 95,
-          "green": 98
-        },
-      "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
     }
   ]
 }
