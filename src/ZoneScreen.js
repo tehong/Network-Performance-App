@@ -74,9 +74,9 @@ var ZoneScreen = React.createClass({
   },
 
   componentDidMount: function() {
-    var parentKpi = this.props.parentKpi;
+    var kpi = this.props.kpi;
     var cat = this.props.category.toLowerCase();
-    switch(parentKpi.toLowerCase()) {
+    switch(kpi.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
           var query = "accessibility";
@@ -214,9 +214,9 @@ var ZoneScreen = React.createClass({
   },
 
   selectSector: function(market: Object) {
-    var parentKpi = market.parentKpi;
+    var kpi = market.kpi;
     var cat = market.category.toLowerCase();
-    switch(parentKpi.toLowerCase()) {
+    switch(kpi.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
           var titleComponent = AccNavTitle;
@@ -251,7 +251,7 @@ var ZoneScreen = React.createClass({
         headerStyle: styles.header,
         passProps: {
           category: market.category,
-          parentKpi: market.parentKpi,
+          kpi: market.kpi,
           parentEntityId: market.entityId,
           areaName: this.props.areaName,
         }

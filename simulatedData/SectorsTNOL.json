@@ -7,7 +7,7 @@
       "entityId": 1000,
       "parentEntityId": 100,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":
@@ -49,7 +49,7 @@
       "entityId": 1001,
       "parentEntityId": 100,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":
@@ -91,7 +91,7 @@
       "entityId": 1002,
       "parentEntityId": 100,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":
@@ -133,7 +133,7 @@
       "entityId": 1100,
       "parentEntityId": 110,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":
@@ -175,7 +175,7 @@
       "entityId": 1101,
       "parentEntityId": 110,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":
@@ -217,7 +217,7 @@
       "entityId": 1102,
       "parentEntityId": 110,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":
@@ -259,7 +259,7 @@
       "entityId": 1200,
       "parentEntityId": 120,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":
@@ -301,7 +301,7 @@
       "entityId": 1201,
       "parentEntityId": 120,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":
@@ -343,7 +343,7 @@
       "entityId": 1202,
       "parentEntityId": 120,
       "category": "Data",
-      "parentKpi": "TNOL",
+      "kpi": "TNOL",
       "dailyAverage": 9,
       "unit": "%",
       "thresholds":

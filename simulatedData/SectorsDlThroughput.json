@@ -7,7 +7,7 @@
       "entityId": 1000,
       "parentEntityId": 100,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 1.5,
       "unit": "Mbps",
       "thresholds":
@@ -37,7 +37,7 @@
       "entityId": 1001,
       "parentEntityId": 100,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 1.5,
       "unit": "Mbps",
       "thresholds":
@@ -67,7 +67,7 @@
       "entityId": 1002,
       "parentEntityId": 100,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 1.5,
       "unit": "Mbps",
       "thresholds":
@@ -97,7 +97,7 @@
       "entityId": 1100,
       "parentEntityId": 110,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 3.1,
       "unit": "Mbps",
       "thresholds":
@@ -127,7 +127,7 @@
       "entityId": 1101,
       "parentEntityId": 110,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 3.1,
       "unit": "Mbps",
       "thresholds":
@@ -157,7 +157,7 @@
       "entityId": 1102,
       "parentEntityId": 110,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 3.1,
       "unit": "Mbps",
       "thresholds":
@@ -187,7 +187,7 @@
       "entityId": 1200,
       "parentEntityId": 120,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 0.9,
       "unit": "Mbps",
       "thresholds":
@@ -217,7 +217,7 @@
       "entityId": 1201,
       "parentEntityId": 120,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 0.9,
       "unit": "Mbps",
       "thresholds":
@@ -247,7 +247,7 @@
       "entityId": 1202,
       "parentEntityId": 120,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 0.9,
       "unit": "Mbps",
       "thresholds":

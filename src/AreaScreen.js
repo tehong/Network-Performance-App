@@ -260,8 +260,8 @@ var AreaScreen = React.createClass({
 
   selectMarket: function(market: Object) {
     var cat = market.category.toLowerCase();
-    var parentKpi = market.parentKpi;
-    switch(parentKpi.toLowerCase()) {
+    var kpi = market.kpi;
+    switch(kpi.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
           var titleComponent = AccNavTitle;
@@ -299,7 +299,7 @@ var AreaScreen = React.createClass({
         headerStyle: styles.header,
         passProps: {
           category: market.category,
-          parentKpi: market.parentKpi,
+          kpi: market.kpi,
           areaName: market.name,
         }
       });

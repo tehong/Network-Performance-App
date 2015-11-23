@@ -7,7 +7,7 @@
       "entityId": 100,
       "parentEntityId": 10,
       "category": "VoLTE",
-      "parentKpi": "Retainability",
+      "kpi": "Retainability",
       "dailyAverage": 98,
       "unit": "%",
       "thresholds":
@@ -49,7 +49,7 @@
       "entityId": 110,
       "parentEntityId": 10,
       "category": "VoLTE",
-      "parentKpi": "Retainability",
+      "kpi": "Retainability",
       "dailyAverage": 98,
       "unit": "%",
       "thresholds":
@@ -91,7 +91,7 @@
       "entityId": 120,
       "parentEntityId": 10,
       "category": "VoLTE",
-      "parentKpi": "Retainability",
+      "kpi": "Retainability",
       "dailyAverage": 98,
       "unit": "%",
       "thresholds":

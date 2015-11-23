@@ -7,7 +7,7 @@
       "entityId": 100,
       "parentEntityId": 10,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 1.5,
       "unit": "Mbps",
       "thresholds":
@@ -37,7 +37,7 @@
       "entityId": 110,
       "parentEntityId": 10,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 1.5,
       "unit": "Mbps",
       "thresholds":
@@ -67,7 +67,7 @@
       "entityId": 120,
       "parentEntityId": 10,
       "category": "Downlink",
-      "parentKpi": "Throughput",
+      "kpi": "Throughput",
       "dailyAverage": 1.5,
       "unit": "Mbps",
       "thresholds":

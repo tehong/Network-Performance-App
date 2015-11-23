@@ -15,9 +15,9 @@
  */
 'use strict';
 
-function getImageFromParentKPI(category: string, parentKPI: string): string {
+function getImageFromParentKPI(category: string, kpi: string): string {
   var cat = category.toLowerCase();
-  switch(parentKPI.toLowerCase()) {
+  switch(kpi.toLowerCase()) {
     case "accessibility":
       var kpiImage = "Icon_DA";
       if (cat === "volte") {

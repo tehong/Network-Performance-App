@@ -75,9 +75,9 @@ var SectorScreen = React.createClass({
   },
 
   componentDidMount: function() {
-    var parentKpi = this.props.parentKpi;
+    var kpig = this.props.kpi;
     var cat = this.props.category.toLowerCase();
-    switch(parentKpi.toLowerCase()) {
+    switch(kpig.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
           var query = "accessibility";

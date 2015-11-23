@@ -196,12 +196,12 @@ var SectorDetailScreen = React.createClass({
       if (this.props.market.entityId === item.entityId) {
         var kpiData = {
           "category": item.category,
-          "parentKpi": item.parentKpi,
+          "kpi": item.kpi,
           "dailyAverage": item.dailyAverage,
           "unit": item.unit,
           "thresholds": item.thresholds,
         }
-        var kpiKey = item.category.toLowerCase() + "-" + item.parentKpi.toLowerCase();
+        var kpiKey = item.category.toLowerCase() + "-" + item.kpi.toLowerCase();
         this.state.sectorKpiData[kpiKey] = kpiData;
         break;
       }
@@ -492,7 +492,7 @@ var KpiDetails = React.createClass({
         </View>
         <View style={styles.kpiTextContainer}>
           <Text style={[styleText.text, styles.kpiCatText]}>{data.category}</Text>
-          <Text style={[styleText.text, styles.kpiNameText]}>{data.parentKpi}</Text>
+          <Text style={[styleText.text, styles.kpiNameText]}>{data.kpi}</Text>
         </View>
         <View style={styles.dailyAverageContainer}>
           <Text style={[styleText.text, styles.dailyAverage]}>{data.dailyAverage}</Text>

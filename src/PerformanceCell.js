@@ -105,7 +105,7 @@ var PerformanceCell = React.createClass({
     return yScale;
   },
   kpiView: function() {
-    var kpiImage = getImageFromParentKPI(this.props.market.category, this.props.market.parentKpi);
+    var kpiImage = getImageFromParentKPI(this.props.market.category, this.props.market.kpi);
     var dailyAverage = this.props.market.dailyAverage;
     var unit = this.props.market.unit;
     return(
@@ -124,8 +124,8 @@ var PerformanceCell = React.createClass({
             <Text style={styles.category}>
               {this.props.market.category}
             </Text>
-            <Text style={styles.parentKpi}>
-              {this.props.market.parentKpi}
+            <Text style={styles.kpi}>
+              {this.props.market.kpi}
             </Text>
             <View style={styles.dailyAverage}>
               <Text style={styles.dailyValue}>
@@ -141,7 +141,7 @@ var PerformanceCell = React.createClass({
     );
   },
   chartView: function() {
-    var parentKpi = this.props.market.parentKpi;
+    var kpi = this.props.market.kpi;
     var redThreshold = this.props.market.thresholds.red;
     var greenThreshold = this.props.market.thresholds.green;
     var yellowLowThreshold = redThreshold + 1;
@@ -150,7 +150,7 @@ var PerformanceCell = React.createClass({
     var greenDir =  redThreshold > greenThreshold?"<":">";
     var unit = this.props.market.unit;
     var data = this.props.market.data;
-    if (parentKpi.toLowerCase() == "throughput") {
+    if (kpi.toLowerCase() == "throughput") {
       yellowLowThreshold = redThreshold;
     }
     var yScale = this.findYScale();
@@ -294,7 +294,7 @@ var styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
   },
-  parentKpi: {
+  kpi: {
     color: 'rgba(30,30,30,0.7)',
     fontSize: 16,
     fontFamily: 'Helvetica Neue',
