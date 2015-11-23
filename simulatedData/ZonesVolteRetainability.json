@@ -2,38 +2,12 @@
   "result":
   [
     {
-      "area": "zones",
-      "name": "Stockton",
-      "category": "Data",
-      "parentKpi": "Accessibility",
-      "dailyAverage": 97,
-      "unit": "%",
-      "thresholds":
-        {
-          "red": 97,
-          "green": 99
-        },
-      "data": [99, 96, 99, 97, 96, 96, 99, 100, 97, 96, 100, 99]
-    },
-    {
-      "area": "zones",
-      "name": "Modesto",
-      "category": "Data",
-      "parentKpi": "Accessibility",
-      "dailyAverage": 97,
-      "unit": "%",
-      "thresholds":
-        {
-          "red": 97,
-          "green": 99
-        },
-      "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
-    },
-    {
-      "area": "zones",
-      "name": "Sacramento",
-      "category": "Downlink",
-      "parentKpi": "Accessibility",
+	  "name": "Stockton",
+      "geoEntity": "sector",
+      "entityId": 100,
+      "parentEntityId": 10,
+      "category": "VoLTE",
+      "parentKpi": "Retainability",
       "dailyAverage": 98,
       "unit": "%",
       "thresholds":
@@ -41,7 +15,117 @@
           "red": 97,
           "green": 99
         },
-      "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
+      "data":
+      [
+        ["00", 98],
+        ["01", 97],
+        ["02", 99],
+        ["03", 99],
+        ["04", 100],
+        ["05", 99],
+        ["06", 100],
+        ["07", 98],
+        ["08", 99],
+        ["09", 97],
+        ["10", 100],
+        ["11", 99],
+        ["12", 97],
+        ["13", 100],
+        ["14", 99],
+        ["15", 100],
+        ["16", 99],
+        ["17", 100],
+        ["18", 98],
+        ["19", 99],
+        ["20", 100],
+        ["21", 97],
+        ["22", 100],
+        ["23", 99]
+      ]
+    },
+    {
+	  "name": "Modesto",
+      "geoEntity": "sector",
+      "entityId": 110,
+      "parentEntityId": 10,
+      "category": "VoLTE",
+      "parentKpi": "Retainability",
+      "dailyAverage": 98,
+      "unit": "%",
+      "thresholds":
+        {
+          "red": 97,
+          "green": 99
+        },
+      "data":
+      [
+        ["00", 98],
+        ["01", 97],
+        ["02", 99],
+        ["03", 99],
+        ["04", 100],
+        ["05", 99],
+        ["06", 100],
+        ["07", 98],
+        ["08", 99],
+        ["09", 97],
+        ["10", 100],
+        ["11", 98],
+        ["12", 97],
+        ["13", 100],
+        ["14", 99],
+        ["15", 100],
+        ["16", 99],
+        ["17", 100],
+        ["18", 97],
+        ["19", 99],
+        ["20", 99],
+        ["21", 97],
+        ["22", 100],
+        ["23", 99]
+      ]
+    },
+    {
+	  "name": "Sacramento",
+      "geoEntity": "sector",
+      "entityId": 120,
+      "parentEntityId": 10,
+      "category": "VoLTE",
+      "parentKpi": "Retainability",
+      "dailyAverage": 98,
+      "unit": "%",
+      "thresholds":
+        {
+          "red": 97,
+          "green": 99
+        },
+      "data":
+      [
+        ["00", 96],
+        ["01", 97],
+        ["02", 99],
+        ["03", 99],
+        ["04", 100],
+        ["05", 99],
+        ["06", 100],
+        ["07", 98],
+        ["08", 99],
+        ["09", 97],
+        ["10", 100],
+        ["11", 98],
+        ["12", 98],
+        ["13", 100],
+        ["14", 99],
+        ["15", 100],
+        ["16", 99],
+        ["17", 100],
+        ["18", 98],
+        ["19", 99],
+        ["20", 98],
+        ["21", 97],
+        ["22", 100],
+        ["23", 99]
+      ]
     }
   ]
 }

@@ -2,8 +2,10 @@
   "result":
   [
     {
-      "area": "zones",
       "name": "Stockton",
+      "area": "zones",
+      "entityId": 100,
+      "parentEntityId": 10,
       "category": "Data",
       "parentKpi": "Retainability",
       "dailyAverage": 97,
@@ -13,35 +15,81 @@
           "red": 95,
           "green": 98
         },
-      "data": [99, 96, 99, 97, 96, 96, 99, 100, 97, 96, 100, 99]
+      "data":
+       [
+        ["00", 99],
+        ["01", 96],
+        ["02", 99],
+        ["03", 97],
+        ["04", 96],
+        ["05", 96],
+        ["06", 99],
+        ["07", 100],
+        ["08", 97],
+        ["09", 96],
+        ["10", 100],
+        ["11", 99]
+      ]
     },
     {
-      "area": "zones",
       "name": "Modesto",
+      "area": "zones",
+      "entityId": 110,
+      "parentEntityId": 10,
       "category": "Data",
       "parentKpi": "Retainability",
-      "dailyAverage": 95,
+      "dailyAverage": 97,
       "unit": "%",
       "thresholds":
         {
           "red": 95,
           "green": 98
         },
-      "data": [97, 90, 94, 97, 96, 92, 97, 90, 97, 98, 92, 96]
+      "data":
+       [
+        ["00", 97],
+        ["01", 90],
+        ["02", 94],
+        ["03", 97],
+        ["04", 96],
+        ["05", 92],
+        ["06", 97],
+        ["07", 90],
+        ["08", 97],
+        ["09", 98],
+        ["10", 92],
+        ["11", 96]
+      ]
     },
     {
-      "area": "zones",
       "name": "Sacramento",
-      "category": "Downlink",
+      "area": "zones",
+      "entityId": 120,
+      "parentEntityId": 10,
+      "category": "Data",
       "parentKpi": "Retainability",
-      "dailyAverage": 98,
+      "dailyAverage": 97,
       "unit": "%",
       "thresholds":
         {
           "red": 95,
           "green": 98
         },
-      "data": [97, 100, 99, 97, 98, 96, 99, 100, 96, 98, 100, 97]
+      "data":
+       [
+        ["00", 100],
+        ["01", 96],
+        ["02", 99],
+        ["03", 97],
+        ["04", 95],
+        ["05", 96],
+        ["06", 99],
+        ["07", 100],
+        ["08", 97],
+        ["09", 98],
+        ["10", 100],
+        ["11", 97]
+      ]
     }
   ]
 }

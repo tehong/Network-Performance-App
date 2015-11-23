@@ -100,7 +100,7 @@ var SectorScreen = React.createClass({
         }
         break;
       case "tnol":
-        var query = "dlthroughput";
+        var query = "tnol";
         break;
     }
     this.getMarkets(query);
@@ -135,13 +135,13 @@ var SectorScreen = React.createClass({
         var sectors = require('../simulatedData/SectorsUlThroughput.json');
         break;
       case "tnol":
-        var Sectors = require('../simulatedData/SectorsTNOL.json');
+        var sectors = require('../simulatedData/SectorsTNOL.json');
         break;
       case "volteaccessiblity":
-        var sectors = require('../simulatedData/SectorsVolteAccessibility.json');
+        var sectors = require('../simulatedData/SectorsVOLTEAccessibility.json');
         break;
       case "volteretainability":
-        var sectors = require('../simulatedData/SectorsVolteRetainability.json');
+        var sectors = require('../simulatedData/SectorsVOLTERetainability.json');
         break;
     }
     if (sectors) {

@@ -2,8 +2,10 @@
   "result":
   [
     {
-      "area": "zones",
-      "name": "Stockton",
+      "name": "Stockton1",
+      "geoEntity": "sector",
+      "entityId": 1000,
+      "parentEntityId": 100,
       "category": "Downlink",
       "parentKpi": "Throughput",
       "dailyAverage": 1.5,
@@ -13,11 +15,87 @@
           "red": 1,
           "green": 2
         },
-      "data": [1.1, 1.2, 1.3, 1.5, 1.7, 1.0, 1.2, 1.6, 1.7, 1.2, 2.0, 1.9]
+      "data":
+      [
+        ["00", 1.1],
+        ["01", 1.2],
+        ["02", 1.3],
+        ["03", 1.5],
+        ["04", 1.7],
+        ["05", 1.0],
+        ["06", 1,2],
+        ["07", 1.6],
+        ["08", 1.7],
+        ["09", 1.2],
+        ["10", 2.0],
+        ["11", 1.9]
+      ]
     },
     {
-      "area": "zones",
-      "name": "Modesto",
+      "name": "Stockton2",
+      "geoEntity": "sector",
+      "entityId": 1001,
+      "parentEntityId": 100,
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 1.5,
+      "unit": "Mbps",
+      "thresholds":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data":
+      [
+        ["00", 1.1],
+        ["01", 1.2],
+        ["02", 1.3],
+        ["03", 1.6],
+        ["04", 1.7],
+        ["05", 1.2],
+        ["06", 1,2],
+        ["07", 1.6],
+        ["08", 2.7],
+        ["09", 2.2],
+        ["10", 2.0],
+        ["11", 1.9]
+      ]
+    },
+    {
+      "name": "Stockton3",
+      "geoEntity": "sector",
+      "entityId": 1002,
+      "parentEntityId": 100,
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 1.5,
+      "unit": "Mbps",
+      "thresholds":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data":
+      [
+        ["00", 1.0],
+        ["01", 1.2],
+        ["02", 2.3],
+        ["03", 1.5],
+        ["04", 2.7],
+        ["05", 1.0],
+        ["06", 1,2],
+        ["07", 1.6],
+        ["08", 1.7],
+        ["09", 1.0],
+        ["10", 2.0],
+        ["11", 2.9]
+      ]
+    },
+    {
+      "name": "Modesto1",
+      "geoEntity": "sector",
+      "entityId": 1100,
+      "parentEntityId": 110,
       "category": "Downlink",
       "parentKpi": "Throughput",
       "dailyAverage": 3.1,
@@ -27,11 +105,87 @@
           "red": 1,
           "green": 2
         },
-      "data": [2.1, 1.2, 3.3, 3.5, 2.7, 1.3, 4.2, 1.6, 2.7, 3.8, 2.7, 2.9]
+      "data":
+      [
+        ["00", 2.1],
+        ["01", 1.2],
+        ["02", 2.7],
+        ["03", 1.3],
+        ["04", 4.2],
+        ["05", 1.6],
+        ["06", 2.7],
+        ["07", 3.8],
+        ["08", 2.7],
+        ["09", 2.9],
+        ["10", 3.3],
+        ["11", 3.5]
+      ]
     },
     {
-      "area": "zones",
-      "name": "Sacramento",
+      "name": "Modesto2",
+      "geoEntity": "sector",
+      "entityId": 1101,
+      "parentEntityId": 110,
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 3.1,
+      "unit": "Mbps",
+      "thresholds":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data":
+      [
+        ["00", 2.7],
+        ["01", 1.2],
+        ["02", 2.7],
+        ["03", 1.9],
+        ["04", 4.2],
+        ["05", 1.6],
+        ["06", 2.7],
+        ["07", 2.8],
+        ["08", 2.7],
+        ["09", 2.9],
+        ["10", 3.3],
+        ["11", 3.5]
+      ]
+    },
+    {
+      "name": "Modesto3",
+      "geoEntity": "sector",
+      "entityId": 1102,
+      "parentEntityId": 110,
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 3.1,
+      "unit": "Mbps",
+      "thresholds":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data":
+      [
+        ["00", 2.1],
+        ["01", 2.2],
+        ["02", 2.7],
+        ["03", 3.3],
+        ["04", 4.2],
+        ["05", 1.6],
+        ["06", 4.7],
+        ["07", 3.8],
+        ["08", 2.7],
+        ["09", 1.9],
+        ["10", 3.3],
+        ["11", 1.5]
+      ]
+    },
+    {
+      "name": "Sacramento1",
+      "geoEntity": "sector",
+      "entityId": 1200,
+      "parentEntityId": 120,
       "category": "Downlink",
       "parentKpi": "Throughput",
       "dailyAverage": 0.9,
@@ -41,21 +195,81 @@
           "red": 1,
           "green": 2
         },
-      "data": [1.1, 0.2, 1.3, 0.5, 0.7, 1.3, 1.2, 0.6, 0.7, 0.8, 1.7, 0.9]
+      "data":
+      [
+        ["00", 1.1],
+        ["01", 0.2],
+        ["02", 1.3],
+        ["03", 0.5],
+        ["04", 0.7],
+        ["05", 1.3],
+        ["06", 1.2],
+        ["07", 0.6],
+        ["08", 0.7],
+        ["09", 0.8],
+        ["10", 1.7],
+        ["11", 0.9]
+      ]
     },
     {
-      "area": "zones",
-      "name": "Others",
+      "name": "Sacramento2",
+      "geoEntity": "sector",
+      "entityId": 1201,
+      "parentEntityId": 120,
       "category": "Downlink",
       "parentKpi": "Throughput",
-      "dailyAverage": 1.9,
+      "dailyAverage": 0.9,
       "unit": "Mbps",
       "thresholds":
         {
           "red": 1,
           "green": 2
         },
-      "data": [2.1, 1.2, 1.3, 2.5, 1.7, 2.3, 1.2, 1.6, 1.7, 2.8, 2.0, 1.9]
+      "data":
+      [
+        ["00", 1.1],
+        ["01", 0.2],
+        ["02", 1.3],
+        ["03", 0.6],
+        ["04", 0.7],
+        ["05", 1.3],
+        ["06", 1.2],
+        ["07", 1.9],
+        ["08", 0.7],
+        ["09", 1.8],
+        ["10", 1.7],
+        ["11", 0.9]
+      ]
+    },
+    {
+      "name": "Sacramento3",
+      "geoEntity": "sector",
+      "entityId": 1202,
+      "parentEntityId": 120,
+      "category": "Downlink",
+      "parentKpi": "Throughput",
+      "dailyAverage": 0.9,
+      "unit": "Mbps",
+      "thresholds":
+        {
+          "red": 1,
+          "green": 2
+        },
+      "data":
+      [
+        ["00", 1.1],
+        ["01", 1.2],
+        ["02", 1.3],
+        ["03", 1.5],
+        ["04", 0.7],
+        ["05", 1.3],
+        ["06", 1.2],
+        ["07", 0.6],
+        ["08", 0.7],
+        ["09", 1.8],
+        ["10", 1.7],
+        ["11", 0.9]
+      ]
     }
   ]
 }

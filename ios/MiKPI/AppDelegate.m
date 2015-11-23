@@ -7,33 +7,71 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+
+#import <AppHub/AppHub.h>
 #import "AppDelegate.h"
 
+#import "RCTBridge.h"
+#import "RCTJavaScriptLoader.h"
 #import "RCTRootView.h"
 
-@implementation AppDelegate
+@interface AppDelegate() <RCTBridgeDelegate, UIAlertViewDelegate>
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+@end
+
+@implementation AppDelegate {
+  RCTBridge *_bridge;
+}
+
+- (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  NSURL *jsCodeLocation;
+  // TODO: replace "123" with your Application ID from the AppHub dashboard.
+  [AppHub setApplicationID:@"WXeP33Qfj3DZiQWQThOr"];
+  
+  _bridge = [[RCTBridge alloc] initWithDelegate:self
+                                  launchOptions:launchOptions];
+  
+  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:_bridge
+                                                   moduleName:@"MiKPI"
+                                            initialProperties:nil];
+  
+  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  UIViewController *rootViewController = [UIViewController new];
+  rootViewController.view = rootView;
+  self.window.rootViewController = rootViewController;
+  [self.window makeKeyAndVisible];
+  
+  // Register a callback for when a new build becomes available.
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(newBuildDidBecomeAvailable:)
+                                               name:AHBuildManagerDidMakeBuildAvailableNotification
+                                             object:nil];
+  
+  return YES;
+}
 
+#pragma mark - RCTBridgeDelegate
+
+- (NSURL *)sourceURLForBridge:(__unused RCTBridge *)bridge
+{
+  NSURL *sourceURL;
+  
   /**
    * Loading JavaScript code - uncomment the one you want.
    *
    * OPTION 1
    * Load from development server. Start the server from the repository root:
    *
-   * $ npm start
+   * $ react-native start
    *
    * To run on device, change `localhost` to the IP address of your computer
-   * (you can get this by typing `ifconfig` into the 	 and selecting the
+   * (you can get this by typing `ifconfig` into the terminal and selecting the
    * `inet` value under `en0:`) and make sure your computer and iOS device are
    * on the same Wi-Fi network.
    */
-
   
-  jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/src/MiKPIApp.bundle?platform=ios&dev=true"];
-
+  // sourceURL = [NSURL URLWithString:@"http://localhost:8081/src/MiKPIApp.bundle.bundle?platform=ios&dev=true"];
+  
   /**
    * OPTION 2
    * Load from pre-bundled file on disk. To re-generate the static bundle
@@ -43,21 +81,64 @@
    *
    * see http://facebook.github.io/react-native/docs/runningondevice.html
    */
+  
+  // sourceURL = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 
-   // jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
-
-  RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
-                                                      moduleName:@"MiKPI"
-                                               initialProperties:nil
-                                                   launchOptions:launchOptions];
-
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [[UIViewController alloc] init];
-  rootViewController.view = rootView;
-  self.window.rootViewController = rootViewController;
-  [self.window makeKeyAndVisible];
-  return YES;
+  /**
+   * OPTION 3 - AppHub
+   *
+   * Load cached code and images from AppHub. Use this when deploying to test
+   * users and the App Store.
+   *
+   * Make sure to re-generate the static bundle by navigating to your Xcode project
+   * folder and running
+   *
+   * $ react-native bundle --entry-file index.ios.js --platform ios --dev true --bundle-output iOS/main.jsbundle
+   *
+   */
+  
+  AHBuild *build = [[AppHub buildManager] currentBuild];
+  sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
+  
+  return sourceURL;
 }
 
+- (void)loadSourceForBridge:(RCTBridge *)bridge
+                  withBlock:(RCTSourceLoadBlock)loadCallback
+{
+  [RCTJavaScriptLoader loadBundleAtURL:[self sourceURLForBridge:bridge]
+                            onComplete:loadCallback];
+}
+
+#pragma mark - NSNotificationCenter
+
+-(void) newBuildDidBecomeAvailable:(NSNotification *)notification {
+  // Show an alert view when a new build becomes available. The user can choose to "Update" the app, or "Cancel".
+  // If the user presses "Cancel", their app will update when they close the app.
+  
+  AHBuild *build = notification.userInfo[AHBuildManagerBuildKey];
+  NSString *alertMessage = [NSString stringWithFormat:@"There's a new update available.\n\nUpdate description:\n\n %@", build.buildDescription];
+  
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Great news!"
+                                                  message:alertMessage
+                                                 delegate:self
+                                        cancelButtonTitle:@"Cancel"
+                                        otherButtonTitles:@"Update", nil];
+  
+  
+  dispatch_async(dispatch_get_main_queue(), ^{
+    // Show the alert on the main thread.
+    [alert show];
+  });
+}
+
+#pragma mark - UIAlertViewDelegate
+
+-(void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+  if (buttonIndex == 1) {
+    // The user pressed "update".
+    [_bridge reload];
+  }
+}
 
 @end

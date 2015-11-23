@@ -346,7 +346,7 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   chartSideContainer: {
-    flex: 4,
+    flex: 5,
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "stretch",
@@ -386,7 +386,7 @@ var styles = StyleSheet.create({
     // borderWidth: 1,
   },
   chartThresh: {
-    flex: 2,
+    flex: 3,
     fontSize: 12,
     fontWeight: "900",
     fontFamily: 'Helvetica Neue',
@@ -428,7 +428,7 @@ var styles = StyleSheet.create({
   },
   tv: {
     color: "white",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
     fontFamily: 'Helvetica Neue',
   },

@@ -19,9 +19,9 @@ var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoATT = require('./components/icons/LogoATT');
 var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
-var VolteAccNavTitle = require('./components/icons/sectors/VolteAccNavTitle');
+var VOLTEAccNavTitle = require('./components/icons/sectors/VOLTEAccNavTitle');
 var RetNavTitle = require('./components/icons/sectors/RetNavTitle');
-var VolteRetNavTitle = require('./components/icons/sectors/VolteRetNavTitle');
+var VOLTERetNavTitle = require('./components/icons/sectors/VOLTERetNavTitle');
 var DltNavTitle = require('./components/icons/sectors/DltNavTitle');
 var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/sectors/TNOLNavTitle');
@@ -81,7 +81,7 @@ var ZoneScreen = React.createClass({
         if (cat === "data") {
           var query = "accessibility";
         } else {
-          var query = "volteaccessiblity";
+          var query = "volteaccessibility";
         }
         break;
       case "retainability":
@@ -133,11 +133,11 @@ var ZoneScreen = React.createClass({
       case "ulthroughput":
         var zones = require('../simulatedData/ZonesUlThroughput.json');
         break;
-      case "volteaccessiblity":
-        var Zones = require('../simulatedData/ZonesVolteAccessibility.json');
+      case "volteaccessibility":
+        var zones = require('../simulatedData/ZonesVOLTEAccessibility.json');
         break;
       case "volteretainability":
-        var Zones = require('../simulatedData/ZonesVolteRetainability.json');
+        var zones = require('../simulatedData/ZonesVOLTERetainability.json');
         break;
       case "tnol":
         var zones = require('../simulatedData/ZonesTNOL.json');
@@ -221,14 +221,14 @@ var ZoneScreen = React.createClass({
         if (cat === "data") {
           var titleComponent = AccNavTitle;
         } else {
-          var titleComponent = VolteAccNavTitle;
+          var titleComponent = VOLTEAccNavTitle;
         }
         break;
       case "retainability":
         if (cat === "data") {
           var titleComponent = RetNavTitle;
         } else {
-          var titleComponent = VolteRetNavTitle;
+          var titleComponent = VOLTERetNavTitle;
         }
         break;
       case "throughput":

@@ -20,9 +20,9 @@ var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoATT = require('./components/icons/LogoATT');
 var AccNavTitle = require('./components/icons/zones/AccNavTitle');
-var VolteAccNavTitle = require('./components/icons/zones/VolteAccNavTitle');
+var VOLTEAccNavTitle = require('./components/icons/zones/VOLTEAccNavTitle');
 var RetNavTitle = require('./components/icons/zones/RetNavTitle');
-var VolteRetNavTitle = require('./components/icons/zones/VolteRetNavTitle');
+var VOLTERetNavTitle = require('./components/icons/zones/VOLTERetNavTitle');
 var DltNavTitle = require('./components/icons/zones/DltNavTitle');
 var UltNavTitle = require('./components/icons/zones/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/zones/TNOLNavTitle');
@@ -266,14 +266,14 @@ var AreaScreen = React.createClass({
         if (cat === "data") {
           var titleComponent = AccNavTitle;
         } else {
-          var titleComponent = VolteAccNavTitle;
+          var titleComponent = VOLTEAccNavTitle;
         }
         break;
       case "retainability":
         if (cat === "data") {
           var titleComponent = RetNavTitle;
         } else {
-          var titleComponent = VolteRetNavTitle;
+          var titleComponent = VOLTERetNavTitle;
         }
         break;
       case "throughput":

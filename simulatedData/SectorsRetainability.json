@@ -2,8 +2,10 @@
   "result":
   [
     {
-      "area": "zones",
-      "name": "Stockton",
+      "name": "Stockton1",
+      "geoEntity": "sector",
+      "entityId": 1000,
+      "parentEntityId": 100,
       "category": "Data",
       "parentKpi": "Retainability",
       "dailyAverage": 97,
@@ -13,49 +15,261 @@
           "red": 95,
           "green": 98
         },
-      "data": [99, 96, 99, 97, 96, 96, 99, 100, 97, 96, 100, 99]
+      "data":
+      [
+        ["00", 99],
+        ["01", 96],
+        ["02", 99],
+        ["03", 97],
+        ["04", 96],
+        ["05", 96],
+        ["06", 99],
+        ["07", 100],
+        ["08", 97],
+        ["09", 96],
+        ["10", 100],
+        ["11", 99]
+      ]
     },
     {
-      "area": "zones",
-      "name": "Modesto",
+      "name": "Stockton2",
+      "geoEntity": "sector",
+      "entityId": 1001,
+      "parentEntityId": 100,
       "category": "Data",
       "parentKpi": "Retainability",
-      "dailyAverage": 95,
+      "dailyAverage": 97,
       "unit": "%",
       "thresholds":
         {
           "red": 95,
           "green": 98
         },
-      "data": [97, 90, 94, 97, 96, 92, 97, 90, 97, 98, 92, 96]
+      "data":
+      [
+        ["00", 99],
+        ["01", 96],
+        ["02", 94],
+        ["03", 97],
+        ["04", 100],
+        ["05", 96],
+        ["06", 99],
+        ["07", 98],
+        ["08", 97],
+        ["09", 96],
+        ["10", 100],
+        ["11", 99]
+      ]
     },
     {
-      "area": "zones",
-      "name": "Sacramento",
-      "category": "Downlink",
+      "name": "Stockton3",
+      "geoEntity": "sector",
+      "entityId": 1002,
+      "parentEntityId": 100,
+      "category": "Data",
       "parentKpi": "Retainability",
-      "dailyAverage": 98,
+      "dailyAverage": 97,
       "unit": "%",
       "thresholds":
         {
           "red": 95,
           "green": 98
         },
-      "data": [97, 100, 99, 97, 98, 96, 99, 100, 96, 98, 100, 97]
+      "data":
+      [
+        ["00", 100],
+        ["01", 96],
+        ["02", 98],
+        ["03", 97],
+        ["04", 96],
+        ["05", 96],
+        ["06", 99],
+        ["07", 98],
+        ["08", 97],
+        ["09", 96],
+        ["10", 95],
+        ["11", 99]
+      ]
     },
     {
-      "area": "zones",
-      "name": "Others",
-      "category": "Uplink",
+      "name": "Modesto1",
+      "geoEntity": "sector",
+      "entityId": 1100,
+      "parentEntityId": 110,
+      "category": "Data",
       "parentKpi": "Retainability",
-      "dailyAverage": 99,
+      "dailyAverage": 97,
       "unit": "%",
       "thresholds":
         {
           "red": 95,
           "green": 98
         },
-      "data": [99, 100, 99, 97, 98, 96, 99, 100, 97, 98, 100, 99]
+      "data":
+      [
+        ["00", 99],
+        ["01", 95],
+        ["02", 99],
+        ["03", 100],
+        ["04", 96],
+        ["05", 100],
+        ["06", 99],
+        ["07", 100],
+        ["08", 97],
+        ["09", 96],
+        ["10", 96],
+        ["11", 99]
+      ]
+    },
+    {
+      "name": "Modesto2",
+      "geoEntity": "sector",
+      "entityId": 1101,
+      "parentEntityId": 110,
+      "category": "Data",
+      "parentKpi": "Retainability",
+      "dailyAverage": 97,
+      "unit": "%",
+      "thresholds":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data":
+      [
+        ["00", 99],
+        ["01", 100],
+        ["02", 99],
+        ["03", 97],
+        ["04", 96],
+        ["05", 96],
+        ["06", 99],
+        ["07", 100],
+        ["08", 98],
+        ["09", 96],
+        ["10", 94],
+        ["11", 99]
+      ]
+    },
+    {
+      "name": "Modesto3",
+      "geoEntity": "sector",
+      "entityId": 1102,
+      "parentEntityId": 110,
+      "category": "Data",
+      "parentKpi": "Retainability",
+      "dailyAverage": 97,
+      "unit": "%",
+      "thresholds":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data":
+      [
+        ["00", 99],
+        ["01", 96],
+        ["02", 99],
+        ["03", 97],
+        ["04", 100],
+        ["05", 96],
+        ["06", 98],
+        ["07", 100],
+        ["08", 97],
+        ["09", 94],
+        ["10", 100],
+        ["11", 97]
+      ]
+    },
+    {
+      "name": "Sacramento1",
+      "geoEntity": "sector",
+      "entityId": 1200,
+      "parentEntityId": 120,
+      "category": "Data",
+      "parentKpi": "Retainability",
+      "dailyAverage": 97,
+      "unit": "%",
+      "thresholds":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data":
+      [
+        ["00", 100],
+        ["01", 96],
+        ["02", 98],
+        ["03", 97],
+        ["04", 98],
+        ["05", 96],
+        ["06", 97],
+        ["07", 100],
+        ["08", 97],
+        ["09", 96],
+        ["10", 100],
+        ["11", 99]
+      ]
+    },
+    {
+      "name": "Sacramento2",
+      "geoEntity": "sector",
+      "entityId": 1201,
+      "parentEntityId": 120,
+      "category": "Data",
+      "parentKpi": "Retainability",
+      "dailyAverage": 97,
+      "unit": "%",
+      "thresholds":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data":
+      [
+        ["00", 99],
+        ["01", 100],
+        ["02", 99],
+        ["03", 98],
+        ["04", 100],
+        ["05", 96],
+        ["06", 98],
+        ["07", 100],
+        ["08", 97],
+        ["09", 96],
+        ["10", 100],
+        ["11", 99]
+      ]
+    },
+    {
+      "name": "Sacramento3",
+      "geoEntity": "sector",
+      "entityId": 1202,
+      "parentEntityId": 120,
+      "category": "Data",
+      "parentKpi": "Retainability",
+      "dailyAverage": 97,
+      "unit": "%",
+      "thresholds":
+        {
+          "red": 95,
+          "green": 98
+        },
+      "data":
+      [
+        ["00", 100],
+        ["01", 96],
+        ["02", 99],
+        ["03", 100],
+        ["04", 96],
+        ["05", 97],
+        ["06", 99],
+        ["07", 100],
+        ["08", 97],
+        ["09", 98],
+        ["10", 100],
+        ["11", 99]
+      ]
     }
   ]
 }

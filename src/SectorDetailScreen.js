@@ -27,6 +27,7 @@ var {
   Modal,
   ListView,
   TouchableHighlight,
+  ActivityIndicatorIOS,
 } = React;
 
 var API_URL = 'http://api.rottentomatoes.com/api/public/v1.0/';
@@ -42,14 +43,16 @@ var resultsCache = {
 };
 
 var LOADING = {};
-// var tabNumber = 0;
 
 
+var TimerMixin = require('react-timer-mixin');
 
 var SectorDetailScreen = React.createClass({
+  mixins: [TimerMixin],
 
   getInitialState: function() {
     return {
+      animating: true,
       tabNumber: 0,
       isLoading: false,
       isLoadingTail: false,
@@ -63,12 +66,21 @@ var SectorDetailScreen = React.createClass({
       queryNumber: 0,
     };
   },
-
   componentWillMount: function() {
   },
-
+  setAnimatingTimeout: function() {
+    debugger;
+    this.setTimeout(
+      () => {
+        this.setState({animating: !this.state.animating});
+        // this.setToggleTimeout();
+      },
+      1200
+    );
+  },
   componentDidMount: function() {
     // var query = this.props.markets.entityId;
+    this.setAnimatingTimeout();
     this.setState({
       tabNumber: 0,
     });
@@ -121,11 +133,11 @@ var SectorDetailScreen = React.createClass({
       case "tnol":
         var sectors = require('../simulatedData/SectorsTNOL.json');
         break;
-      case "accessibility":
-        var sectors = require('../simulatedData/SectorsVolteAccessibility.json');
+      case "volteaccessibility":
+        var sectors = require('../simulatedData/SectorsVOLTEAccessibility.json');
         break;
-      case "retainability":
-        var sectors = require('../simulatedData/SectorsVolteRetainability.json');
+      case "volteretainability":
+        var sectors = require('../simulatedData/SectorsVOLTERetainability.json');
         break;
       case "location":
         var sectors = require('../simulatedData/SectorsLocation.json');
@@ -238,18 +250,24 @@ var SectorDetailScreen = React.createClass({
 
   onPressPerformance: function() {
     this.setState({
+      animating: true,
       tabNumber: 0,
     });
+    this.setAnimatingTimeout();
   },
   onPressDiagnosis: function() {
     this.setState({
+      animating: true,
       tabNumber: 1,
     });
+    this.setAnimatingTimeout();
   },
   onPressRemedy: function() {
     this.setState({
+      animating: true,
       tabNumber: 2,
     });
+    this.setAnimatingTimeout();
   },
   _getAnnotations(region) {
     var title = "";
@@ -320,7 +338,8 @@ var SectorDetailScreen = React.createClass({
           <View style={styles.kpiTabContainer}>
             <TouchableElement
               style={styles.button}
-              onPress={this.onPressPerformance}>
+              onPress={this.onPressPerformance}
+              underlayColor={"#00A9E9"}>
               <Text style={buttonStyle1}>Performance</Text>
             </TouchableElement>
             <TouchableElement
@@ -335,7 +354,7 @@ var SectorDetailScreen = React.createClass({
             </TouchableElement>
           </View>
           <View style={styles.kpiListContainer}>
-            <SectorDetails tabNumber={this.state.tabNumber} sectorKpiData={this.state.sectorKpiData}/>
+            <SectorDetails animating={this.state.animating} tabNumber={this.state.tabNumber} sectorKpiData={this.state.sectorKpiData}/>
           </View>
         </View>
       </View>
@@ -345,6 +364,16 @@ var SectorDetailScreen = React.createClass({
 
 var SectorDetails = React.createClass({
   render: function() {
+    if (this.props.animating) {
+      return (
+        <ActivityIndicatorIOS
+          animating={this.props.animating}
+          style={[styles.centering, {height: 80}]}
+          color={"#00A9E9"}
+          size="large"
+        />
+      );
+    }
     switch (this.props.tabNumber) {
       case 0:
         var data = this.props.sectorKpiData;
@@ -377,7 +406,7 @@ var SectorDetails = React.createClass({
       case 1:
         return (
           <ScrollView contentContainerStyle={styles.contentContainer}>
-            <Text style={styles.headText}>Throughput Degrdation Common Issues</Text>
+            <Text style={styles.headText}>Throughput Degradation Common Issues</Text>
             <View style={styles.subHeadContainer}>
               <Text style={styles.subHeadText1}>Diagnosis - </Text>
               <Text style={styles.subHeadText2}>Ericsson Probable Causes</Text>
@@ -538,13 +567,13 @@ var styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0, 166, 216, 0.1)',
     height: 50,
-    borderColor: "blue",
-    borderWidth: 2,
+    // borderColor: "blue",
+    // borderWidth: 2,
   },
   sectorName: {
     height: 50,
-    borderColor: "red",
-    borderWidth: 1,
+    //borderColor: "red",
+    //borderWidth: 1,
   },
   kpiTabContainer: {
     flex:1,
@@ -606,7 +635,7 @@ var styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 4,
     fontFamily: 'Helvetica Neue',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "400",
     color: "#888A8D",
   },
@@ -635,8 +664,8 @@ var styles = StyleSheet.create({
   diag: {
     alignSelf: "stretch",
     marginTop: 10,
-    height: 187,
-    width: 350,
+    width: 300,
+    height: 160,
   },
   kpiRowContainer: {
     flex: 1,
@@ -655,20 +684,14 @@ var styles = StyleSheet.create({
     // borderWidth: 1,
   },
   kpiIconContainer: {
-    flex:2,
+    flex:5,
     justifyContent: "center",
     alignItems: "center",
-    // borderColor: "blue",
-    // borderWidth: 1,
-  },
-  kpiIcon: {
-    height: 35,
-    width: 35,
-    // borderColor: "purple",
+    // borderColor: "pink",
     // borderWidth: 1,
   },
   kpiTextContainer: {
-    flex: 13,
+    flex: 19,
     flexDirection:"column",
     justifyContent:"flex-start",
     paddingLeft: 14,
@@ -678,7 +701,7 @@ var styles = StyleSheet.create({
     // borderWidth: 1,
   },
   dailyAverageContainer: {
-    flex: 5,
+    flex: 10,
     flexDirection:"row",
     justifyContent:"center",
     alignItems:"center",
@@ -686,23 +709,29 @@ var styles = StyleSheet.create({
     // borderColor: "green",
     // borderWidth: 1,
   },
+  kpiIcon: {
+    height: 39,
+    width: 39,
+    // borderColor: "purple",
+    // borderWidth: 1,
+  },
   kpiCatText: {
     flex:1,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "900",
-    // borderColor: "blue",
+    // borderColor: "gray",
     // borderWidth: 1,
   },
   kpiNameText: {
     flex:4,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "300",
     // borderColor: "pink",
     // borderWidth: 1,
   },
   dailyAverage: {
     flex:1,
-    fontSize: 27,
+    fontSize: 23,
     fontWeight: "800",
     textAlign: "right",
     marginTop: 0,
@@ -711,7 +740,7 @@ var styles = StyleSheet.create({
   },
   kpiUnit: {
     flex:1,
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "800",
     textAlign: "left",
     marginTop: 5,
@@ -722,6 +751,11 @@ var styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "300",
     fontFamily: 'Helvetica Neue',
+  },
+  centering: {
+    flexDirection: "row",
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
   separator: {
     backgroundColor: 'rgba(0, 0, 0, 0.1)',

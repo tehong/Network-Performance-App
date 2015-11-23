@@ -78,6 +78,8 @@ var LoginScreen = React.createClass({
                   value={this.state.login}
                   placeholder='   USERNAME'
                   placeholderTextColor='#7AA5AD'
+                  autoCorrect={false}
+                  autoFocus={true}
                 />
                 <TextInput style={styles.loginText}
                   onChangeText={(password) => this.setState({password})}
@@ -85,17 +87,14 @@ var LoginScreen = React.createClass({
                   placeholder='   PASSWORD'
                   placeholderTextColor='#7AA5AD'
                   secureTextEntry={true}
+                  autoCorrect={false}
                 />
               </View>
               <View style={styles.loginButtonContainer}>
                 <TouchableElement
                   style={styles.button}
-                  onPress={this.onPressRegister}>
-                  <Text style={styles.loginButtonText}>REGISTER</Text>
-                </TouchableElement>
-                <TouchableElement
-                  style={styles.button}
-                  onPress={this.onPressLogin}>
+                  onPress={this.onPressLogin}
+                  underlayColor={"#105D95"}>
                   <Text style={styles.loginButtonText}>LOGIN</Text>
                 </TouchableElement>
               </View>
@@ -112,6 +111,10 @@ var LoginScreen = React.createClass({
         rightButtonIcon: require('image!Logo_ATT_BG'),
         onLeftButtonPress: () => this.props.navigator.pop(),
         */
+    this.setState({
+      login:'',
+      password:'',
+    });
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         titleComponent: PerfNavTitle,
@@ -119,7 +122,7 @@ var LoginScreen = React.createClass({
         rightCorner: LogoATT,
         component: AreaScreen,
         headerStyle: styles.header,
-        hideNavigationBar: {false}, 
+        hideNavigationBar: {false},
       });
       /*
       this.props.navigator.push({
@@ -202,7 +205,7 @@ var styles = StyleSheet.create({
     // borderColor: '#F0000F',
   },
   loginContainer: {
-    flex: 5,
+    flex: 4,
     width: 300,
     marginTop: 5,
     justifyContent: 'space-between',
@@ -246,8 +249,8 @@ var styles = StyleSheet.create({
     alignItems: 'stretch',
     justifyContent: 'center',
     backgroundColor: 'white',
-    width: 130,
-    height: 40,
+    width: 300,
+    height: 30,
     // borderColor: 'yellow',
     // borderWidth: 2,
   },
