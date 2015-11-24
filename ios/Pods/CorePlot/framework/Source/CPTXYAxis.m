@@ -16,10 +16,12 @@
 /// @cond
 @interface CPTXYAxis()
 
--(void)drawTicksInContext:(nonnull CGContextRef)context atLocations:(nullable CPTNumberSet)locations withLength:(CGFloat)length inRange:(nullable CPTPlotRange *)labeledRange isMajor:(BOOL)major;
+-(void)drawTicksInContext:(nonnull CGContextRef)context atLocations:(nullable CPTNumberSet *)locations withLength:(CGFloat)length inRange:(nullable CPTPlotRange *)labeledRange isMajor:(BOOL)major;
 
 -(void)orthogonalCoordinateViewLowerBound:(nonnull CGFloat *)lower upperBound:(nonnull CGFloat *)upper;
 -(CGPoint)viewPointForOrthogonalCoordinate:(nullable NSNumber *)orthogonalCoord axisCoordinate:(nullable NSNumber *)coordinateValue;
+
+-(NSUInteger)initialBandIndexForSortedLocations:(nonnull CPTNumberArray *)sortedLocations inRange:(nonnull CPTMutablePlotRange *)range;
 
 @end
 
@@ -210,7 +212,7 @@
 
 /// @cond
 
--(void)drawTicksInContext:(CGContextRef)context atLocations:(CPTNumberSet)locations withLength:(CGFloat)length inRange:(CPTPlotRange *)labeledRange isMajor:(BOOL)major
+-(void)drawTicksInContext:(CGContextRef)context atLocations:(CPTNumberSet *)locations withLength:(CGFloat)length inRange:(CPTPlotRange *)labeledRange isMajor:(BOOL)major
 {
     CPTLineStyle *lineStyle = (major ? self.majorTickLineStyle : self.minorTickLineStyle);
 
@@ -390,7 +392,7 @@
         [self relabel];
 
         CPTPlotSpace *thePlotSpace           = self.plotSpace;
-        CPTNumberSet locations               = (major ? self.majorTickLocations : self.minorTickLocations);
+        CPTNumberSet *locations              = (major ? self.majorTickLocations : self.minorTickLocations);
         CPTCoordinate selfCoordinate         = self.coordinate;
         CPTCoordinate orthogonalCoordinate   = CPTOrthogonalCoordinate(selfCoordinate);
         CPTMutablePlotRange *orthogonalRange = [[thePlotSpace plotRangeForCoordinate:orthogonalCoordinate] mutableCopy];
@@ -478,13 +480,110 @@
 
 /// @cond
 
+-(NSUInteger)initialBandIndexForSortedLocations:(CPTNumberArray *)sortedLocations inRange:(CPTMutablePlotRange *)range
+{
+    NSUInteger bandIndex = 0;
+
+    NSNumber *bandAnchor = self.alternatingBandAnchor;
+    NSUInteger bandCount = self.alternatingBandFills.count;
+
+    if ( bandAnchor && (bandCount > 0) ) {
+        NSDecimal anchor = bandAnchor.decimalValue;
+
+        CPTPlotRange *theVisibleRange = self.visibleRange;
+        if ( theVisibleRange ) {
+            [range intersectionPlotRange:theVisibleRange];
+        }
+
+        NSDecimal rangeStart;
+        if ( range.lengthDouble >= 0.0 ) {
+            rangeStart = range.minLimitDecimal;
+        }
+        else {
+            rangeStart = range.maxLimitDecimal;
+        }
+
+        NSDecimal origin = self.labelingOrigin.decimalValue;
+        NSDecimal offset = CPTDecimalSubtract(anchor, origin);
+        NSDecimalRound(&offset, &offset, 0, NSRoundDown);
+
+        const NSDecimal zero = CPTDecimalFromInteger(0);
+
+        // Set starting coord--should be the smallest value >= rangeMin that is a whole multiple of majorInterval away from the alternatingBandAnchor
+        NSDecimal coord         = zero;
+        NSDecimal majorInterval = zero;
+
+        switch ( self.labelingPolicy ) {
+            case CPTAxisLabelingPolicyAutomatic:
+            case CPTAxisLabelingPolicyEqualDivisions:
+                if ( sortedLocations.count > 1 ) {
+                    if ( range.lengthDouble >= 0.0 ) {
+                        majorInterval = CPTDecimalSubtract(sortedLocations[1].decimalValue, sortedLocations[0].decimalValue);
+                    }
+                    else {
+                        majorInterval = CPTDecimalSubtract(sortedLocations[0].decimalValue, sortedLocations[1].decimalValue);
+                    }
+                }
+                break;
+
+            case CPTAxisLabelingPolicyFixedInterval:
+            {
+                majorInterval = self.majorIntervalLength.decimalValue;
+            }
+            break;
+
+            case CPTAxisLabelingPolicyLocationsProvided:
+            case CPTAxisLabelingPolicyNone:
+            {
+                // user provided tick locations; they're not guaranteed to be evenly spaced, but band drawing always starts with the first location
+                if ( range.lengthDouble >= 0.0 ) {
+                    for ( NSNumber *location in sortedLocations ) {
+                        if ( CPTDecimalLessThan(anchor, location.decimalValue) ) {
+                            break;
+                        }
+
+                        bandIndex++;
+                    }
+                }
+                else {
+                    for ( NSNumber *location in sortedLocations ) {
+                        if ( CPTDecimalGreaterThanOrEqualTo(anchor, location.decimalValue) ) {
+                            break;
+                        }
+
+                        bandIndex++;
+                    }
+                }
+
+                bandIndex = bandIndex % bandCount;
+            }
+            break;
+        }
+
+        if ( !CPTDecimalEquals(majorInterval, zero) ) {
+            coord = CPTDecimalDivide(CPTDecimalSubtract(rangeStart, origin), majorInterval);
+            NSDecimalRound(&coord, &coord, 0, NSRoundUp);
+            NSInteger stepCount = CPTDecimalIntegerValue(coord) + CPTDecimalIntegerValue(offset) + 1;
+
+            if ( stepCount >= 0 ) {
+                bandIndex = (NSUInteger)(stepCount % (NSInteger)bandCount);
+            }
+            else {
+                bandIndex = (NSUInteger)(-stepCount % (NSInteger)bandCount);
+            }
+        }
+    }
+
+    return bandIndex;
+}
+
 -(void)drawBackgroundBandsInContext:(CGContextRef)context
 {
-    CPTFillArray bandArray = self.alternatingBandFills;
-    NSUInteger bandCount   = bandArray.count;
+    CPTFillArray *bandArray = self.alternatingBandFills;
+    NSUInteger bandCount    = bandArray.count;
 
     if ( bandCount > 0 ) {
-        CPTNumberArray locations = [self.majorTickLocations allObjects];
+        CPTNumberArray *locations = self.majorTickLocations.allObjects;
 
         if ( locations.count > 0 ) {
             CPTPlotSpace *thePlotSpace = self.plotSpace;
@@ -506,7 +605,7 @@
                 [orthogonalRange intersectionPlotRange:theGridLineRange];
             }
 
-            NSDecimal zero                   = CPTDecimalFromInteger(0);
+            const NSDecimal zero             = CPTDecimalFromInteger(0);
             NSSortDescriptor *sortDescriptor = nil;
             if ( range ) {
                 if ( CPTDecimalGreaterThanOrEqualTo(range.lengthDecimal, zero) ) {
@@ -521,8 +620,10 @@
             }
             locations = [locations sortedArrayUsingDescriptors:@[sortDescriptor]];
 
-            NSUInteger bandIndex = 0;
-            id null              = [NSNull null];
+            NSUInteger bandIndex = [self initialBandIndexForSortedLocations:locations inRange:range];
+
+            const id null = [NSNull null];
+
             NSDecimal lastLocation;
             if ( range ) {
                 lastLocation = range.locationDecimal;
@@ -543,7 +644,7 @@
             }
 
             for ( NSDecimalNumber *location in locations ) {
-                NSDecimal currentLocation = [location decimalValue];
+                NSDecimal currentLocation = location.decimalValue;
                 if ( !CPTDecimalEquals(CPTDecimalSubtract(currentLocation, lastLocation), zero) ) {
                     CPTFill *bandFill = bandArray[bandIndex++];
                     bandIndex %= bandCount;
@@ -603,7 +704,7 @@
 
 -(void)drawBackgroundLimitsInContext:(CGContextRef)context
 {
-    CPTLimitBandArray limitArray = self.backgroundLimitBands;
+    CPTLimitBandArray *limitArray = self.backgroundLimitBands;
 
     if ( limitArray.count > 0 ) {
         CPTPlotSpace *thePlotSpace = self.plotSpace;
@@ -673,7 +774,7 @@
     CGPoint endViewPoint   = [self viewPointForCoordinateValue:range.end];
 
     return [NSString stringWithFormat:@"<%@ with range: %@ viewCoordinates: %@ to %@>",
-            [super description],
+            super.description,
             range,
             CPTStringFromPoint(startViewPoint),
             CPTStringFromPoint(endViewPoint)];
@@ -773,7 +874,7 @@
 -(void)setCoordinate:(CPTCoordinate)newCoordinate
 {
     if ( self.coordinate != newCoordinate ) {
-        [super setCoordinate:newCoordinate];
+        super.coordinate = newCoordinate;
         switch ( newCoordinate ) {
             case CPTCoordinateX:
                 switch ( self.labelAlignment ) {

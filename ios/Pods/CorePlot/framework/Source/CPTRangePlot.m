@@ -47,13 +47,13 @@ typedef struct CGPointError CGPointError;
 
 @interface CPTRangePlot()
 
-@property (nonatomic, readwrite, copy) CPTNumberArray xValues;
-@property (nonatomic, readwrite, copy) CPTNumberArray yValues;
+@property (nonatomic, readwrite, copy) CPTNumberArray *xValues;
+@property (nonatomic, readwrite, copy) CPTNumberArray *yValues;
 @property (nonatomic, readwrite, copy) CPTMutableNumericData *highValues;
 @property (nonatomic, readwrite, copy) CPTMutableNumericData *lowValues;
 @property (nonatomic, readwrite, copy) CPTMutableNumericData *leftValues;
 @property (nonatomic, readwrite, copy) CPTMutableNumericData *rightValues;
-@property (nonatomic, readwrite, copy) CPTLineStyleArray barLineStyles;
+@property (nonatomic, readwrite, copy) CPTLineStyleArray *barLineStyles;
 @property (nonatomic, readwrite, assign) NSUInteger pointingDeviceDownIndex;
 
 -(void)calculatePointsToDraw:(BOOL *)pointDrawFlags numberOfPoints:(NSUInteger)dataCount forPlotSpace:(CPTXYPlotSpace *)xyPlotSpace includeVisiblePointsOnly:(BOOL)visibleOnly;
@@ -137,7 +137,7 @@ typedef struct CGPointError CGPointError;
 
 /// @cond
 
-#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+#if TARGET_OS_SIMULATOR || TARGET_OS_IPHONE
 #else
 +(void)initialize
 {
@@ -581,9 +581,9 @@ typedef struct CGPointError CGPointError;
     else if ( [theDataSource respondsToSelector:@selector(barLineStyleForRangePlot:recordIndex:)] ) {
         needsLegendUpdate = YES;
 
-        id nilObject                   = [CPTPlot nilData];
-        CPTMutableLineStyleArray array = [[NSMutableArray alloc] initWithCapacity:indexRange.length];
-        NSUInteger maxIndex            = NSMaxRange(indexRange);
+        id nilObject                    = [CPTPlot nilData];
+        CPTMutableLineStyleArray *array = [[NSMutableArray alloc] initWithCapacity:indexRange.length];
+        NSUInteger maxIndex             = NSMaxRange(indexRange);
 
         for ( NSUInteger idx = indexRange.location; idx < maxIndex; idx++ ) {
             CPTLineStyle *dataSourceLineStyle = [theDataSource barLineStyleForRangePlot:self recordIndex:idx];
@@ -937,7 +937,7 @@ typedef struct CGPointError CGPointError;
     return 6;
 }
 
--(CPTNumberArray)fieldIdentifiers
+-(CPTNumberArray *)fieldIdentifiers
 {
     return @[@(CPTRangePlotFieldX),
              @(CPTRangePlotFieldY),
@@ -947,9 +947,9 @@ typedef struct CGPointError CGPointError;
              @(CPTRangePlotFieldRight)];
 }
 
--(CPTNumberArray)fieldIdentifiersForCoordinate:(CPTCoordinate)coord
+-(CPTNumberArray *)fieldIdentifiersForCoordinate:(CPTCoordinate)coord
 {
-    CPTNumberArray result = nil;
+    CPTNumberArray *result = nil;
 
     switch ( coord ) {
         case CPTCoordinateX:
@@ -1010,10 +1010,10 @@ typedef struct CGPointError CGPointError;
     }
 
     NSNumber *yValue;
-    CPTNumberArray yValues       = @[[self cachedNumberForField:CPTRangePlotFieldY recordIndex:idx]];
-    CPTNumberArray yValuesSorted = [yValues sortedArrayUsingSelector:@selector(compare:)];
+    CPTNumberArray *yValues       = @[[self cachedNumberForField:CPTRangePlotFieldY recordIndex:idx]];
+    CPTNumberArray *yValuesSorted = [yValues sortedArrayUsingSelector:@selector(compare:)];
     if ( positiveDirection ) {
-        yValue = [yValuesSorted lastObject];
+        yValue = yValuesSorted.lastObject;
     }
     else {
         yValue = yValuesSorted[0];
@@ -1287,22 +1287,22 @@ typedef struct CGPointError CGPointError;
     }
 }
 
--(void)setXValues:(CPTNumberArray)newValues
+-(void)setXValues:(CPTNumberArray *)newValues
 {
     [self cacheNumbers:newValues forField:CPTRangePlotFieldX];
 }
 
--(CPTNumberArray)xValues
+-(CPTNumberArray *)xValues
 {
     return [[self cachedNumbersForField:CPTRangePlotFieldX] sampleArray];
 }
 
--(void)setYValues:(CPTNumberArray)newValues
+-(void)setYValues:(CPTNumberArray *)newValues
 {
     [self cacheNumbers:newValues forField:CPTRangePlotFieldY];
 }
 
--(CPTNumberArray)yValues
+-(CPTNumberArray *)yValues
 {
     return [[self cachedNumbersForField:CPTRangePlotFieldY] sampleArray];
 }
@@ -1347,12 +1347,12 @@ typedef struct CGPointError CGPointError;
     [self cacheNumbers:newValues forField:CPTRangePlotFieldRight];
 }
 
--(CPTLineStyleArray)barLineStyles
+-(CPTLineStyleArray *)barLineStyles
 {
     return [self cachedArrayForKey:CPTRangePlotBindingBarLineStyles];
 }
 
--(void)setBarLineStyles:(CPTLineStyleArray)newLineStyles
+-(void)setBarLineStyles:(CPTLineStyleArray *)newLineStyles
 {
     [self cacheArray:newLineStyles forKey:CPTRangePlotBindingBarLineStyles];
     [self setNeedsDisplay];

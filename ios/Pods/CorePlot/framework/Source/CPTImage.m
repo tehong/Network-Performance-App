@@ -509,7 +509,7 @@ CPTImageSlices;
     if ( !nativeImage ) {
         CGImageRef imageRef = self.image;
 
-#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+#if TARGET_OS_SIMULATOR || TARGET_OS_IPHONE
         CGFloat theScale = self.scale;
 
         if ( imageRef && ( theScale > CPTFloat(0.0) ) ) {
@@ -536,7 +536,7 @@ CPTImageSlices;
                                                                                bitsPerPixel:32];
 
             NSGraphicsContext *bitmapContext = [NSGraphicsContext graphicsContextWithBitmapImageRep:imageRep];
-            CGContextRef context             = (CGContextRef)[bitmapContext graphicsPort];
+            CGContextRef context             = (CGContextRef)bitmapContext.graphicsPort;
 
             CGContextDrawImage(context, CPTRectMake(0.0, 0.0, imageSize.width, imageSize.height), imageRef);
 
@@ -719,7 +719,7 @@ CPTImageSlices;
         CPTNativeImage *theNativeImage = self.nativeImage;
 
         if ( theNativeImage ) {
-#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+#if TARGET_OS_SIMULATOR || TARGET_OS_IPHONE
             theImage   = theNativeImage.CGImage;
             self.scale = theNativeImage.scale;
 #else

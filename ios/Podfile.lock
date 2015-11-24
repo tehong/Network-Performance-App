@@ -1,25 +1,25 @@
 PODS:
-  - CorePlot (2.0)
+  - CorePlot (2.1)
   - Mixpanel (2.9.0):
     - Mixpanel/Mixpanel (= 2.9.0)
   - Mixpanel/Mixpanel (2.9.0)
 
 DEPENDENCIES:
-  - CorePlot (from `https://github.com/core-plot/core-plot.git`, branch `release-2.0`)
+  - CorePlot (from `https://github.com/core-plot/core-plot.git`, branch `release-2.1`)
   - Mixpanel
 
 EXTERNAL SOURCES:
   CorePlot:
-    :branch: release-2.0
+    :branch: release-2.1
     :git: https://github.com/core-plot/core-plot.git
 
 CHECKOUT OPTIONS:
   CorePlot:
-    :commit: 686e30ef9e7b7cb63f5ae8f2b0b40b18622671af
+    :commit: 8747083179a7fd5ac22b6b23f2ef2d4b7543c05a
     :git: https://github.com/core-plot/core-plot.git
 
 SPEC CHECKSUMS:
-  CorePlot: b7f422ad363f2b0e48152471d6da45ce232eb8c6
+  CorePlot: 0116acaa98ce2f8369e6e25ec889968bca0b87c9
   Mixpanel: 42ae6168effc48481d957f7883dd8514a398738d
 
 COCOAPODS: 0.39.0
