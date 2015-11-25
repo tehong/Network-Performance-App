@@ -23,7 +23,7 @@ var TransitionScreen = React.createClass({
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         component: LoginScreen,
-        // headerStyle: styles.header,
+        trans: true,
         hideNavigationBar: true,
       });
     }
@@ -31,15 +31,6 @@ var TransitionScreen = React.createClass({
   render: function() {
     return <Text>User is not supposed to be here</Text>
   }
-});
-
-var styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    backgroundColor: "#066D7E",
-  },
 });
 
 AppRegistry.registerComponent('TransitionScreen', () => TransitionScreen);
