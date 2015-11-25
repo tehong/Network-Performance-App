@@ -3,6 +3,9 @@
 * https://github.com/facebook/react-native
 * https://github.com/3TEN8/MI-KPIApp.git
 */
+
+//*  NOTE:  this screne is to used to turn off the NavigationBar and transit to login screen
+
 'use strict';
 
 var React = require('react-native');

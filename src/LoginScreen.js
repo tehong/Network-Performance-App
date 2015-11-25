@@ -118,11 +118,11 @@ var LoginScreen = React.createClass({
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         titleComponent: PerfNavTitle,
-        leftCorner: BackButton,
+        backButtonComponent: BackButton,
         rightCorner: LogoATT,
         component: AreaScreen,
         headerStyle: styles.header,
-        hideNavigationBar: {false},
+        hideNavigationBar: false,
       });
       /*
       this.props.navigator.push({
@@ -197,15 +197,15 @@ var styles = StyleSheet.create({
     // borderColor: '#00BBF0',
   },
   logo: {
-    flex: 4,
+    flex: 3,
     width: 130,
-    height: 80,
-    marginBottom: 15,
+    height: 50,
+    marginBottom: 13,
     // borderWidth: 1,
     // borderColor: '#F0000F',
   },
   loginContainer: {
-    flex: 4,
+    flex: 3,
     width: 300,
     marginTop: 5,
     justifyContent: 'space-between',
@@ -217,7 +217,7 @@ var styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 5,
     width: 300,
     // borderColor: 'yellow',
     // borderWidth: 2,
@@ -238,7 +238,7 @@ var styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0B858B',
     color: 'white',
-    fontSize: 20,
+    fontSize: 17,
     fontFamily: 'Helvetica Neue',
     fontWeight: "400",
     marginTop: 5,

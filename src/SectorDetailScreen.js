@@ -68,14 +68,19 @@ var SectorDetailScreen = React.createClass({
   },
   componentWillMount: function() {
   },
+  /**
+  * Returns a random number between min (inclusive) and max (exclusive)
+   */
+  getRandomArbitrary: function(min, max) {
+      return Math.random() * (max - min) + min;
+  },
   setAnimatingTimeout: function() {
-    debugger;
     this.setTimeout(
       () => {
         this.setState({animating: !this.state.animating});
         // this.setToggleTimeout();
       },
-      1200
+      this.getRandomArbitrary(100, 800)
     );
   },
   componentDidMount: function() {

@@ -255,7 +255,7 @@ var styles = StyleSheet.create({
   textContainer: {
     flex: 5,
     flexDirection: "column",
-    paddingLeft: 2,
+    paddingLeft: 4,
     // borderColor: "blue",
     // borderWidth: 2,
   },

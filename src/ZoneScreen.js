@@ -245,7 +245,7 @@ var ZoneScreen = React.createClass({
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         titleComponent: titleComponent,
-        leftCorner: BackButton,
+        backButtonComponent: BackButton,
         rightCorner: LogoATT,
         component: SectorScreen,
         headerStyle: styles.header,

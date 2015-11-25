@@ -293,7 +293,7 @@ var AreaScreen = React.createClass({
 
       this.props.toRoute({
         titleComponent: titleComponent,
-        leftCorner: BackButton,
+        backButtonComponent: BackButton,
         rightCorner: LogoATT,
         component: ZoneScreen,
         headerStyle: styles.header,

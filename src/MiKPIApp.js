@@ -6,19 +6,21 @@
 'use strict';
 
 var React = require('react-native');
-var Router = require('./Router');
+// var Router = require('./Router');
+var Router = require('gb-native-router');
+var BackButton = require('./components/icons/BackButton');
+
 var {
   AppRegistry,
   StyleSheet,
 } = React;
 
-// var TransitionScreen = require('./TransitionScreen');
-var LoginScreen = require('./LoginScreen');
+var TransitionScreen = require('./TransitionScreen');
 
 var firstRoute = {
   name: '',
-  // component: TransitionScreen
-  component: LoginScreen
+  component: TransitionScreen
+  // component: LoginScreen
 };
 
 var MiKPI = React.createClass({
@@ -27,6 +29,7 @@ var MiKPI = React.createClass({
       <Router
         firstRoute={firstRoute}
         headerStyle={styles.header}
+        backButtonComponent={BackButton}
         hideNavigationBar={false}
       />
     );
@@ -39,7 +42,7 @@ var styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#066D7E",
-
+    // backgroundColor: "white",
   },
 });
 

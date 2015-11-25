@@ -1,4 +1,4 @@
-// 'use strict';
+'use strict';
 
 var React = require('react-native');
 var {
@@ -9,23 +9,21 @@ var {
 
 var BackButton = React.createClass({
 
+/*
   backToPrevious: function() {
     this.props.customAction("onBack");
-    /*
-    this.props.toRoute({
-      name: "Login",
-      component: this.props.goBackwards(),
-    });
-    */
-  },
+    // this.props.toRoute({
+    //   name: "Login",
+    //   component: this.props.goBackwards(),
+    // });
+  // },
+*/
 
   render() {
     return (
-      <TouchableHighlight  underlayColor="transparent" onPress={this.backToPrevious}>
-        <Image style={styles.icon} underlayColor="transparent"
-          source={{uri: "BTN_Back", isStatic: true}}
-        />
-      </TouchableHighlight>
+      // <TouchableHighlight  underlayColor="transparent" onPress={this.backToPrevious}>
+        <Image style={styles.icon} underlayColor="transparent" source={{uri: "BTN_Back", isStatic: true}} />
+      // </TouchableHighlight>
     );
   }
 });
