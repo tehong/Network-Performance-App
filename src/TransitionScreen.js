@@ -20,8 +20,9 @@ var LoginScreen = require('./LoginScreen');
 
 var TransitionScreen = React.createClass({
   componentWillMount: function() {
+    // replaceRoute will not allow user to navigate back to this scene
     if (Platform.OS === 'ios') {
-      this.props.toRoute({
+      this.props.replaceRoute({
         component: LoginScreen,
         trans: true,
         hideNavigationBar: true,

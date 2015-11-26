@@ -46,7 +46,7 @@
     {
       "name": "Stockton2",
       "geoEntity": "sector",
-      "entityId": 1000,
+      "entityId": 1001,
       "parentEntityId": 100,
       "category": "Data",
       "kpi": "Accessibility",
@@ -88,7 +88,7 @@
     {
       "name": "Stockton3",
       "geoEntity": "sector",
-      "entityId": 1000,
+      "entityId": 1002,
       "parentEntityId": 100,
       "category": "Data",
       "kpi": "Accessibility",
