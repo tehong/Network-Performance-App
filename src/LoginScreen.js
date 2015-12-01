@@ -20,6 +20,7 @@ var {
   View,
   Image,
   TouchableHighlight,
+  AlertIOS,
 } = React;
 
 var AreaScreen = require('./AreaScreen');
@@ -71,7 +72,9 @@ var LoginScreen = React.createClass({
     return (
           <Image style={styles.backgroundImage} source={{uri: 'BG_Gradient_MiKPI', isStatic: true}}>
             <View style={styles.container}>
-              <Image style={styles.logo} source={{uri: 'Logo_Mi_KPI', isStatic: true}}/>
+              <TouchableElement style={styles.logoContainer} underlayColor={"#119BA8"} onPress={this.onPressLogo}>
+                <Image style={styles.logo} source={{uri: 'Logo_Mi_KPI', isStatic: true}}/>
+              </TouchableElement>
               <View style={styles.loginContainer}>
                 <TextInput style={styles.loginText}
                   onChangeText={(login) => this.setState({login})}
@@ -103,6 +106,12 @@ var LoginScreen = React.createClass({
               </Text>
             </View>
           </Image>
+    );
+  },
+  onPressLogo: function() {
+    AlertIOS.alert(
+      'App Info',
+      'Version: ' + this.props.appVersion,
     );
   },
   onPressLogin: function() {
@@ -196,13 +205,19 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
     // borderColor: '#00BBF0',
   },
-  logo: {
+  logoContainer: {
     flex: 3,
-    width: 130,
-    height: 50,
-    marginBottom: 13,
+    marginBottom: 8,
     // borderWidth: 1,
     // borderColor: '#F0000F',
+  },
+  logo: {
+    // flex: 3,
+    width: 130,
+    height: 76,
+    // marginBottom: 13,
+    // borderWidth: 1,
+    // borderColor: 'white',
   },
   loginContainer: {
     flex: 3,

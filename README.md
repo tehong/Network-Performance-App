@@ -20,7 +20,7 @@
 
   In AppDelegate.m:
 
-   1. There are two options that you can choose to do:
+    1. There are two options that you can choose to do:
 
      a. Uncomment OPTION 2 and comment out other OPTIONs for device bunle only build:
 
@@ -44,5 +44,13 @@
 - To submit to AppNub for distribution:
 
   1. Enable OPTION 3 and disable all other OPTIONs.
-  
+
   2. Follow the quickstart guide to archive and export and IPA file from Xcode and upload to AppHub.  See https://dashboard.apphub.io/projects/WXeP33Qfj3DZiQWQThOr/quickstart
+
+- To change the version of the app, currently there are two places needed to be changed:
+
+  1. In the MiKPIApp.js => change the "MiKPIVersion" variable to the new version string.
+
+  2. In the Xcode Info.plist => change the "Bundle version string, short" to the same version string.
+
+  3. After the version string are changed, the app is ready to be released vis TestFlight or AppHub (if only had JS changes).

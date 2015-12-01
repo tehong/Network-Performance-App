@@ -5,6 +5,8 @@
 */
 'use strict';
 
+var MiKPIVersion = "0.0.5";
+
 var React = require('react-native');
 // var Router = require('./Router');
 var Router = require('gb-native-router');
@@ -15,12 +17,16 @@ var {
   StyleSheet,
 } = React;
 
-var TransitionScreen = require('./TransitionScreen');
+var LoginScreen = require('./LoginScreen');
 
 var firstRoute = {
   name: '',
-  component: TransitionScreen
-  // component: LoginScreen
+  component: LoginScreen,
+  hideNavigationBar: true,
+  trans: true,
+  passProps: {
+    appVersion: MiKPIVersion,
+  }
 };
 
 var MiKPI = React.createClass({
@@ -30,7 +36,6 @@ var MiKPI = React.createClass({
         firstRoute={firstRoute}
         headerStyle={styles.header}
         backButtonComponent={BackButton}
-        hideNavigationBar={false}
       />
     );
   }

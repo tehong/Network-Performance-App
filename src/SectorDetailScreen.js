@@ -115,11 +115,11 @@ var SectorDetailScreen = React.createClass({
     }
   },
   refreshSectorData: function(query:string, result:{}) {
-        if (query === "location") {
-          this.findSectorLocation(result);
-        } else {
-          this.findSectorKpiData(result);
-        }
+    if (query === "location") {
+      this.findSectorLocation(result);
+    } else {
+      this.findSectorKpiData(result);
+    }
   },
   fetchData: function(query, queryString) {
     switch(query.toLowerCase()) {
@@ -279,10 +279,12 @@ var SectorDetailScreen = React.createClass({
     if (this.state.sectorLocation[this.props.market.entityId]) {
       title = this.props.areaName + " - " + this.state.sectorLocation[this.props.market.entityId].name;
     }
+    var image = require('image!Sector_Icon_03');
     return [{
       longitude: region.longitude,
       latitude: region.latitude,
       title: title,
+      image: image,
     }];
   },
   _onRegionChange(region) {
