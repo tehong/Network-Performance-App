@@ -19,6 +19,7 @@ var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoATT = require('./components/icons/LogoATT');
 var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
+var CSFBNavTitle = require('./components/icons/sectors/CSFBNavTitle');
 var VOLTEAccNavTitle = require('./components/icons/sectors/VOLTEAccNavTitle');
 var RetNavTitle = require('./components/icons/sectors/RetNavTitle');
 var VOLTERetNavTitle = require('./components/icons/sectors/VOLTERetNavTitle');
@@ -101,6 +102,9 @@ var ZoneScreen = React.createClass({
       case "tnol":
         var query = "tnol";
         break;
+      case "fallback":
+        var query = "fallback";
+        break;
     }
     this.getZoneKPI(query);
   },
@@ -141,6 +145,9 @@ var ZoneScreen = React.createClass({
         break;
       case "tnol":
         var zones = require('../simulatedData/ZonesTNOL.json');
+        break;
+      case "fallback":
+        var zones = require('../simulatedData/ZonesCSFB.json');
         break;
     }
     if (zones) {
@@ -240,6 +247,9 @@ var ZoneScreen = React.createClass({
         break;
       case "tnol":
         var titleComponent = TNOLNavTitle;
+        break;
+      case "fallback":
+        var titleComponent = CSFBNavTitle;
         break;
     }
     if (Platform.OS === 'ios') {

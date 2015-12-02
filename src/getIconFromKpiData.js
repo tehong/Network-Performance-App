@@ -42,6 +42,9 @@ function getIconFromKpiData(kpiKey:string, kpiData:{}): string {
     case "volte-retainability":
       var kpiImage = "Icon_VR";
       break;
+    case "cs-fallback":
+      var kpiImage = "Icon_CS";
+      break;
   }
   var colorBackground = (getImageFromAverage(dailyAverage, redThreshold, greenThreshold)).toLowerCase();
   if (colorBackground.indexOf("red") > -1) {

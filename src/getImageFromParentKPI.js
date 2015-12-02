@@ -45,6 +45,9 @@ function getImageFromParentKPI(category: string, kpi: string): string {
     case "mobility":
       var kpiImage = "Icon_MO";
       break;
+    case "fallback":
+      var kpiImage = "Icon_CS";
+      break;
   }
 
   return kpiImage;

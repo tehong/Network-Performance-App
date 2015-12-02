@@ -94,9 +94,10 @@ var SectorDetailScreen = React.createClass({
     this.getSectorKPI("retainability");
     this.getSectorKPI("dlthroughput");
     this.getSectorKPI("ulthroughput");
-    this.getSectorKPI("tnol");
-    this.getSectorKPI("volteaccessibility");
-    this.getSectorKPI("volteretainability");
+    this.getSectorKPI("fallback");
+    // this.getSectorKPI("tnol");
+    // this.getSectorKPI("volteaccessibility");
+    // this.getSectorKPI("volteretainability");
     this.getSectorLocation();
   },
 
@@ -144,6 +145,9 @@ var SectorDetailScreen = React.createClass({
       case "volteretainability":
         var sectors = require('../simulatedData/SectorsVOLTERetainability.json');
         break;
+      case "fallback":
+        var sectors = require('../simulatedData/SectorsCSFB.json');
+        break;
       case "location":
         var sectors = require('../simulatedData/SectorsLocation.json');
         break;
@@ -174,9 +178,43 @@ var SectorDetailScreen = React.createClass({
     }
   },
   findSectorLocation: function(result) {
+    // empties out the dictionary
+    this.state.sectorLocation = {};
+    var mileRadius = 10.0
+    var centerLat = 0.0;
+    var centerLng = 0.0;
+    var latitudeDelta = 0.2;
+    var longitudeDelta = 0.2;
+    var region = {};
+    // find the sector first
     for (var i=0; i<result.length; i++) {
       var item = result[i];
       if (this.props.market.entityId === item.entityId) {
+        centerLng = item.longitude;
+        centerLat = item.latitude;
+        var location = {
+          "name": item.name,
+          "latitude": centerLat,
+          "longitude": centerLng,
+        }
+        var scalingFactor = Math.abs(Math.cos(2 * Math.PI * location.latitude / 360.0))
+        var key = item.entityId;
+        this.state.sectorLocation[key] = location;
+        latitudeDelta = mileRadius/69.0;
+        longitudeDelta = mileRadius/(scalingFactor * 69.0)
+        region = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: latitudeDelta,
+          longitudeDelta: longitudeDelta,
+        }
+        break;
+      }
+    }
+    // find the neighboring sectors
+    for (var i=0; i<result.length; i++) {
+      var item = result[i];
+      if(this.isWithinRegion(item, centerLat, centerLng, latitudeDelta, longitudeDelta)) {
         var location = {
           "name": item.name,
           "latitude": item.latitude,
@@ -184,16 +222,22 @@ var SectorDetailScreen = React.createClass({
         }
         var key = item.entityId;
         this.state.sectorLocation[key] = location;
-        var region = {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.26,
-          longitudeDelta: 0.26
-        }
-        this._onRegionInputChanged(region);
-        break;
       }
     }
+    this._onRegionInputChanged(region);
+  },
+  isWithinRegion: function(point, centerLat, centerLng, latitudeDelta, longitudeDelta) {
+    var absCenterLat = Math.abs(centerLat);
+    var absCenterLng = Math.abs(centerLng);
+    if (
+      ((absCenterLng + 0.5 * longitudeDelta) >= Math.abs(point.longitude)) &&
+      ((absCenterLng - 0.5 * longitudeDelta) <= Math.abs(point.longitude)) &&
+      ((absCenterLat + 0.5 * latitudeDelta) >= Math.abs(point.latitude)) &&
+      ((absCenterLat - 0.5 * latitudeDelta) <= Math.abs(point.latitude))
+      ) {
+        return true;
+      }
+      return false;
   },
   findSectorKpiData: function(result) {
     for (var i=0; i<result.length; i++) {
@@ -275,17 +319,26 @@ var SectorDetailScreen = React.createClass({
     this.setAnimatingTimeout();
   },
   _getAnnotations(region) {
-    var title = "";
-    if (this.state.sectorLocation[this.props.market.entityId]) {
-      title = this.props.areaName + " - " + this.state.sectorLocation[this.props.market.entityId].name;
+    var annotations = [];
+    var sectorLocations = this.state.sectorLocation;
+    for (var key in sectorLocations) {
+      var image = require('image!Sector_Icon_03');
+      if (this.props.market.entityId.toString() === key) {
+        image = require('image!Sector_Icon_focused_03');
+      }
+      var title = this.props.areaName;
+      var subtitle = sectorLocations[key].name;
+      var latitude = sectorLocations[key].latitude;
+      var longitude = sectorLocations[key].longitude;
+      annotations.push({
+        longitude: longitude,
+        latitude: latitude,
+        title: title,
+        subtitle: subtitle,
+        image: image,
+      });
     }
-    var image = require('image!Sector_Icon_03');
-    return [{
-      longitude: region.longitude,
-      latitude: region.latitude,
-      title: title,
-      image: image,
-    }];
+    return annotations;
   },
   _onRegionChange(region) {
     this.setState({
@@ -399,13 +452,7 @@ var SectorDetails = React.createClass({
               <KpiDetails kpiKey={"uplink-throughput"} data={data["uplink-throughput"]}/>
             </View>
             <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"data-tnol"} data={data["data-tnol"]}/>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"volte-accessibility"} data={data["volte-accessibility"]}/>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"volte-retainability"} data={data["volte-retainability"]}/>
+              <KpiDetails kpiKey={"cs-fallback"} data={data["cs-fallback"]}/>
             </View>
           </ScrollView>
         );

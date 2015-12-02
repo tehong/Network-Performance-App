@@ -20,6 +20,7 @@ var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoATT = require('./components/icons/LogoATT');
 var AccNavTitle = require('./components/icons/zones/AccNavTitle');
+var CSFBNavTitle = require('./components/icons/zones/CSFBNavTitle');
 var VOLTEAccNavTitle = require('./components/icons/zones/VOLTEAccNavTitle');
 var RetNavTitle = require('./components/icons/zones/RetNavTitle');
 var VOLTERetNavTitle = require('./components/icons/zones/VOLTERetNavTitle');
@@ -285,6 +286,9 @@ var AreaScreen = React.createClass({
         break;
       case "tnol":
         var titleComponent = TNOLNavTitle;
+        break;
+      case "fallback":
+        var titleComponent = CSFBNavTitle;
         break;
     }
     // var newTitleComponent = React.render(<titleComponent area={"Zone"}/>);

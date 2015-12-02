@@ -150,7 +150,7 @@ var PerformanceCell = React.createClass({
     var greenDir =  redThreshold > greenThreshold?"<":">";
     var unit = this.props.market.unit;
     var data = this.props.market.data;
-    if (kpi.toLowerCase() == "throughput") {
+    if (kpi.toLowerCase() == "throughput" || kpi.toLowerCase() == "fallback") {
       yellowLowThreshold = redThreshold;
     }
     var yScale = this.findYScale();

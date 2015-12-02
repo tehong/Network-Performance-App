@@ -75,9 +75,9 @@ var SectorScreen = React.createClass({
   },
 
   componentDidMount: function() {
-    var kpig = this.props.kpi;
+    var kpi = this.props.kpi;
     var cat = this.props.category.toLowerCase();
-    switch(kpig.toLowerCase()) {
+    switch(kpi.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
           var query = "accessibility";
@@ -101,6 +101,9 @@ var SectorScreen = React.createClass({
         break;
       case "tnol":
         var query = "tnol";
+        break;
+      case "fallback":
+        var query = "fallback";
         break;
     }
     this.getMarkets(query);
@@ -142,6 +145,9 @@ var SectorScreen = React.createClass({
         break;
       case "volteretainability":
         var sectors = require('../simulatedData/SectorsVOLTERetainability.json');
+        break;
+      case "fallback":
+        var sectors = require('../simulatedData/SectorsCSFB.json');
         break;
     }
     if (sectors) {

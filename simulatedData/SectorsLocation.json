@@ -14,7 +14,7 @@
       "geoEntity": "sector",
       "entityId": 1001,
       "parentEntityId": 100,
-      "latitude": 38.015090,
+      "latitude": 37.925090,
       "longitude": -121.309448
     },
     {
@@ -22,7 +22,7 @@
       "geoEntity": "sector",
       "entityId": 1002,
       "parentEntityId": 100,
-      "latitude": 37.986823,
+      "latitude": 37.966823,
       "longitude": -121.262473
     },
     {
@@ -38,7 +38,7 @@
       "geoEntity": "sector",
       "entityId": 1101,
       "parentEntityId": 111,
-      "latitude": 37.690765,
+      "latitude": 37.650765,
       "longitude": -121.030197
     },
     {
@@ -46,7 +46,7 @@
       "geoEntity": "sector",
       "entityId": 1102,
       "parentEntityId": 112,
-      "latitude": 37.681528,
+      "latitude": 37.631528,
       "longitude": -120.951919
     },
     {
@@ -62,7 +62,7 @@
       "geoEntity": "sector",
       "entityId": 1201,
       "parentEntityId": 120,
-      "latitude": 38.505596,
+      "latitude": 38.595596,
       "longitude": -121.496478
     },
     {
@@ -70,8 +70,8 @@
       "geoEntity": "sector",
       "entityId": 1202,
       "parentEntityId": 120,
-      "latitude": 38.539977,
-      "longitude": -121.409274
+      "latitude": 38.579977,
+      "longitude": -121.469274
     }
   ]
 }
