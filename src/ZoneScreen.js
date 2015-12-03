@@ -264,6 +264,7 @@ var ZoneScreen = React.createClass({
           kpi: market.kpi,
           parentEntityId: market.entityId,
           areaName: this.props.areaName,
+          zoneName: market.name,
         }
       });
     } else {

@@ -238,6 +238,7 @@ var SectorScreen = React.createClass({
           title: market.title,
           market: market,
           areaName: this.props.areaName,
+          zoneName: this.props.zoneName,
         }
       });
     } else {

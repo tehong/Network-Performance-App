@@ -22,16 +22,16 @@
       "geoEntity": "sector",
       "entityId": 1002,
       "parentEntityId": 100,
-      "latitude": 37.966823,
-      "longitude": -121.262473
+      "latitude": 37.936823,
+      "longitude": -121.270473
     },
     {
       "name": "Modesto1",
       "geoEntity": "sector",
       "entityId": 1100,
       "parentEntityId": 110,
-      "latitude": 37.644294,
-      "longitude": -120.997581
+      "latitude": 37.664294,
+      "longitude": -121.047581
     },
     {
       "name": "Modesto2",
@@ -39,7 +39,7 @@
       "entityId": 1101,
       "parentEntityId": 111,
       "latitude": 37.650765,
-      "longitude": -121.030197
+      "longitude": -121.010197
     },
     {
       "name": "Modesto3",
@@ -47,14 +47,14 @@
       "entityId": 1102,
       "parentEntityId": 112,
       "latitude": 37.631528,
-      "longitude": -120.951919
+      "longitude": -121.025919
     },
     {
       "name": "Sacramento1",
       "geoEntity": "sector",
       "entityId": 1200,
       "parentEntityId": 120,
-      "latitude": 38.610836,
+      "latitude": 38.619836,
       "longitude": -121.484118
     },
     {
@@ -70,8 +70,8 @@
       "geoEntity": "sector",
       "entityId": 1202,
       "parentEntityId": 120,
-      "latitude": 38.579977,
-      "longitude": -121.469274
+      "latitude": 38.599977,
+      "longitude": -121.449274
     }
   ]
 }

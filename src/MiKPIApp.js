@@ -5,7 +5,7 @@
 */
 'use strict';
 
-var MiKPIVersion = "0.0.6";
+var MiKPIVersion = "0.0.7";
 
 var React = require('react-native');
 // var Router = require('./Router');

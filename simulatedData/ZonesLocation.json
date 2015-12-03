@@ -1,0 +1,44 @@
+{
+  "result":
+  [
+    {
+      "name": "Stockton",
+      "geoEntity": "zone",
+      "entityId": 100,
+      "parentEntityId": 10,
+      "coordinates": [
+        {"latitude": 37.968023, "longitude": -121.292473},
+        {"latitude": 37.950023, "longitude": -121.329473},
+        {"latitude": 37.910016, "longitude": -121.329073},
+        {"latitude": 37.917090, "longitude": -121.275448},
+        {"latitude": 37.939016, "longitude": -121.240073}
+      ]
+    },
+    {
+      "name": "Modesto",
+      "geoEntity": "zone",
+      "entityId": 110,
+      "parentEntityId": 11,
+      "coordinates": [
+        {"latitude": 37.684294, "longitude": -121.057581},
+        {"latitude": 37.670765, "longitude": -121.000000},
+        {"latitude": 37.638028, "longitude": -120.978197},
+        {"latitude": 37.608528, "longitude": -121.025919},
+        {"latitude": 37.646528, "longitude": -121.070919}
+      ]
+    },
+    {
+      "name": "Sacramento",
+      "geoEntity": "zone",
+      "entityId": 120,
+      "parentEntityId": 12,
+      "coordinates": [
+        {"latitude": 38.641016, "longitude": -121.479073},
+        {"latitude": 38.600836, "longitude": -121.420118},
+        {"latitude": 38.569596, "longitude": -121.460274},
+        {"latitude": 38.575096, "longitude": -121.519478},
+        {"latitude": 38.616596, "longitude": -121.527478}
+      ]
+    }
+  ]
+}
