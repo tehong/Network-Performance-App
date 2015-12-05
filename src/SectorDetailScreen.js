@@ -48,7 +48,10 @@ var resultsCache = {
 var LOADING = {};
 
 
+// Timer mixin (similar to multiple interetance in C++)
 var TimerMixin = require('react-timer-mixin');
+// Obtain device oritentation changes and process them
+var Orientation = require('react-native-orientation');
 
 var SectorDetailScreen = React.createClass({
   mixins: [TimerMixin],
@@ -68,6 +71,7 @@ var SectorDetailScreen = React.createClass({
       isFirstLoad: true,
       filter: '',
       queryNumber: 0,
+      isLandscape: false,
     };
   },
   componentWillMount: function() {
@@ -87,7 +91,27 @@ var SectorDetailScreen = React.createClass({
       this.getRandomArbitrary(100, 800)
     );
   },
+  _orientationDidChange: function(orientation) {
+    if(orientation == 'LANDSCAPE'){
+      this.setState({isLandscape: true})
+    }else{
+      this.setState({isLandscape: false})
+    }
+  },
   componentDidMount: function() {
+    Orientation.getOrientation((err,orientation)=> {
+      if (orientation === "LANDSCAPE") {
+        this.setState({isLandscape: true});
+      } else {
+        this.setState({isLandscape: false});
+      }
+    });
+    // Orientation.lockToPortrait(); //this will lock the view to Portrait
+    //Orientation.lockToLandscape(); //this will lock the view to Landscape
+    Orientation.unlockAllOrientations(); //this will unlock the view to all Orientations
+    // register the oritnation listener
+    Orientation.addOrientationListener(this._orientationDidChange);
+
     // var query = this.props.markets.entityId;
     this.setAnimatingTimeout();
     this.setState({
@@ -105,7 +129,12 @@ var SectorDetailScreen = React.createClass({
     this.getSectorLocation();
     this.getZoneLocation();
   },
-
+  componentWillUnmount: function() {
+    Orientation.getOrientation((err,orientation)=> {
+        console.log("Current Device Orientation: ", orientation);
+    });
+    Orientation.removeOrientationListener(this._orientationDidChange);
+  },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
@@ -251,6 +280,13 @@ var SectorDetailScreen = React.createClass({
         this.state.sectorLocation[key] = location;
         latitudeDelta = mileRadius/69.0;
         longitudeDelta = mileRadius/(scalingFactor * 69.0)
+        /* TODO: not working, if user started with landscape, it seems that the zoom level is two times!
+        if (this.state.isLandscape) {
+          debugger;
+          longitudeDelta = longitudeDelta / 2;  // initial landsacape need smaller radius
+          latitudeDelta = latitudeDelta / 2;
+        }
+        */
         region = {
           latitude: location.latitude,
           longitude: location.longitude,
@@ -414,9 +450,7 @@ var SectorDetailScreen = React.createClass({
       annotations: this._getAnnotations(region),
     });
   },
-
-
-  render: function() {
+  showKpiView: function() {
     var TouchableElement = TouchableHighlight;  // for iOS or Android variation
     // var textBlock =  SectorDiagnosis;
     // var textBlock =  SectorRemedy;
@@ -435,19 +469,10 @@ var SectorDetailScreen = React.createClass({
         buttonStyle3 = styles.buttonText1;
         break;
     };
-    return (
-      <View style={styles.container}>
-        <MapView style={styles.map}
-          onRegionChange={this._onRegionChange}
-          onRegionChangeComplete={this._onRegionChangeComplete}
-          region={this.state.mapRegion || undefined}
-          annotations={this.state.annotations || undefined}
-          overlays={this.state.overlays || undefined}
-          >
-          <View style={styles.sectorNameOverlap}>
-            <Text style={styles.sectorName}>Text</Text>
-          </View>
-        </MapView>
+    if (this.state.isLandscape) {
+      return;
+    } else {
+      return(
         <View style={styles.kpiContainer}>
           <View style={styles.kpiTabContainer}>
             <TouchableElement
@@ -471,6 +496,24 @@ var SectorDetailScreen = React.createClass({
             <SectorDetails animating={this.state.animating} tabNumber={this.state.tabNumber} sectorKpiData={this.state.sectorKpiData}/>
           </View>
         </View>
+      );
+    }
+  },
+  render: function() {
+    return (
+      <View style={styles.container}>
+        <MapView style={styles.map}
+          onRegionChange={this._onRegionChange}
+          onRegionChangeComplete={this._onRegionChangeComplete}
+          region={this.state.mapRegion || undefined}
+          annotations={this.state.annotations || undefined}
+          overlays={this.state.overlays || undefined}
+          >
+          <View style={styles.sectorNameOverlap}>
+            <Text style={styles.sectorName}>Text</Text>
+          </View>
+        </MapView>
+        {this.showKpiView()}
       </View>
     );
   },

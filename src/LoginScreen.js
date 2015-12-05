@@ -73,13 +73,13 @@ var LoginScreen = React.createClass({
           <Image style={styles.backgroundImage} source={{uri: 'BG_Gradient_MiKPI', isStatic: true}}>
             <View style={styles.container}>
               <TouchableElement style={styles.logoContainer} underlayColor={"#119BA8"} onPress={this.onPressLogo}>
-                <Image style={styles.logo} source={{uri: 'Logo_Mi_KPI', isStatic: true}}/>
+                <Image style={styles.logo} source={{uri: 'Logo_Beeper', isStatic: true}}/>
               </TouchableElement>
               <View style={styles.loginContainer}>
                 <TextInput style={styles.loginText}
                   onChangeText={(login) => this.setState({login})}
                   value={this.state.login}
-                  placeholder='   USERNAME'
+                  placeholder='     USERNAME'
                   placeholderTextColor='#7AA5AD'
                   autoCorrect={false}
                   autoFocus={true}
@@ -87,7 +87,7 @@ var LoginScreen = React.createClass({
                 <TextInput style={styles.loginText}
                   onChangeText={(password) => this.setState({password})}
                   value={this.state.password}
-                  placeholder='   PASSWORD'
+                  placeholder='     PASSWORD'
                   placeholderTextColor='#7AA5AD'
                   secureTextEntry={true}
                   autoCorrect={false}
@@ -199,30 +199,28 @@ var styles = StyleSheet.create({
   container: {
     justifyContent: 'space-around',
     alignItems: 'center',
-    height: 350,
-    width: 300,
+    height: 450,
+    width: 220,
     backgroundColor: 'rgba(0, 0, 0, 0)',
     // borderWidth: 2,
     // borderColor: '#00BBF0',
   },
   logoContainer: {
     flex: 3,
-    marginBottom: 8,
+    marginBottom: 120,
     // borderWidth: 1,
     // borderColor: '#F0000F',
   },
   logo: {
     // flex: 3,
-    width: 130,
-    height: 76,
-    // marginBottom: 13,
+    width: 157,
+    height: 124,
     // borderWidth: 1,
-    // borderColor: 'white',
+    // borderColor: 'red',
   },
   loginContainer: {
     flex: 3,
-    width: 300,
-    marginTop: 5,
+    width: 280,
     justifyContent: 'space-between',
     // borderWidth: 2,
     // borderColor: '#00DD00',
@@ -232,31 +230,18 @@ var styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 5,
-    width: 300,
+    marginTop: 0,
     // borderColor: 'yellow',
     // borderWidth: 2,
-  },
-  forgot: {
-    flex: 2,
-    marginTop: 40,
-    textAlign: 'center',
-    color: 'white',
-    textDecorationLine: 'underline',
-    fontSize: 14,
-    fontFamily: 'Helvetica Neue',
-    fontWeight: "500",
-    // borderWidth: 1,
-    // borderColor: '#CC00CC',
   },
   loginText: {
     flex: 1,
     backgroundColor: '#0B858B',
     color: 'white',
-    fontSize: 17,
+    fontSize: 13,
     fontFamily: 'Helvetica Neue',
-    fontWeight: "400",
-    marginTop: 5,
+    fontWeight: "500",
+    marginTop: 4,
     borderWidth: 1,
     borderColor: '#91C6C2',
   },
@@ -264,23 +249,32 @@ var styles = StyleSheet.create({
     alignItems: 'stretch',
     justifyContent: 'center',
     backgroundColor: 'white',
-    width: 300,
-    height: 30,
+    width: 280,
+    height: 28,
+    marginTop: 0,
     // borderColor: 'yellow',
     // borderWidth: 2,
   },
   loginButtonText: {
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 14,
+    fontWeight: "500",
     fontFamily: 'Helvetica Neue',
     backgroundColor: 'white',
-    color: '#105D95',
+    color: 'gray',
   },
-  forgotContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  forgot: {
+    flex: 3,
     marginTop: 30,
+    marginBottom: 15,
+    textAlign: 'center',
+    color: 'white',
+    textDecorationLine: 'underline',
+    fontSize: 10,
+    fontFamily: 'Helvetica Neue',
+    fontWeight: "500",
+    // borderWidth: 1,
+    // borderColor: '#CC00CC',
   },
   scene: {
     flex: 1,

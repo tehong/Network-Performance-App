@@ -12,12 +12,13 @@
 		00C302E81ABCBA2D00DB3ED1 /* libRCTImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302C01ABCB91800DB3ED1 /* libRCTImage.a */; };
 		00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302DC1ABCB9D200DB3ED1 /* libRCTNetwork.a */; };
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
-		071A60EC1BDC80CC00F339E9 /* RNMixpanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 071A60EB1BDC80CC00F339E9 /* RNMixpanel.m */; };
 		071A60F81BDC811F00F339E9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 071A60F71BDC811F00F339E9 /* LaunchScreen.xib */; };
-		0733B3951BF49C3B0017D245 /* SparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0733B3941BF49C3B0017D245 /* SparklineView.swift */; };
-		076ADF4F1BE308C300C5C29F /* SparklineViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076ADF4B1BE308C300C5C29F /* SparklineViewManager.swift */; };
-		076ADF501BE308C300C5C29F /* SparklineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076ADF4C1BE308C300C5C29F /* SparklineViewController.swift */; };
-		076ADF511BE308C300C5C29F /* RN_SparklineViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 076ADF4D1BE308C300C5C29F /* RN_SparklineViewManager.m */; };
+		07B7094C1C1264E0009F6288 /* Orientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094A1C1264E0009F6288 /* Orientation.m */; };
+		07B709501C126535009F6288 /* RNMixpanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094F1C126535009F6288 /* RNMixpanel.m */; };
+		07B7096D1C126635009F6288 /* SparklineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B709691C126635009F6288 /* SparklineViewController.swift */; };
+		07B7096E1C126635009F6288 /* SparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B7096A1C126635009F6288 /* SparklineView.swift */; };
+		07B7096F1C126635009F6288 /* RN_SparklineViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7096B1C126635009F6288 /* RN_SparklineViewManager.m */; };
+		07B709701C126635009F6288 /* SparklineViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B7096C1C126635009F6288 /* SparklineViewManager.swift */; };
 		07E4ADB81BFE8D13009776CA /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 07E4ADB71BFE8D13009776CA /* main.jsbundle */; };
 		07E4ADC61BFFA9F2009776CA /* AppHub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07E4ADC51BFFA9F2009776CA /* AppHub.framework */; };
 		07E4ADC81BFFAA34009776CA /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07E4ADC71BFFAA34009776CA /* SystemConfiguration.framework */; };
@@ -114,14 +115,16 @@
 		00C302DF1ABCB9EE00DB3ED1 /* RCTVibration.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTVibration.xcodeproj; path = "../node_modules/react-native/Libraries/Vibration/RCTVibration.xcodeproj"; sourceTree = "<group>"; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* MiKPITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MiKPITests.m; sourceTree = "<group>"; };
-		071A60EA1BDC80CC00F339E9 /* RNMixpanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNMixpanel.h; sourceTree = "<group>"; };
-		071A60EB1BDC80CC00F339E9 /* RNMixpanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNMixpanel.m; sourceTree = "<group>"; };
 		071A60F71BDC811F00F339E9 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
-		0733B3941BF49C3B0017D245 /* SparklineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SparklineView.swift; sourceTree = "<group>"; };
 		076ADF401BE308C300C5C29F /* MiKPI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MiKPI-Bridging-Header.h"; sourceTree = "<group>"; };
-		076ADF4B1BE308C300C5C29F /* SparklineViewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SparklineViewManager.swift; sourceTree = "<group>"; };
-		076ADF4C1BE308C300C5C29F /* SparklineViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SparklineViewController.swift; sourceTree = "<group>"; };
-		076ADF4D1BE308C300C5C29F /* RN_SparklineViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RN_SparklineViewManager.m; sourceTree = "<group>"; };
+		07B7094A1C1264E0009F6288 /* Orientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Orientation.m; path = RCTOrientation/Orientation.m; sourceTree = "<group>"; };
+		07B7094B1C1264E0009F6288 /* Orientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orientation.h; path = RCTOrientation/Orientation.h; sourceTree = "<group>"; };
+		07B7094E1C126535009F6288 /* RNMixpanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RNMixpanel.h; path = RNMixpanel/RNMixpanel.h; sourceTree = "<group>"; };
+		07B7094F1C126535009F6288 /* RNMixpanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNMixpanel.m; path = RNMixpanel/RNMixpanel.m; sourceTree = "<group>"; };
+		07B709691C126635009F6288 /* SparklineViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SparklineViewController.swift; path = RCTSparkline/SparklineViewController.swift; sourceTree = "<group>"; };
+		07B7096A1C126635009F6288 /* SparklineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SparklineView.swift; path = RCTSparkline/SparklineView.swift; sourceTree = "<group>"; };
+		07B7096B1C126635009F6288 /* RN_SparklineViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RN_SparklineViewManager.m; path = RCTSparkline/RN_SparklineViewManager.m; sourceTree = "<group>"; };
+		07B7096C1C126635009F6288 /* SparklineViewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SparklineViewManager.swift; path = RCTSparkline/SparklineViewManager.swift; sourceTree = "<group>"; };
 		07E4ADB71BFE8D13009776CA /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.jsbundle; path = ../main.jsbundle; sourceTree = "<group>"; };
 		07E4ADC51BFFA9F2009776CA /* AppHub.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AppHub.framework; sourceTree = "<group>"; };
 		07E4ADC71BFFAA34009776CA /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -224,6 +227,35 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		07B709491C11E9A7009F6288 /* RCTOrientation */ = {
+			isa = PBXGroup;
+			children = (
+				07B7094A1C1264E0009F6288 /* Orientation.m */,
+				07B7094B1C1264E0009F6288 /* Orientation.h */,
+			);
+			name = RCTOrientation;
+			sourceTree = "<group>";
+		};
+		07B7094D1C1264F2009F6288 /* RNMixpanel */ = {
+			isa = PBXGroup;
+			children = (
+				07B7094E1C126535009F6288 /* RNMixpanel.h */,
+				07B7094F1C126535009F6288 /* RNMixpanel.m */,
+			);
+			name = RNMixpanel;
+			sourceTree = "<group>";
+		};
+		07B709521C126598009F6288 /* RCTSparkline */ = {
+			isa = PBXGroup;
+			children = (
+				07B709691C126635009F6288 /* SparklineViewController.swift */,
+				07B7096A1C126635009F6288 /* SparklineView.swift */,
+				07B7096B1C126635009F6288 /* RN_SparklineViewManager.m */,
+				07B7096C1C126635009F6288 /* SparklineViewManager.swift */,
+			);
+			name = RCTSparkline;
+			sourceTree = "<group>";
+		};
 		139105B71AF99BAD00B5F7CC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -243,8 +275,6 @@
 		13B07FAE1A68108700A75B9A /* MiKPI */ = {
 			isa = PBXGroup;
 			children = (
-				071A60EA1BDC80CC00F339E9 /* RNMixpanel.h */,
-				071A60EB1BDC80CC00F339E9 /* RNMixpanel.m */,
 				07E4ADB71BFE8D13009776CA /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -252,10 +282,6 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				071A60F71BDC811F00F339E9 /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				076ADF4D1BE308C300C5C29F /* RN_SparklineViewManager.m */,
-				0733B3941BF49C3B0017D245 /* SparklineView.swift */,
-				076ADF4B1BE308C300C5C29F /* SparklineViewManager.swift */,
-				076ADF4C1BE308C300C5C29F /* SparklineViewController.swift */,
 				076ADF401BE308C300C5C29F /* MiKPI-Bridging-Header.h */,
 			);
 			name = MiKPI;
@@ -316,6 +342,9 @@
 			isa = PBXGroup;
 			children = (
 				13B07FAE1A68108700A75B9A /* MiKPI */,
+				07B709521C126598009F6288 /* RCTSparkline */,
+				07B7094D1C1264F2009F6288 /* RNMixpanel */,
+				07B709491C11E9A7009F6288 /* RCTOrientation */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* MiKPITests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -581,13 +610,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				071A60EC1BDC80CC00F339E9 /* RNMixpanel.m in Sources */,
+				07B7096F1C126635009F6288 /* RN_SparklineViewManager.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
-				0733B3951BF49C3B0017D245 /* SparklineView.swift in Sources */,
-				076ADF511BE308C300C5C29F /* RN_SparklineViewManager.m in Sources */,
+				07B7094C1C1264E0009F6288 /* Orientation.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				076ADF501BE308C300C5C29F /* SparklineViewController.swift in Sources */,
-				076ADF4F1BE308C300C5C29F /* SparklineViewManager.swift in Sources */,
+				07B709701C126635009F6288 /* SparklineViewManager.swift in Sources */,
+				07B7096D1C126635009F6288 /* SparklineViewController.swift in Sources */,
+				07B7096E1C126635009F6288 /* SparklineView.swift in Sources */,
+				07B709501C126535009F6288 /* RNMixpanel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

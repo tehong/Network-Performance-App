@@ -45,20 +45,23 @@ var PerformanceCell = React.createClass({
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     // default to yellow
     return (
-      <TouchableElement style={styles.container}
-          onPress={this.props.onSelect}
-          onShowUnderlay={this.props.onHighlight}
-          onHideUnderlay={this.props.onUnhighlight}>
-        <Image style={styles.backgroundImage} source={{uri: backgroundImage, isStatic: true}}>
-          <View style={styles.row}>
-            {/* $FlowIssue #7363964 - There's a bug in Flow where you cannot
-              * omit a property or set it to undefined if it's inside a shape,
-              * even if it isn't required */}
-            {this.kpiView()}
-            {this.chartView()}
-          </View>
-        </Image>
-      </TouchableElement>
+      <View>
+        <TouchableElement style={styles.container}
+            onPress={this.props.onSelect}
+            onShowUnderlay={this.props.onHighlight}
+            onHideUnderlay={this.props.onUnhighlight}>
+          <Image style={styles.backgroundImage} source={{uri: backgroundImage, isStatic: true}}>
+            <View style={styles.row}>
+              {/* $FlowIssue #7363964 - There's a bug in Flow where you cannot
+                * omit a property or set it to undefined if it's inside a shape,
+                * even if it isn't required */}
+              {this.kpiView()}
+              {this.chartView()}
+            </View>
+          </Image>
+        </TouchableElement>
+        {this.sectorCounterView(dailyAverage, redThreshold, greenThreshold)}
+      </View>
     );
   },
   // find the Y location and Y length
@@ -213,15 +216,40 @@ var PerformanceCell = React.createClass({
         </View>
       </View>
     );
-  }
+  },
+  sectorCounterView: function(dailyAverage, redThreshold, greenThreshold) {
+    if (this.props.market.geoEntity === "sector") {
+      return;
+    } else {
+      var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
+      return(
+          <View style={styles.sectorContainer}>
+            <Image style={styles.sectorBackgroundImage} source={{uri: backgroundImage, isStatic: true}}>
+            </Image>
+            <Image style={styles.sectorBackgroundImage} source={{uri: backgroundImage, isStatic: true}}>
+            </Image>
+            <Image style={styles.sectorBackgroundImage} source={{uri: backgroundImage, isStatic: true}}>
+            </Image>
+          </View>
+      );
+    }
+  },
 });
 
 var styles = StyleSheet.create({
   container: {
     alignItems: "stretch",
   },
+  sectorContainer: {
+    flexDirection: "row",
+    alignItems: "stretch",
+  },
   backgroundImage: {
     alignItems: "stretch",
+  },
+  sectorBackgroundImage: {
+    alignItems: "stretch",
+    height: 50,
   },
   row: {
     alignItems: 'flex-start',
