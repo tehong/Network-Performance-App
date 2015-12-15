@@ -15,7 +15,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   
   // class constants
   let kDataLine = "DataLine"
-  let kGreenThreshLIne = "greenThresholdLine"
+  let kAverageLine = "AverageLine"
 
   // var annotation = CPTPlotSpaceAnnotation?()
   var histogramOption = CPTScatterPlotHistogramOption.SkipSecond
@@ -25,7 +25,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   var plotData = [[String:Double]]()
   var dateArray = Dictionary<Int, String>()
   let cptPrimeColor = CPTColor(componentRed: 43/255, green: 136/255, blue: 184/255, alpha: 1)
-  var _greenThreshold:Double = 0.0
+  var _average:Double = 0.0
   
   
   func reset() {
@@ -75,21 +75,21 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
       }
     }
     
-    // This algorithm centers the greenThreshold line horizontally on the chart by finding the right display location and length of y-axis
+    // This algorithm centers the average line horizontally on the chart by finding the right display location and length of y-axis
     
-    let greenThreshold:Double = Double(_greenThreshold)
-    if (greenThreshold >= maxY) {
+    let average:Double = Double(_average)
+    if (average >= maxY) {
       yReturn["location"] = minY
-      yReturn["length"] = (greenThreshold - minY) * 2
-    } else if (greenThreshold <= minY) {
-      yReturn["location"] = greenThreshold - (maxY - greenThreshold)
-      yReturn["length"] = (maxY - greenThreshold) * 2
-    } else if (greenThreshold - minY >= maxY - greenThreshold) {
+      yReturn["length"] = (average - minY) * 2
+    } else if (average <= minY) {
+      yReturn["location"] = average - (maxY - average)
+      yReturn["length"] = (maxY - average) * 2
+    } else if (average - minY >= maxY - average) {
       yReturn["location"] = minY
-      yReturn["length"] = (greenThreshold - minY) * 2
+      yReturn["length"] = (average - minY) * 2
     } else {
-      yReturn["location"] = greenThreshold - (maxY - greenThreshold)
-      yReturn["length"] = (maxY - greenThreshold) * 2
+      yReturn["location"] = average - (maxY - average)
+      yReturn["length"] = (maxY - average) * 2
     }
     
     return yReturn
@@ -220,9 +220,9 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   }
   
   // yScale: [0] => yMinValue, [1] => yLength
-  func plot(dataArray:[[AnyObject]], greenThreshold: Double, yScale: [Double], graphView:CPTGraphHostingView)
+  func plot(dataArray:[[AnyObject]], average: Double, yScale: [Double], graphView:CPTGraphHostingView)
   {
-    _greenThreshold = greenThreshold
+    _average = average
     setUpChart(graphView)
     
     // data needs to be there before the plot gets created!
@@ -241,17 +241,17 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     dataSourceLinePlot!.dataSource = self
     graph!.addPlot(dataSourceLinePlot)
 
-    // Red Threshold Line plot:
+    // average Line plot:
     
-    let redThreshLinePlot: CPTScatterPlot = CPTScatterPlot()
-    redThreshLinePlot.identifier = kGreenThreshLIne
-    lineStyle = redThreshLinePlot.dataLineStyle!.mutableCopy() as! CPTMutableLineStyle
+    let averageLinePlot: CPTScatterPlot = CPTScatterPlot()
+    averageLinePlot.identifier = kAverageLine
+    lineStyle = averageLinePlot.dataLineStyle!.mutableCopy() as! CPTMutableLineStyle
     lineStyle.lineWidth = 1.0
     lineStyle.lineColor = CPTColor(componentRed: 60/255, green: 60/255, blue: 60/255, alpha: 0.7)
     lineStyle.dashPattern = [4, 3]
-    redThreshLinePlot.dataLineStyle = lineStyle
-    redThreshLinePlot.dataSource = self
-    graph!.addPlot(redThreshLinePlot)
+    averageLinePlot.dataLineStyle = lineStyle
+    averageLinePlot.dataSource = self
+    graph!.addPlot(averageLinePlot)
     
     // Auto scale the plot space to fit the plot data
     // Extend the ranges by 30% for neatness
@@ -371,7 +371,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
           }
           break
         case "y":
-          num = _greenThreshold;
+          num = _average;
           break
         default:
           break

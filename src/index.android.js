@@ -12,7 +12,7 @@ var {
   View,
 } = React;
 
-var MiKPI = React.createClass({
+var Beeper = React.createClass({
   render: function() {
     return (
       <View style={styles.container}>
@@ -49,4 +49,4 @@ var styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('MiKPI', () => MiKPI);
+AppRegistry.registerComponent('Beeper', () => Beeper);

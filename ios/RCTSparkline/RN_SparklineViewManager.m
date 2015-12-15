@@ -6,7 +6,7 @@
 //  Copyright © 2015 Facebook. All rights reserved.
 //
 
-#import "MiKPI-Bridging-Header.h"
+#import "Beeper-Bridging-Header.h"
 
 @interface RCT_EXTERN_MODULE(SparklineViewManager, RCTViewManager)
 
@@ -14,7 +14,7 @@
 
 RCT_EXTERN_METHOD(view)
 
-RCT_EXPORT_VIEW_PROPERTY(greenThreshold, double)
+RCT_EXPORT_VIEW_PROPERTY(average, double)
 RCT_EXPORT_VIEW_PROPERTY(yScale, NSArray)
 
 // RCT_EXPORT_VIEW_PROPERTY(plot, BOOL)

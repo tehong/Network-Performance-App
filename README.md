@@ -1,4 +1,4 @@
-# iOS-RN-MiKPI
+# iOS-RN-Beeper
 
 - To build the bundle to run in xCode mode on an iOS simulator or an iOS device:
 
@@ -7,7 +7,7 @@
     a. Uncomment OPTION 1 (for running from xCode on iOS simulator or a iOS device):  
 
      '''
-     jsCodeLocation = [NSURL URLWithString:@"http://localhost/src/MiKPIApp.bundle?platform=ios&dev=true"];
+     jsCodeLocation = [NSURL URLWithString:@"http://localhost/src/BeeperApp.bundle?platform=ios&dev=true"];
      '''
 
       *To run on iOS device, you need to change the "localhost" to your computer's IP address that's running on the same subnet of the running device*
@@ -36,12 +36,12 @@
     2. On the root directory of the app, build your bundle:
 
       '''
-      GitHub/RN-iOS-MiKPI  git:(master*) $ react-native bundle --minify --entry-file "./src/MiKPIApp.js" --platform ios --bundle-output ./main.jsbundle --assets-dest /tmp/bundle-assets
+      GitHub/RN-iOS-Beeper  git:(master*) $ react-native bundle --minify --entry-file "./src/BeeperApp.js" --platform ios --bundle-output ./main.jsbundle --assets-dest /tmp/bundle-assets
       '''
 
-    3. Add the main.jsbundle in the IOS project by right click on the project directory and "Add files to MiKPI".   *You only needs to do this once.  No need to do it a second time.*
+    3. Add the main.jsbundle in the IOS project by right click on the project directory and "Add files to Beeper".   *You only needs to do this once.  No need to do it a second time.*
 
-- To submit to AppNub for distribution:
+- To submit to AppNub for distribution (only works if no iOS changes, only JS changes):
 
   1. Enable OPTION 3 and disable all other OPTIONs.
 
@@ -49,7 +49,7 @@
 
 - To change the version of the app, currently there are two places needed to be changed:
 
-  1. In the MiKPIApp.js => change the "MiKPIVersion" variable to the new version string.
+  1. In the BeeperApp.js => change the "BeeperVersion" variable to the new version string.
 
   2. In the Xcode Info.plist => change the "Bundle version string, short" to the same version string.
 

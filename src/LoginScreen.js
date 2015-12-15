@@ -28,11 +28,13 @@ var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var Login = require('./components/icons/Login');
 var LogoATT = require('./components/icons/LogoATT');
 var BackButton = require('./components/icons/BackButton');
+var Orientation = require('react-native-orientation');
 
 var LoginScreen = React.createClass({
 
   // run by one time when a component is created
   getInitialState: function() {
+    Orientation.lockToPortrait(); //this will lock the view to Portrait
     Mixpanel.sharedInstanceWithToken(MP_TOKEN);
     this.mpAppLaunch();
     return {
@@ -70,10 +72,10 @@ var LoginScreen = React.createClass({
     var TouchableElement = TouchableHighlight;  // for iOS or Android variation
     // NOTE: Can't use "require()" for background image to stretch it, need to use uri mothod!
     return (
-          <Image style={styles.backgroundImage} source={{uri: 'BG_Gradient_MiKPI', isStatic: true}}>
+          <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login.png')}>
             <View style={styles.container}>
               <TouchableElement style={styles.logoContainer} underlayColor={"#119BA8"} onPress={this.onPressLogo}>
-                <Image style={styles.logo} source={{uri: 'Logo_Beeper', isStatic: true}}/>
+                <Image style={styles.logo} source={require('./assets/images/Logo_Beeper.png')}/>
               </TouchableElement>
               <View style={styles.loginContainer}>
                 <TextInput style={styles.loginText}
@@ -104,8 +106,8 @@ var LoginScreen = React.createClass({
               <Text style={styles.forgot} onPress={() => LinkingIOS.openURL('http://www.3ten8.com')}>
                 Forgotten Username or Password
               </Text>
-            </View>
-          </Image>
+          </View>
+        </Image>
     );
   },
   onPressLogo: function() {
@@ -190,11 +192,14 @@ var LoginScreen = React.createClass({
 
 var styles = StyleSheet.create({
   backgroundImage: {
-    flex: 1,
+    // resizeMode: 'stretch',  // this allows the width to be stretched in "row" order
+    flex: 1,  // this stretch the height to be stretched in "row" order
     justifyContent: 'center',
     alignItems: 'center',
-    // borderWidth: 1,
-    // borderColor: '#00BBF0',
+    // height: null,  // enable full height stretch in "column" order
+    width: null,  // enable full width stretch in "row" order
+    // borderWidth: 2,
+    // borderColor: 'yellow',
   },
   container: {
     justifyContent: 'space-around',
@@ -207,7 +212,7 @@ var styles = StyleSheet.create({
   },
   logoContainer: {
     flex: 3,
-    marginBottom: 120,
+    marginBottom: 110,
     // borderWidth: 1,
     // borderColor: '#F0000F',
   },
@@ -241,7 +246,7 @@ var styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: 'Helvetica Neue',
     fontWeight: "500",
-    marginTop: 4,
+    marginTop: 5,
     borderWidth: 1,
     borderColor: '#91C6C2',
   },
@@ -265,8 +270,8 @@ var styles = StyleSheet.create({
   },
   forgot: {
     flex: 3,
-    marginTop: 30,
-    marginBottom: 15,
+    marginTop: 25,
+    marginBottom: 20,
     textAlign: 'center',
     color: 'white',
     textDecorationLine: 'underline',

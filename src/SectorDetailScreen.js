@@ -134,6 +134,7 @@ var SectorDetailScreen = React.createClass({
         console.log("Current Device Orientation: ", orientation);
     });
     Orientation.removeOrientationListener(this._orientationDidChange);
+    Orientation.lockToPortrait(); //this will lock the view to Portrait
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
@@ -410,9 +411,9 @@ var SectorDetailScreen = React.createClass({
     var annotations = [];
     var sectorLocations = this.state.sectorLocation;
     for (var key in sectorLocations) {
-      var image = require('image!Sector_Icon_03');
+      var image = require('./assets/icons/Sector_Icon_03.png');
       if (this.props.market.entityId.toString() === key) {
-        image = require('image!Sector_Icon_focused_03');
+        image = require('./assets/icons/Sector_Icon_focused_03.png');
       }
       var title = this.props.areaName;
       var subtitle = this.props.zoneName + " - " + sectorLocations[key].name;
@@ -569,7 +570,7 @@ var SectorDetails = React.createClass({
             <Text style={styles.issueText}>5. Incorrect scheduler type.</Text>
             <Text style={styles.issueText}>6. Slow CQI frequencies.</Text>
             <Text style={styles.issueText}>7. Others (VSWR, Backhaul capacity).</Text>
-            <Image style={styles.diag} source={{uri: "DL_Throughput_Diag", isStatic: true}}/>
+            <Image style={styles.diag} source={require('./assets/images/diag.png')}/>
           </ScrollView>
         );
         break;
@@ -624,7 +625,7 @@ var KpiDetails = React.createClass({
     return this.getKpiDetails(icon, data);
   },
   getKpiDetails: function(icon:string, data:{}) {
-    var styleColor = "#00A9E9"
+    var styleColor = "#00A9E9";
     if(icon.indexOf("Red") > -1) {
       styleColor = "#DD1F27";
     } else if (icon.indexOf("Yellow") > -1) {
@@ -639,7 +640,7 @@ var KpiDetails = React.createClass({
     return (
       <View style={styles.kpiEntryContainer}>
         <View style={styles.kpiIconContainer}>
-          <Image style={styles.kpiIcon} source={{uri: icon, isStatic: true}}/>
+          {this.getIconView(icon)}
         </View>
         <View style={styles.kpiTextContainer}>
           <Text style={[styleText.text, styles.kpiCatText]}>{data.category}</Text>
@@ -651,6 +652,140 @@ var KpiDetails = React.createClass({
         </View>
       </View>
     );
+  },
+  getIconView: function(icon:string) {
+    if(icon.indexOf("Red") > -1) {
+      switch(icon) {
+        case "Icon_DA_Red":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DA_Red.png")}/>
+          );
+          break;
+        case "Icon_DR_Red":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DR_Red.png")}/>
+          );
+          break;
+        case "Icon_DT_Red":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DT_Red.png")}/>
+          );
+          break;
+        case "Icon_UT_Red":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_UT_Red.png")}/>
+          );
+          break;
+        case "Icon_T_Red":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_T_Red.png")}/>
+          );
+          break;
+        case "Icon_VA_Red":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VA_Red.png")}/>
+          );
+          break;
+        case "Icon_VR_Red":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VR_Red.png")}/>
+          );
+          break;
+        case "Icon_CS_Red":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_CS_Red.png")}/>
+          );
+          break;
+      }
+    }
+    else if(icon.indexOf("Green") > -1) {
+      switch(icon) {
+        case "Icon_DA_Green":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DA_Green.png")}/>
+          );
+          break;
+        case "Icon_DR_Green":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DR_Green.png")}/>
+          );
+          break;
+        case "Icon_DT_Green":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DT_Green.png")}/>
+          );
+          break;
+        case "Icon_UT_Green":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_UT_Green.png")}/>
+          );
+          break;
+        case "Icon_T_Green":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_T_Green.png")}/>
+          );
+          break;
+        case "Icon_VA_Green":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VA_Green.png")}/>
+          );
+          break;
+        case "Icon_VR_Green":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VR_Green.png")}/>
+          );
+          break;
+        case "Icon_CS_Green":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_CS_Green.png")}/>
+          );
+          break;
+      }
+    }
+    else {
+      switch(icon) {
+        case "Icon_DA_Yellow":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DA_Yellow.png")}/>
+          );
+          break;
+        case "Icon_DR_Yellow":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DR_Yellow.png")}/>
+          );
+          break;
+        case "Icon_DT_Yellow":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DT_Yellow.png")}/>
+          );
+          break;
+        case "Icon_UT_Yellow":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_UT_Yellow.png")}/>
+          );
+          break;
+        case "Icon_T_Yellow":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_T_Yellow.png")}/>
+          );
+          break;
+        case "Icon_VA_Yellow":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VA_Yellow.png")}/>
+          );
+          break;
+        case "Icon_VR_Yellow":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VR_Yellow.png")}/>
+          );
+          break;
+        case "Icon_CS_Yellow":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_CS_Yellow.png")}/>
+          );
+          break;
+      }
+    }
   }
 });
 /*
@@ -813,10 +948,12 @@ var styles = StyleSheet.create({
     fontWeight: "400",
   },
   diag: {
-    alignSelf: "stretch",
-    marginTop: 10,
-    width: 300,
-    height: 160,
+    // flex: 1,  // this allows height to be stretched in "row" order!
+    resizeMode: 'stretch',  // this allows the width to be stretched in "row" order!
+    width: null, // enable full stretch
+    height: 190, // enable full stretch
+    // borderColor: "red",
+    // borderWidth: 1,
   },
   kpiRowContainer: {
     flex: 1,

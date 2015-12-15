@@ -14,7 +14,7 @@ var LogoATT = React.createClass({
         <Image
           style={styles.icon}
           underlayColor="transparent"
-          source={{uri: "Logo_ATT", isStatic: true}}
+          source={require("../../assets/icons/Profile_Icon.png")}
         />
     );
   }
@@ -22,8 +22,8 @@ var LogoATT = React.createClass({
 
 var styles = StyleSheet.create({
   icon: {
-    width: 55,
-    height: 25,
+    width: 30,
+    height: 30,
     marginTop: 5,
     marginRight: 13
   }

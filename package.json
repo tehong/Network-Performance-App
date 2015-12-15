@@ -1,6 +1,6 @@
 {
-  "name": "MiKPI",
-  "version": "0.0.3",
+  "name": "Beeper",
+  "version": "0.0.8",
   "private": true,
   "scripts": {
     "start": "node_modules/react-native/packager/packager.sh"

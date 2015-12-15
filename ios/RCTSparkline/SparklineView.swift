@@ -14,7 +14,7 @@ class SparklineView: UIView {
   
   // let dataDictionary = ["0":96, "1":97, "2":99, "3":100, "4":95, "5":97, "6":99, "7":94, "8":90, "9":100, "10":80, "11":99, "12":97]
 
-  var _greenThreshold:Double?
+  var _average:Double?
   var _yScale:[Double]?   // [0] => minimum value of y axis, [1] => y axis length
   var _dataArray = [[AnyObject]]?()
   
@@ -106,8 +106,8 @@ class SparklineView: UIView {
 
   }
   
-  func setGreenThreshold(value:Double) {
-    _greenThreshold = value
+  func setAverage(value:Double) {
+    _average = value
     plot()
   }
   
@@ -130,9 +130,9 @@ class SparklineView: UIView {
   }
   
   func plot() {
-    if (_dataArray != nil && _greenThreshold != nil && _yScale != nil) {
+    if (_dataArray != nil && _average != nil && _yScale != nil) {
       setupView()
-      sparklineController.plot(_dataArray!, greenThreshold: _greenThreshold!, yScale: _yScale!, graphView: sparklineView)
+      sparklineController.plot(_dataArray!, average: _average!, yScale: _yScale!, graphView: sparklineView)
     }
   }
 }

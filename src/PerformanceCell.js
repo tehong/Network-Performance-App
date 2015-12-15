@@ -30,7 +30,7 @@ var {
 var getImageSource = require('./getImageSource');
 var getTextFromScore = require('./getTextFromScore');
 var getImageFromAverage = require('./getImageFromAverage');
-var getImageFromParentKPI = require('./getImageFromParentKPI');
+var getImageViewFromParentKPI = require('./getImageViewFromParentKPI');
 var SparklineView= require('./SparklineView');
 
 var PerformanceCell = React.createClass({
@@ -43,6 +43,7 @@ var PerformanceCell = React.createClass({
       TouchableElement = TouchableNativeFeedback;
     }
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
+    // backgroundImage = require("./assets/images/" + backgroundImage + ".png");  // can't use vairables
     // default to yellow
     return (
       <View>
@@ -50,19 +51,45 @@ var PerformanceCell = React.createClass({
             onPress={this.props.onSelect}
             onShowUnderlay={this.props.onHighlight}
             onHideUnderlay={this.props.onUnhighlight}>
-          <Image style={styles.backgroundImage} source={{uri: backgroundImage, isStatic: true}}>
-            <View style={styles.row}>
-              {/* $FlowIssue #7363964 - There's a bug in Flow where you cannot
-                * omit a property or set it to undefined if it's inside a shape,
-                * even if it isn't required */}
-              {this.kpiView()}
-              {this.chartView()}
-            </View>
-          </Image>
+            {this.contentView(backgroundImage)}
         </TouchableElement>
         {this.sectorCounterView(dailyAverage, redThreshold, greenThreshold)}
       </View>
     );
+  },
+  innerContentView: function() {
+    return (
+      <View style={styles.row}>
+        {/* $FlowIssue #7363964 - There's a bug in Flow where you cannot
+          * omit a property or set it to undefined if it's inside a shape,
+          * even if it isn't required */}
+        {this.kpiView()}
+        {this.chartView()}
+      </View>
+    );
+  },
+  // Can't use variable in the "require()" statement for some reason so had to use this utility function
+  contentView: function(backgroundImage) {
+    switch(backgroundImage) {
+      case "BG_Red_KPI_Item":
+        return(
+          <Image style={styles.backgroundImage} source={require("./assets/images/BG_Red_KPI_Item.png")}>
+            {this.innerContentView()}
+          </Image>
+        );
+      case "BG_Green_KPI_Item":
+        return(
+          <Image style={styles.backgroundImage} source={require("./assets/images/BG_Green_KPI_Item.png")}>
+            {this.innerContentView()}
+          </Image>
+        );
+      case "BG_Yellow_KPI_Item":
+        return(
+          <Image style={styles.backgroundImage} source={require("./assets/images/BG_Yellow_KPI_Item.png")}>
+            {this.innerContentView()}
+          </Image>
+        );
+    }
   },
   // find the Y location and Y length
   //   [0] => Y Location
@@ -91,6 +118,7 @@ var PerformanceCell = React.createClass({
 
     // This algorithm centers the redThreshold line horizontally on the chart by finding the right display location and length of y-axis
 
+    /*``
     var greenThreshold = this.props.market.thresholds.green;
     if (greenThreshold >= maxY) {
       yScale[0] = minY
@@ -105,16 +133,26 @@ var PerformanceCell = React.createClass({
       yScale[0] = greenThreshold - (maxY - greenThreshold)
       yScale[1] = (maxY - greenThreshold) * 2
     }
+    */
+    yScale[0] = minY;
+    yScale[1] = maxY - minY;
     return yScale;
   },
+  /**
+   * Returns a random integer between min (inclusive) and max (inclusive)
+   * Using Math.round() will give you a non-uniform distribution!
+   */
+  getRandomInt: function(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
   kpiView: function() {
-    var kpiImage = getImageFromParentKPI(this.props.market.category, this.props.market.kpi);
+    var kpiImage = getImageViewFromParentKPI(this.props.market.category, this.props.market.kpi);
     var dailyAverage = this.props.market.dailyAverage;
     var unit = this.props.market.unit;
     return(
       <View style={styles.kpiContainer}>
         <View style={styles.iconContainer}>
-          <Image style={styles.kpiImage} source={{uri: kpiImage, isStatic: true}}/>
+          {kpiImage}
           <View style={styles.kpiSpace}></View>
         </View>
         <View style={styles.textContainer}>
@@ -147,6 +185,7 @@ var PerformanceCell = React.createClass({
     var kpi = this.props.market.kpi;
     var redThreshold = this.props.market.thresholds.red;
     var greenThreshold = this.props.market.thresholds.green;
+    var dailyAverage = this.props.market.dailyAverage;
     var yellowLowThreshold = redThreshold + 1;
     var yellowHighThreshold = greenThreshold;
     var redDir =  redThreshold > greenThreshold?">":"<";
@@ -174,29 +213,32 @@ var PerformanceCell = React.createClass({
     else {
       unit = ""
     }
+            // removed the text and arrow on the left plane
+            /*
+            <View style={styles.threshArrowContainer}>
+              <Image style={styles.threshImage} source={{uri: "Icon_Chart_Indicator", isStatic: true}}/>
+              <Text style={styles.chartThresh}>{dailyAverage}{yUnit}</Text>
+            </View>
+            */
     return(
-      <View style={styles.chartContainer}>
-        <View style={styles.chart}>
-          <Image style={styles.chartImage} source={{uri: "BG_Chart_Bands", isStatic: true}}>
+      <View style={styles.dataContainer}>
+        <View style={styles.chartContainer}>
+          <Image style={styles.chartBands} source={require("./assets/images/BG_Chart_Bands.png")}>
             <SparklineView
-              greenThreshold={greenThreshold}
+              style={styles.hostView}
+              average={dailyAverage}
               yScale={yScale}
               dataArray={data}
-              style={styles.hostView}
             />
           </Image>
           <View style={styles.chartSideContainer}>
             <Text style={styles.yMaxValue}>{yMaxValue}{yUnit}</Text>
-            <View style={styles.threshArrowContainer}>
-              <Image style={styles.threshImage} source={{uri: "Icon_Chart_Indicator", isStatic: true}}/>
-              <Text style={styles.chartThresh}>{greenThreshold}{yUnit}</Text>
-            </View>
             <View style={styles.yMinValueContainer}>
               <Text style={styles.yMinValue}>{yMinValue}{yUnit}</Text>
             </View>
           </View>
         </View>
-        <View style={styles.threshold}>
+        <View style={styles.thresholdContainer}>
           <View style={styles.thresholdValue}>
             <View style={styles.ttContainer}>
               <Text style={styles.tt}>GREEN</Text>
@@ -218,21 +260,57 @@ var PerformanceCell = React.createClass({
     );
   },
   sectorCounterView: function(dailyAverage, redThreshold, greenThreshold) {
+    var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
+    var totalNumSectors = 9;  // sectors per zone
     if (this.props.market.geoEntity === "sector") {
       return;
-    } else {
-      var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
-      return(
-          <View style={styles.sectorContainer}>
-            <Image style={styles.sectorBackgroundImage} source={{uri: backgroundImage, isStatic: true}}>
-            </Image>
-            <Image style={styles.sectorBackgroundImage} source={{uri: backgroundImage, isStatic: true}}>
-            </Image>
-            <Image style={styles.sectorBackgroundImage} source={{uri: backgroundImage, isStatic: true}}>
-            </Image>
-          </View>
-      );
     }
+    if (this.props.market.geoEntity === "area") {
+      totalNumSectors = 27;
+    }
+    var sectorCounts = {
+      "red": 0,
+      "yellow": 0,
+      "green": 0,
+    }
+    var highNum = this.getRandomInt(Math.floor(totalNumSectors/2) + 1, totalNumSectors - 2);
+    var mediumNum = this.getRandomInt(Math.floor((totalNumSectors - highNum)/2), totalNumSectors - highNum - 1);
+    var lowNum = totalNumSectors - highNum - mediumNum;
+    switch(backgroundImage) {
+      case "BG_Red_KPI_Item":
+        sectorCounts["red"] = highNum;
+        sectorCounts["yellow"] = mediumNum;
+        sectorCounts["green"] = lowNum;
+        break;
+      case "BG_Green_KPI_Item":
+        sectorCounts["green"] = highNum;
+        sectorCounts["yellow"] = mediumNum;
+        sectorCounts["red"] = lowNum;
+        break;
+      case "BG_Yellow_KPI_Item":
+        sectorCounts["yellow"] = highNum;
+        sectorCounts["red"] = mediumNum;
+        sectorCounts["green"] = lowNum;
+        break;
+    }
+    return(
+        <View style={styles.sectorContainer}>
+          <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Red.png")}>
+            <Text style={styles.sectorCountText}>{sectorCounts["red"]}</Text>
+            <Text style={styles.sectors}>Sectors</Text>
+          </Image>
+          <View style={styles.lineVertical}></View>
+          <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Yellow.png")}>
+            <Text style={styles.sectorCountText}>{sectorCounts["yellow"]}</Text>
+            <Text style={styles.sectors}>Sectors</Text>
+          </Image>
+          <View style={styles.lineVertical}></View>
+          <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Green.png")}>
+            <Text style={styles.sectorCountText}>{sectorCounts["green"]}</Text>
+            <Text style={styles.sectors}>Sectors</Text>
+          </Image>
+        </View>
+    );
   },
 });
 
@@ -243,21 +321,52 @@ var styles = StyleSheet.create({
   sectorContainer: {
     flexDirection: "row",
     alignItems: "stretch",
+    justifyContent: "space-between",
+    // borderColor: "yellow",
+    // borderWidth: 2,
   },
   backgroundImage: {
-    alignItems: "stretch",
+    width: null, // stretch to the max
+    height: null, // stretch to the max
+    // borderColor: "blue",
+    // borderWidth: 2,
   },
   sectorBackgroundImage: {
-    alignItems: "stretch",
-    height: 50,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 95,
+    height: 100,
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
+  sectorCountText: {
+    fontSize: 39,
+    fontWeight: '700',
+    color: 'white',
+    fontFamily: 'Helvetica Neue',
+    // borderColor: "white",
+    // borderWidth: 1,
+  },
+  sectors: {
+    fontSize: 15,
+    fontWeight: '400',
+    color: 'rgba(30,30,30,0.7)',
+    fontFamily: 'Helvetica Neue',
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
+  lineVertical: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
   },
   row: {
     alignItems: 'flex-start',
     alignItems: "stretch",
     flexDirection: 'row',
+    height: 198,
     // borderColor: "yellow",
     // borderWidth: 2,
-    height: 198,
   },
   kpiContainer: {
     flex:2,
@@ -268,9 +377,9 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
     marginTop: 13,
   },
-  chartContainer: {
+  dataContainer: {
     flex: 3,
-    // borderColor: "red",
+    // borderColor: "white",
     // borderWidth: 2,
   },
   iconContainer: {
@@ -295,7 +404,7 @@ var styles = StyleSheet.create({
     flex: 1,
     // borderColor: "pink",
     // borderWidth: 1,
-    height: 25,
+    height: 22,
     width: 36,
   },
   kpiSpace: {
@@ -345,31 +454,29 @@ var styles = StyleSheet.create({
     fontWeight: '500',
     fontFamily: 'Helvetica Neue',
   },
-  chart: {
-    flex: 32,
+  chartContainer: {
+    flex: 34,
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignItems: "stretch",
-    // borderColor: "green",
-    // borderWidth: 2,
-  },
-  threshold: {
-    flex: 11,
-    flexDirection: "row",
     // borderColor: "white",
     // borderWidth: 2,
   },
-  chartImage: {
-    flex: 20,
-    // borderColor: "blue",
+  thresholdContainer: {
+    flex: 10,
+    flexDirection: "row",
+    // borderColor: "pink",
     // borderWidth: 2,
+  },
+  chartBands: {
+    flex: 23,
+    height: null,
+    alignItems: "stretch",
+    // borderColor: "green",
+    // borderWidth: 1,
   },
   hostView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "stretch",
-    // height: 100,
-    // width: 100,
     // borderColor: "red",
     // borderWidth: 2,
   },
@@ -379,13 +486,15 @@ var styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "stretch",
     // borderColor: "yellow",
-    // borderWidth: 2,
+    // borderWidth: 1,
   },
   yMaxValue: {
     flex: 4,
     fontSize: 12,
     fontWeight: "900",
     fontFamily: 'Helvetica Neue',
+    paddingTop: 2,
+    paddingLeft: 2,
     color: "rgba(60,60,60,1.0)",
   },
   yMinValueContainer: {
@@ -397,6 +506,8 @@ var styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900",
     fontFamily: 'Helvetica Neue',
+    paddingLeft: 2,
+    paddingBottom: 2,
     color: "rgba(60,60,60,1.0)",
   },
   threshArrowContainer: {
@@ -426,8 +537,9 @@ var styles = StyleSheet.create({
   thresholdValue: {
     flexDirection: "row",
     flex: 11,
-    justifyContent: "space-between",
-    alignItems: "center",
+    justifyContent: "space-around",
+    alignItems: "flex-start",
+    paddingTop: 4,
     // borderColor: "yellow",
     // borderWidth: 2,
   },

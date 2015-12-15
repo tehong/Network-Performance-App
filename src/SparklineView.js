@@ -16,7 +16,7 @@ var SparklineView = React.createClass({
     * `ViewStylePropTypes.js` for more info.
     */
    // plot: React.PropTypes.bool,
-   redThreshold: React.PropTypes.number,
+   average: React.PropTypes.number,
    yScale: React.PropTypes.arrayOf(
       React.PropTypes.any,
     ),
