@@ -161,7 +161,6 @@ var ZoneScreen = React.createClass({
             resultsCache.totalForQuery[query] = zones.length;
             resultsCache.dataForQuery[query] = zones;
             // resultsCache.nextPageNumberForQuery[query] = 2;
-
             if (this.state.filter !== query) {
               // do not update state if the query is stale
               return;
@@ -183,6 +182,7 @@ var ZoneScreen = React.createClass({
       })
       .catch((ex) => {
         console.log('response failed', ex)
+        this.setState({isLoading: false});
       })
   },
   getZoneKPI: function(query: string) {

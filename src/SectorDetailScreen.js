@@ -189,6 +189,7 @@ var SectorDetailScreen = React.createClass({
         })
         .catch((ex) => {
           console.log('response failed', ex)
+          this.setState({isLoading: false});
         })
     } else if (query.toLowerCase() === 'zonelocation'){
       var zone = require('../simulatedData/ZonesLocation.json');

@@ -190,6 +190,7 @@ var SectorScreen = React.createClass({
       })
       .catch((ex) => {
         console.log('response failed', ex)
+        this.setState({isLoading: false});
       })
   },
   getSectors: function(query: string) {

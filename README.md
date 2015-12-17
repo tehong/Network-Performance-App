@@ -49,7 +49,7 @@
 
 - To change the version of the app, currently there are two places needed to be changed:
 
-  1. In the BeeperApp.js => change the "BeeperVersion" variable to the new version string.
+  1. In the ./index.ios.js => change the "BeeperVersion" variable to the new version string.
 
   2. In the Xcode Info.plist => change the "Bundle version string, short" to the same version string.
 

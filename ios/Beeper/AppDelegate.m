@@ -98,7 +98,7 @@
    */
   
   AHBuild *build = [[AppHub buildManager] currentBuild];
-  sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
+  // sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
   
   return sourceURL;
 }

@@ -70,6 +70,7 @@ function getAreaScreenStyles(): StyleSheet {
       justifyContent: 'center',
       alignItems: 'center',
       width: null,
+      marginTop: 200,
     },
   });
   return styles;
