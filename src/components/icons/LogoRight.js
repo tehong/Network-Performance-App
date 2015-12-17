@@ -6,7 +6,7 @@ var {
   Image,
 } = React;
 
-var LogoATT = React.createClass({
+var LogoRight = React.createClass({
 
   render() {
     return (
@@ -30,4 +30,4 @@ var styles = StyleSheet.create({
 });
 
 
-module.exports = LogoATT;
+module.exports = LogoRight ;

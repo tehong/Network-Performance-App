@@ -17,7 +17,7 @@ var PerformanceCell = require('./PerformanceCell');
 var SectorDetailScreen = require('./SectorDetailScreen');
 var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
-var LogoATT = require('./components/icons/LogoATT');
+var LogoRight = require('./components/icons/LogoRight');
 var SectorDetailTitle = require('./components/icons/sectors/SectorDetailTitle');
 /*
 var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
@@ -35,11 +35,13 @@ var getSortedDataArray = require('./getSortedDataArray');
  * In case you want to use the Rotten Tomatoes' API on a real app you should
  * create an account at http://developer.rottentomatoes.com/
  */
-var API_URL = 'http://api.rottentomatoes.com/api/public/v1.0/';
+ var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
+ /*
 var API_KEYS = [
   '7waqfqbprs7pajbz28mqf6vz',
   // 'y4vwv8m33hed9ety83jmv52f', Fallback api_key
 ];
+*/
 
 // Results should be cached keyed by the query
 // with values of null meaning "being fetched"
@@ -75,55 +77,61 @@ var SectorScreen = React.createClass({
   },
 
   componentDidMount: function() {
-    var kpi = this.props.kpi;
+    var uncorrectedKpi = this.props.kpi;
+    var kpi = uncorrectedKpi.replace("Data ", "");
+    kpi = kpi.replace("Uplink ", "");
+    kpi = kpi.replace("Downlink ", "");
     var cat = this.props.category.toLowerCase();
     switch(kpi.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
-          var query = "accessibility";
+          var query = "Data Accessibility";
         } else {
-          var query = "volteaccessiblity";
+          var query = "VoLTE Accessibility";
         }
         break;
       case "retainability":
         if (cat === "data") {
-          var query = "retainability";
+          var query = "Data Retainability";
         } else {
-          var query = "volteretainability";
+          var query = "VoLTE Retainability";
         }
         break;
       case "throughput":
         if (cat === "downlink") {
-          var query = "dlthroughput";
+          var query = "Downlink Throughput";
         } else {
-          var query = "ulthroughput";
+          var query = "Uplink Throughput";
         }
         break;
       case "tnol":
-        var query = "tnol";
+        var query = "Data TNOL";
         break;
       case "fallback":
-        var query = "fallback";
+        var query = "Fallback";
         break;
     }
-    this.getMarkets(query);
+
+    // inlcude query name with zoneName
+    query = this.props.zoneName + "/kpi/" + query;
+    this.getSectors(query);
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
-    var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
+    // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
       return (
-        API_URL + 'movies.json?apikey=' + apiKey + '&q=' +
-        encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
+        SECTOR_URL + query + '/'
+        // API_URL + 'movies.json?apikey=' + apiKey + '&q=' + encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
       );
     } else {
-      // With no query, load latest markets
-      var queryString = API_URL + 'lists/movies/in_theaters.json?apikey=' + apiKey +
-        '&page_limit=20&page=' + pageNumber
+      // With no query, load latest sectors
+      var queryString = SECTOR_URL + this.props.zoneName + '/kpi/' + this.props.kpi + '/'
       return queryString;
     }
   },
   fetchData: function(query, queryString) {
+    /*
     switch(query.toLowerCase()) {
       case "accessibility":
         var sectors = require('../simulatedData/SectorsAccessibility.json');
@@ -150,33 +158,41 @@ var SectorScreen = React.createClass({
         var sectors = require('../simulatedData/SectorsCSFB.json');
         break;
     }
-    if (sectors) {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = sectors.result.length;
-        resultsCache.dataForQuery[query] = sectors.result;
-        // resultsCache.nextPageNumberForQuery[query] = 2;
+    */
+    fetch(queryString)
+      .then((response) => response.json())
+      .then((responseData) => {
+        var sectors = responseData;
+        if (sectors) {
+            LOADING[query] = false;
+            resultsCache.totalForQuery[query] = sectors.length;
+            resultsCache.dataForQuery[query] = sectors;
+            // resultsCache.nextPageNumberForQuery[query] = 2;
 
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
+            if (this.state.filter !== query) {
+              // do not update state if the query is stale
+              return;
+            }
+            this.setState({
+              isLoading: false,
+              // dataSource: this.getDataSource(responseData.movies),
+              dataSource: this.getDataSource(sectors),
+            });
+        } else {
+            LOADING[query] = false;
+            resultsCache.dataForQuery[query] = undefined;
+
+            this.setState({
+              dataSource: this.getDataSource([]),
+              isLoading: false,
+            });
         }
-
-        this.setState({
-          isLoading: false,
-          // dataSource: this.getDataSource(responseData.movies),
-          dataSource: this.getDataSource(sectors.result),
-        });
-    } else {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = undefined;
-
-        this.setState({
-          dataSource: this.getDataSource([]),
-          isLoading: false,
-        });
-    }
+      })
+      .catch((ex) => {
+        console.log('response failed', ex)
+      })
   },
-  getMarkets: function(query: string) {
+  getSectors: function(query: string) {
     this.timeoutID = null;
 
     // NOTE: Since we are not really query via HTTP but directly via simulatedData files
@@ -207,6 +223,7 @@ var SectorScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
+    console.log("SectorScreen queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
@@ -214,8 +231,9 @@ var SectorScreen = React.createClass({
   onEndReached: function() {
   },
 
-  getDataSource: function(markets: Array<any>): ListView.DataSource {
-    var sortedMarkets = getSortedDataArray(markets);
+  getDataSource: function(sectors: Array<any>): ListView.DataSource {
+    var sortedMarkets = getSortedDataArray(sectors);
+    /*
     var filteredSet = [];
     for (var i in sortedMarkets) {
       if (sortedMarkets[i].parentEntityId == this.props.parentEntityId) {
@@ -223,20 +241,22 @@ var SectorScreen = React.createClass({
       }
     }
     return this.state.dataSource.cloneWithRows(filteredSet);
+    */
+    return this.state.dataSource.cloneWithRows(sortedMarkets);
   },
 
-  selectMarket: function(market: Object) {
+  selectMarket: function(sector: Object) {
     var titleComponent = SectorDetailTitle;
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,
-        rightCorner: LogoATT,
+        rightCorner: LogoRight,
         component: SectorDetailScreen,
         headerStyle: styles.header,
         passProps: {
-          title: market.title,
-          market: market,
+          title: sector.title,
+          sector: sector,
           areaName: this.props.areaName,
           zoneName: this.props.zoneName,
         }
@@ -244,9 +264,9 @@ var SectorScreen = React.createClass({
     } else {
       dismissKeyboard();
       this.props.navigator.push({
-        title: market.title,
-        name: 'market',
-        market: market,
+        title: sector.title,
+        name: 'sector',
+        sector: sector,
       });
     }
   },
@@ -255,7 +275,7 @@ var SectorScreen = React.createClass({
     var filter = event.nativeEvent.text.toLowerCase();
 
     this.clearTimeout(this.timeoutID);
-    this.timeoutID = this.setTimeout(() => this.getMarkets(filter), 100);
+    this.timeoutID = this.setTimeout(() => this.getSectors(filter), 100);
   },
 
   renderFooter: function() {
@@ -290,40 +310,50 @@ var SectorScreen = React.createClass({
   },
 
   renderRow: function(
-    market: Object,
+    sector: Object,
     sectionID: number | string,
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
     return (
       <PerformanceCell
-        key={market.id}
-        onSelect={() => this.selectMarket(market)}
+        key={sector.id}
+        onSelect={() => this.selectMarket(sector)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
-        market={market}
+        geoArea={sector}
       />
     );
   },
 
   render: function() {
-    var content = this.state.dataSource.getRowCount() === 0 ?
-      <NoMarkets
-        filter={this.state.filter}
-        isLoading={this.state.isLoading}
-      /> :
-      <ListView
-        ref="listview"
-        dataSource={this.state.dataSource}
-        renderFooter={this.renderFooter}
-        renderRow={this.renderRow}
-        onEndReached={this.onEndReached}
-        automaticallyAdjustContentInsets={false}
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps={true}
-        showsVerticalScrollIndicator={false}
+    if (this.state.isLoading) {
+      var content =
+      <ActivityIndicatorIOS
+        animating={true}
+        style={[styles.centering, {height: 100}]}
+        color={"#00A9E9"}
+        size="large"
       />;
+    } else {
+      var content = this.state.dataSource.getRowCount() === 0 ?
+        <NoMarkets
+          filter={this.state.filter}
+          isLoading={this.state.isLoading}
+        /> :
+        <ListView
+          ref="listview"
+          dataSource={this.state.dataSource}
+          renderFooter={this.renderFooter}
+          renderRow={this.renderRow}
+          onEndReached={this.onEndReached}
+          automaticallyAdjustContentInsets={false}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps={true}
+          showsVerticalScrollIndicator={false}
+        />;
         /*renderSeparator={this.renderSeparator}*/
+    }
 
     return (
       <View style={styles.container}>
@@ -348,9 +378,9 @@ var NoMarkets = React.createClass({
     if (this.props.filter) {
       text = `No results for "${this.props.filter}"`;
     } else if (!this.props.isLoading) {
-      // If we're looking at the latest markets, aren't currently loading, and
+      // If we're looking at the latest sectors, aren't currently loading, and
       // still have no results, show a message
-      text = 'No markets found';
+      text = 'No sectors found';
     }
 
     return (

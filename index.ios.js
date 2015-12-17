@@ -5,19 +5,19 @@
 */
 'use strict';
 
-var BeeperVersion = "0.1.2";
+var BeeperVersion = "0.1.3";
 
 var React = require('react-native');
 // var Router = require('./Router');
 var Router = require('gb-native-router');
-var BackButton = require('./components/icons/BackButton');
+var BackButton = require('./src/components/icons/BackButton');
 
 var {
   AppRegistry,
   StyleSheet,
 } = React;
 
-var LoginScreen = require('./LoginScreen');
+var LoginScreen = require('./src/LoginScreen');
 
 var firstRoute = {
   name: '',

@@ -26,7 +26,7 @@ var {
 var AreaScreen = require('./AreaScreen');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var Login = require('./components/icons/Login');
-var LogoATT = require('./components/icons/LogoATT');
+var LogoRight = require('./components/icons/LogoRight');
 var BackButton = require('./components/icons/BackButton');
 var Orientation = require('react-native-orientation');
 
@@ -130,7 +130,7 @@ var LoginScreen = React.createClass({
       this.props.toRoute({
         titleComponent: PerfNavTitle,
         backButtonComponent: BackButton,
-        rightCorner: LogoATT,
+        rightCorner: LogoRight,
         component: AreaScreen,
         headerStyle: styles.header,
         hideNavigationBar: false,

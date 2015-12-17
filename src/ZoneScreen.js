@@ -9,6 +9,7 @@ var {
   StyleSheet,
   Text,
   View,
+  ActivityIndicatorIOS,
 } = React;
 
 var TimerMixin = require('react-timer-mixin');
@@ -17,7 +18,7 @@ var PerformanceCell = require('./PerformanceCell');
 var SectorScreen = require('./SectorScreen');
 var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
-var LogoATT = require('./components/icons/LogoATT');
+var LogoRight = require('./components/icons/LogoRight');
 var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
 var CSFBNavTitle = require('./components/icons/sectors/CSFBNavTitle');
 var VOLTEAccNavTitle = require('./components/icons/sectors/VOLTEAccNavTitle');
@@ -31,15 +32,10 @@ var getSortedDataArray = require('./getSortedDataArray');
 
 
 /**
- * This is for demo purposes only, and rate limited.
- * In case you want to use the Rotten Tomatoes' API on a real app you should
- * create an account at http://developer.rottentomatoes.com/
+ *  REST URL for zones and sectors
  */
-var API_URL = 'http://api.rottentomatoes.com/api/public/v1.0/';
-var API_KEYS = [
-  '7waqfqbprs7pajbz28mqf6vz',
-  // 'y4vwv8m33hed9ety83jmv52f', Fallback api_key
-];
+var ZONE_URL = 'http://52.20.201.145:3000/kpis/v1/zone/all/kpi/';
+var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
 
 // Results should be cached keyed by the query
 // with values of null meaning "being fetched"
@@ -80,50 +76,53 @@ var ZoneScreen = React.createClass({
     switch(kpi.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
-          var query = "accessibility";
+          var query = "Data Accessibility";
         } else {
-          var query = "volteaccessibility";
+          var query = "VoLTE Accessibility";
         }
         break;
       case "retainability":
         if (cat === "data") {
-          var query = "retainability";
+          var query = "Data Retainability";
         } else {
-          var query = "volteretainability";
+          var query = "VoLTE Retainability";
         }
         break;
       case "throughput":
         if (cat === "downlink") {
-          var query = "dlthroughput";
+          var query = "Downlink Throughput";
         } else {
-          var query = "ulthroughput";
+          var query = "Uplink Throughput";
         }
         break;
       case "tnol":
-        var query = "tnol";
+        var query = "Data TNOL";
         break;
       case "fallback":
-        var query = "fallback";
+        var query = "Fallback";
         break;
     }
     this.getZoneKPI(query);
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
-    var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
       return (
-        API_URL + 'movies.json?apikey=' + apiKey + '&q=' +
+        ZONE_URL + query + '/'
+        /*
+        ZONE_URL + 'movies.json?apikey=' + '&q=' +
         encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
+        */
       );
     } else {
-      // With no query, load latest markets
-      var queryString = API_URL + 'lists/movies/in_theaters.json?apikey=' + apiKey +
+      // With no query, load latest zones
+      var queryString = ZONE_URL + 'lists/movies/in_theaters.json?apikey=' + apiKey +
         '&page_limit=20&page=' + pageNumber
       return queryString;
     }
   },
   fetchData: function(query, queryString) {
+    /*
     switch(query.toLowerCase()) {
       case "accessibility":
         var zones = require('../simulatedData/ZonesAccessibility.json');
@@ -150,31 +149,41 @@ var ZoneScreen = React.createClass({
         var zones = require('../simulatedData/ZonesCSFB.json');
         break;
     }
-    if (zones) {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = zones.result.length;
-        resultsCache.dataForQuery[query] = zones.result;
-        // resultsCache.nextPageNumberForQuery[query] = 2;
+    */
 
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
+    console.log("ZoneScreen queryString = " + queryString);
+    fetch(queryString)
+      .then((response) => response.json())
+      .then((responseData) => {
+        var zones = responseData;
+        if (zones) {
+            LOADING[query] = false;
+            resultsCache.totalForQuery[query] = zones.length;
+            resultsCache.dataForQuery[query] = zones;
+            // resultsCache.nextPageNumberForQuery[query] = 2;
+
+            if (this.state.filter !== query) {
+              // do not update state if the query is stale
+              return;
+            }
+            this.setState({
+              isLoading: false,
+              // dataSource: this.getDataSource(responseData.movies),
+              dataSource: this.getDataSource(zones),
+            });
+        } else {
+            LOADING[query] = false;
+            resultsCache.dataForQuery[query] = undefined;
+
+            this.setState({
+              dataSource: this.getDataSource([]),
+              isLoading: false,
+            });
         }
-
-        this.setState({
-          isLoading: false,
-          // dataSource: this.getDataSource(responseData.movies),
-          dataSource: this.getDataSource(zones.result),
-        });
-    } else {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = undefined;
-
-        this.setState({
-          dataSource: this.getDataSource([]),
-          isLoading: false,
-        });
-    }
+      })
+      .catch((ex) => {
+        console.log('response failed', ex)
+      })
   },
   getZoneKPI: function(query: string) {
     this.timeoutID = null;
@@ -215,14 +224,17 @@ var ZoneScreen = React.createClass({
 
   },
 
-  getDataSource: function(markets: Array<any>): ListView.DataSource {
-    var sortedMarkets = getSortedDataArray(markets);
-    return this.state.dataSource.cloneWithRows(sortedMarkets);
+  getDataSource: function(zones: Array<any>): ListView.DataSource {
+    var sortedZones = getSortedDataArray(zones);
+    return this.state.dataSource.cloneWithRows(sortedZones);
   },
 
-  selectSector: function(market: Object) {
-    var kpi = market.kpi;
-    var cat = market.category.toLowerCase();
+  selectSector: function(zone: Object) {
+    var uncorrectedKpi = zone.kpi;
+    var kpi = uncorrectedKpi.replace("Data ", "");
+    kpi = kpi.replace("Uplink ", "");
+    kpi = kpi.replace("Downlink ", "");
+    var cat = zone.category.toLowerCase();
     switch(kpi.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
@@ -256,23 +268,22 @@ var ZoneScreen = React.createClass({
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,
-        rightCorner: LogoATT,
+        rightCorner: LogoRight,
         component: SectorScreen,
         headerStyle: styles.header,
         passProps: {
-          category: market.category,
-          kpi: market.kpi,
-          parentEntityId: market.entityId,
+          category: zone.category,
+          kpi: zone.kpi,
           areaName: this.props.areaName,
-          zoneName: market.name,
+          zoneName: zone.name,
         }
       });
     } else {
       dismissKeyboard();
       this.props.navigator.push({
-        title: market.title,
-        name: 'market',
-        market: market,
+        title: zone.title,
+        name: 'zone',
+        zone: zone,
       });
     }
   },
@@ -305,39 +316,49 @@ var ZoneScreen = React.createClass({
   },
 
   renderRow: function(
-    market: Object,
+    zone: Object,
     sectionID: number | string,
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
     return (
       <PerformanceCell
-        key={market.id}
-        onSelect={() => this.selectSector(market)}
+        key={zone.id}
+        onSelect={() => this.selectSector(zone)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
-        market={market}
+        geoArea={zone}
       />
     );
   },
 
   render: function() {
-    var content = this.state.dataSource.getRowCount() === 0 ?
-      <NoMarkets
-        filter={this.state.filter}
-        isLoading={this.state.isLoading}
-      /> :
-      <ListView
-        ref="listview"
-        dataSource={this.state.dataSource}
-        renderFooter={this.renderFooter}
-        renderRow={this.renderRow}
-        onEndReached={this.onEndReached}
-        automaticallyAdjustContentInsets={false}
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps={true}
-        showsVerticalScrollIndicator={false}
+    if (this.state.isLoading) {
+      var content =
+      <ActivityIndicatorIOS
+        animating={true}
+        style={[styles.centering, {height: 100}]}
+        color={"#00A9E9"}
+        size="large"
       />;
+    } else {
+      var content = this.state.dataSource.getRowCount() === 0 ?
+        <NoZones
+          filter={this.state.filter}
+          isLoading={this.state.isLoading}
+        /> :
+        <ListView
+          ref="listview"
+          dataSource={this.state.dataSource}
+          renderFooter={this.renderFooter}
+          renderRow={this.renderRow}
+          onEndReached={this.onEndReached}
+          automaticallyAdjustContentInsets={false}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps={true}
+          showsVerticalScrollIndicator={false}
+        />;
+    }
         /*renderSeparator={this.renderSeparator}*/
 
     return (
@@ -357,15 +378,15 @@ var ZoneScreen = React.createClass({
   },
 });
 
-var NoMarkets = React.createClass({
+var NoZones = React.createClass({
   render: function() {
     var text = '';
     if (this.props.filter) {
       text = `No results for "${this.props.filter}"`;
     } else if (!this.props.isLoading) {
-      // If we're looking at the latest markets, aren't currently loading, and
+      // If we're looking at the latest zones, aren't currently loading, and
       // still have no results, show a message
-      text = 'No markets found';
+      text = 'No zones found';
     }
 
     return (

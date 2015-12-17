@@ -2,7 +2,7 @@
   "result":
   [
     {
-      "name": "Stockton",
+      "name": "1A",
       "geoEntity": "zone",
       "entityId": 100,
       "parentEntityId": 10,
@@ -15,7 +15,7 @@
       ]
     },
     {
-      "name": "Modesto",
+      "name": "1B",
       "geoEntity": "zone",
       "entityId": 110,
       "parentEntityId": 11,
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "name": "Sacramento",
+      "name": "1C",
       "geoEntity": "zone",
       "entityId": 120,
       "parentEntityId": 12,

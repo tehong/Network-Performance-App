@@ -18,7 +18,7 @@ var PerformanceCell = require('./PerformanceCell');
 var ZoneScreen = require('./ZoneScreen');
 var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
-var LogoATT = require('./components/icons/LogoATT');
+var LogoRight = require('./components/icons/LogoRight');
 var AccNavTitle = require('./components/icons/zones/AccNavTitle');
 var CSFBNavTitle = require('./components/icons/zones/CSFBNavTitle');
 var VOLTEAccNavTitle = require('./components/icons/zones/VOLTEAccNavTitle');
@@ -86,18 +86,18 @@ var AreaScreen = React.createClass({
         encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
       );
     } else {
-      // With no query, load latest markets
+      // With no query, load latest areas
       var queryString = API_URL + 'lists/movies/in_theaters.json?apikey=' + apiKey +
         '&page_limit=20&page=' + pageNumber
       return queryString;
     }
   },
   fetchData: function(query, queryString) {
-    var markets = require('../simulatedData/Areas.json');
-    if (markets) {
+    var areas = require('../simulatedData/Areas.json');
+    if (areas) {
         LOADING[query] = false;
-        resultsCache.totalForQuery[query] = markets.result.length;
-        resultsCache.dataForQuery[query] = markets.result;
+        resultsCache.totalForQuery[query] = areas.result.length;
+        resultsCache.dataForQuery[query] = areas.result;
         // resultsCache.nextPageNumberForQuery[query] = 2;
 
         if (this.state.filter !== query) {
@@ -108,7 +108,7 @@ var AreaScreen = React.createClass({
         this.setState({
           isLoading: false,
           // dataSource: this.getDataSource(responseData.movies),
-          dataSource: this.getDataSource(markets.result),
+          dataSource: this.getDataSource(areas.result),
         });
     } else {
         LOADING[query] = false;
@@ -119,37 +119,6 @@ var AreaScreen = React.createClass({
           isLoading: false,
         });
     }
-    /*
-    fetch(queryString)
-      .then((response) => response.json())
-      .catch((error) => {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = undefined;
-
-        this.setState({
-          dataSource: this.getDataSource([]),
-          isLoading: false,
-        });
-      })
-      .then((responseData) => {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = responseData.total;
-        resultsCache.dataForQuery[query] = responseData.movies;
-        resultsCache.nextPageNumberForQuery[query] = 2;
-
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
-        }
-        console.log(responseData);
-
-        this.setState({
-          isLoading: false,
-          dataSource: this.getDataSource(responseData.movies),
-        });
-      })
-      .done();
-      */
   },
   getMarkets: function(query: string) {
     this.timeoutID = null;
@@ -225,17 +194,17 @@ var AreaScreen = React.createClass({
         });
       })
       .then((responseData) => {
-        var marketsForQuery = resultsCache.dataForQuery[query].slice();
+        var areasForQuery = resultsCache.dataForQuery[query].slice();
 
         LOADING[query] = false;
         // We reached the end of the list before the expected number of results
-        if (!responseData.markets) {
-          resultsCache.totalForQuery[query] = marketsForQuery.length;
+        if (!responseData.areas) {
+          resultsCache.totalForQuery[query] = areasForQuery.length;
         } else {
-          for (var i in responseData.markets) {
-            marketsForQuery.push(responseData.markets[i]);
+          for (var i in responseData.areas) {
+            areasForQuery.push(responseData.areas[i]);
           }
-          resultsCache.dataForQuery[query] = marketsForQuery;
+          resultsCache.dataForQuery[query] = areasForQuery;
           resultsCache.nextPageNumberForQuery[query] += 1;
         }
 
@@ -253,15 +222,15 @@ var AreaScreen = React.createClass({
   */
   },
 
-  getDataSource: function(markets: Array<any>): ListView.DataSource {
+  getDataSource: function(areas: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
-    var sortedMarkets = getSortedDataArray(markets);
+    var sortedMarkets = getSortedDataArray(areas);
     return this.state.dataSource.cloneWithRows(sortedMarkets);
   },
 
-  selectMarket: function(market: Object) {
-    var cat = market.category.toLowerCase();
-    var kpi = market.kpi;
+  selectMarket: function(area: Object) {
+    var cat = area.category.toLowerCase();
+    var kpi = area.kpi;
     switch(kpi.toLowerCase()) {
       case "accessibility":
         if (cat === "data") {
@@ -298,21 +267,21 @@ var AreaScreen = React.createClass({
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,
-        rightCorner: LogoATT,
+        rightCorner: LogoRight,
         component: ZoneScreen,
         headerStyle: styles.header,
         passProps: {
-          category: market.category,
-          kpi: market.kpi,
-          areaName: market.name,
+          category: area.category,
+          kpi: area.kpi,
+          areaName: area.name,
         }
       });
     } else {
       dismissKeyboard();
       this.props.navigator.push({
-        title: market.title,
-        name: 'market',
-        market: market,
+        title: area.title,
+        name: 'area',
+        area: area,
       });
     }
   },
@@ -356,18 +325,18 @@ var AreaScreen = React.createClass({
   },
 
   renderRow: function(
-    market: Object,
+    area: Object,
     sectionID: number | string,
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
     return (
       <PerformanceCell
-        key={market.id}
-        onSelect={() => this.selectMarket(market)}
+        key={area.id}
+        onSelect={() => this.selectMarket(area)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
-        market={market}
+        geoArea={area}
       />
     );
   },
@@ -406,7 +375,7 @@ var NoMarkets = React.createClass({
     if (this.props.filter) {
       text = `No results for "${this.props.filter}"`;
     } else if (!this.props.isLoading) {
-      // If we're looking at the latest markets, aren't currently loading, and
+      // If we're looking at the latest areas, aren't currently loading, and
       // still have no results, show a message
       text = 'No area found';
     }

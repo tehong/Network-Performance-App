@@ -35,9 +35,9 @@ var SparklineView= require('./SparklineView');
 
 var PerformanceCell = React.createClass({
   render: function() {
-    var dailyAverage = this.props.market.dailyAverage;
-    var redThreshold = this.props.market.thresholds.red;
-    var greenThreshold = this.props.market.thresholds.green;
+    var dailyAverage = this.getDailyAverage();
+    var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
+    var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
     var TouchableElement = TouchableHighlight;
     if (Platform.OS === 'android') {
       TouchableElement = TouchableNativeFeedback;
@@ -56,6 +56,67 @@ var PerformanceCell = React.createClass({
         {this.sectorCounterView(dailyAverage, redThreshold, greenThreshold)}
       </View>
     );
+  },
+  getDailyAverage() {
+    if (this.props.geoArea.geoEntity === "area") {
+      var dailyAverage = this.props.geoArea.dailyAverage;
+    } else {
+      var dailyAverage = parseInt(this.props.geoArea.dailyAverage);
+    }
+    return dailyAverage;
+  },
+  getThreshold(thresholds: string, thresholdName: string) {
+  //  if (this.props.geoArea.geoEntity === "area") {
+      switch(thresholdName) {
+        case "red":
+          return this.props.geoArea.thresholds.red;
+          break;
+        case "green":
+          return this.props.geoArea.thresholds.green;
+          break;
+      }
+    /*
+    }
+    var redDirection = ">";
+    var redIndex = thresholds.red.indexOf(redDirection);
+    var greenIndex = thresholds.green.indexOf(">") + 1;
+    if (redIndex === -1) {
+      redDirection = "<";
+      redIndex = thresholds.red.indexOf(redDirection) + 1;
+    } else {
+      redIndex = redIndex + 1;
+      // data > or < could be wrong, here is to saftgurad it.
+      if (thresholds.green.indexOf("<") !== -1) {
+        greenIndex = thresholds.green.indexOf("<") + 1;
+      }
+    }
+    var redThreshold = parseFloat(thresholds.red.substring(redIndex, thresholds.red.length));
+    var greenThreshold = parseFloat(thresholds.green.substring(greenIndex, thresholds.green.length));
+    switch(thresholdName) {
+
+      case "red":
+        // adjust red and green to >= or <= numbers
+        if (this.props.geoArea.kpi.indexOf("Throughput") !== -1) {
+          return redThreshold;
+        }
+        if (redDirection == ">") {
+          return redThreshold + 1;
+        } else {
+          return redThreshold === 0?0:redThreshold-1;
+        }
+        break;
+      case "green":
+        if (this.props.geoArea.kpi.indexOf("Throughput") !== -1) {
+          return greenThreshold;
+        }
+        if (redDirection == ">") {
+          return greenThreshold === 0?0:greenThreshold-1;
+        } else {
+          return greenThreshold + 1;
+        }
+        break;
+    }
+    */
   },
   innerContentView: function() {
     return (
@@ -91,12 +152,27 @@ var PerformanceCell = React.createClass({
         );
     }
   },
+  getData() {
+    if (this.props.geoArea.geoEntity === "area") {
+      return this.props.geoArea.data;
+    }
+
+    var dataArray = this.props.geoArea.data;
+    var newDataArray = [];
+    for (var i=0; i < dataArray.length; i++) {
+      var array = [dataArray[i][0].toString(), parseFloat(dataArray[i][1])];
+      newDataArray.push(array);
+    }
+    return newDataArray;
+  },
   // find the Y location and Y length
   //   [0] => Y Location
   //   [1] => Y Length
   findYScale: function() {
     var yScale = [];
-    var data = this.props.market.data;
+    var data = this.getData();
+    if (this.props.geoArea.geoEntity !== "area") {
+    }
     var maxY = 0.0;
     yScale[0] = 0.0;
     yScale[1] = 0.0;
@@ -119,7 +195,7 @@ var PerformanceCell = React.createClass({
     // This algorithm centers the redThreshold line horizontally on the chart by finding the right display location and length of y-axis
 
     /*``
-    var greenThreshold = this.props.market.thresholds.green;
+    var greenThreshold = this.props.geoArea.thresholds.green;
     if (greenThreshold >= maxY) {
       yScale[0] = minY
       yScale[1] = (greenThreshold - minY) * 2
@@ -146,9 +222,9 @@ var PerformanceCell = React.createClass({
       return Math.floor(Math.random() * (max - min + 1)) + min;
   },
   kpiView: function() {
-    var kpiImage = getImageViewFromParentKPI(this.props.market.category, this.props.market.kpi);
-    var dailyAverage = this.props.market.dailyAverage;
-    var unit = this.props.market.unit;
+    var kpiImage = getImageViewFromParentKPI(this.props.geoArea.category, this.props.geoArea.kpi);
+    var dailyAverage = this.getDailyAverage()
+    var unit = this.props.geoArea.unit;
     return(
       <View style={styles.kpiContainer}>
         <View style={styles.iconContainer}>
@@ -158,15 +234,15 @@ var PerformanceCell = React.createClass({
         <View style={styles.textContainer}>
           <View style={styles.marketContainer}>
             <Text style={styles.marketTitle}>
-                {this.props.market.name}
+                {this.props.geoArea.name}
             </Text>
           </View>
           <View style={styles.kpiValueContainer}>
             <Text style={styles.category}>
-              {this.props.market.category}
+              {this.props.geoArea.category}
             </Text>
             <Text style={styles.kpi}>
-              {this.props.market.kpi}
+              {this.props.geoArea.kpi}
             </Text>
             <View style={styles.dailyAverage}>
               <Text style={styles.dailyValue}>
@@ -182,17 +258,18 @@ var PerformanceCell = React.createClass({
     );
   },
   chartView: function() {
-    var kpi = this.props.market.kpi;
-    var redThreshold = this.props.market.thresholds.red;
-    var greenThreshold = this.props.market.thresholds.green;
-    var dailyAverage = this.props.market.dailyAverage;
-    var yellowLowThreshold = redThreshold + 1;
-    var yellowHighThreshold = greenThreshold;
+    var kpi = this.props.geoArea.kpi;
+
+    var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
+    var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
+    var dailyAverage = this.getDailyAverage();
     var redDir =  redThreshold > greenThreshold?">":"<";
     var greenDir =  redThreshold > greenThreshold?"<":">";
-    var unit = this.props.market.unit;
-    var data = this.props.market.data;
-    if (kpi.toLowerCase() == "throughput" || kpi.toLowerCase() == "fallback") {
+    var unit = this.props.geoArea.unit;
+    var data = this.getData();
+    var yellowLowThreshold = redThreshold + 1;
+    var yellowHighThreshold = greenThreshold;
+    if (kpi.indexOf("Throughput") !== -1 || kpi.toLowerCase() == "throughput" || kpi.toLowerCase() == "fallback") {
       yellowLowThreshold = redThreshold;
     }
     var yScale = this.findYScale();
@@ -261,11 +338,14 @@ var PerformanceCell = React.createClass({
   },
   sectorCounterView: function(dailyAverage, redThreshold, greenThreshold) {
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
-    var totalNumSectors = 9;  // sectors per zone
-    if (this.props.market.geoEntity === "sector") {
+    var totalNumSectors = 9;  // default sectors per zone
+    // don't show sector count for zone for now
+    /*
+    if (this.props.geoArea.geoEntity !== "area" || this.props.geoArea.name === "1A"  || this.props.geoArea.name === "1B"  || this.props.geoArea.name === "1C" ) {
       return;
     }
-    if (this.props.market.geoEntity === "area") {
+    */
+    if (this.props.geoArea.geoEntity === "area") {
       totalNumSectors = 27;
     }
     var sectorCounts = {
@@ -443,7 +523,7 @@ var styles = StyleSheet.create({
   },
   dailyValue: {
     color: 'white',
-    fontSize: 48,
+    fontSize: 35,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
   },

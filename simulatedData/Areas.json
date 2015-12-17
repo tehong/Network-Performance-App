@@ -2,10 +2,10 @@
   "result":
   [
     {
-      "name": "Central Valley",
+      "name": "Syringa",
       "geoEntity": "area",
-      "entityId": 10,
-      "parentEntityId": 1,
+      "entityId": 1,
+      "parentEntityId": 0,
       "category": "Data",
       "kpi": "Accessibility",
       "dailyAverage": 99,
@@ -44,10 +44,10 @@
       ]
     },
     {
-      "name": "Central Valley",
+      "name": "Syringa",
       "geoEntity": "area",
-      "entityId": 10,
-      "parentEntityId": 1,
+      "entityId": 1,
+      "parentEntityId": 0,
       "category": "Data",
       "kpi": "Retainability",
       "dailyAverage": 97,
@@ -86,10 +86,10 @@
       ]
     },
     {
-      "name": "Central Valley",
+      "name": "Syringa",
       "geoEntity": "area",
-      "entityId": 10,
-      "parentEntityId": 1,
+      "entityId": 1,
+      "parentEntityId": 0,
       "category": "Downlink",
       "kpi": "Throughput",
       "dailyAverage": 1.0,
@@ -128,10 +128,10 @@
       ]
     },
     {
-      "name": "Central Valley",
+      "name": "Syringa",
       "geoEntity": "area",
-      "entityId": 10,
-      "parentEntityId": 1,
+      "entityId": 1,
+      "parentEntityId": 0,
       "category": "Uplink",
       "kpi": "Throughput",
       "dailyAverage": 1.1,
@@ -170,10 +170,10 @@
       ]
     },
     {
-      "name": "Central Valley",
+      "name": "Syringa",
       "geoEntity": "area",
-      "entityId": 10,
-      "parentEntityId": 1,
+      "entityId": 1,
+      "parentEntityId": 0,
       "category": "CS",
       "kpi": "Fallback",
       "dailyAverage": 9,

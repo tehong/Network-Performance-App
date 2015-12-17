@@ -65,6 +65,12 @@ function getAreaScreenStyles(): StyleSheet {
       // backgroundColor: "#1C75BC",
       backgroundColor: "#066D7E",
     },
+    centering: {
+      flexDirection: "row",
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: null,
+    },
   });
   return styles;
 }

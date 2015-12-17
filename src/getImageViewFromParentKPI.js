@@ -23,7 +23,16 @@ var {
 
 function getImageViewFromParentKPI(category: string, kpi: string): string {
   var cat = category.toLowerCase();
-  switch(kpi.toLowerCase()) {
+  if (category.indexOf("Uplink")) {
+    cat = "uplink";
+  }
+  if (category.indexOf("Downlink")) {
+    cat = "downlink";
+  }
+  var correctedKpi = kpi.replace("Data ", "");
+  correctedKpi = correctedKpi.replace("Uplink ", "");
+  correctedKpi = correctedKpi.replace("Downlink ", "");
+  switch(correctedKpi.toLowerCase()) {
     case "accessibility":
       if (cat === "volte") {
         return (

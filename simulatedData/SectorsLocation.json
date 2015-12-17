@@ -2,74 +2,74 @@
   "result":
   [
     {
-      "name": "Stockton1",
+      "name": "100029_Rexburg_1",
       "geoEntity": "sector",
       "entityId": 1000,
-      "parentEntityId": 100,
+      "parentName": "1A",
       "latitude": 37.947016,
       "longitude": -121.297073
     },
     {
-      "name": "Stockton2",
+      "name": "100064_AmFallsSilo_1",
       "geoEntity": "sector",
       "entityId": 1001,
-      "parentEntityId": 100,
+      "parentName": "1A",
       "latitude": 37.925090,
       "longitude": -121.309448
     },
     {
-      "name": "Stockton3",
+      "name": "100099_TFCounty_1",
       "geoEntity": "sector",
       "entityId": 1002,
-      "parentEntityId": 100,
+      "parentName": "1A",
       "latitude": 37.936823,
       "longitude": -121.270473
     },
     {
-      "name": "Modesto1",
+      "name": "100008_MagicMall_1",
       "geoEntity": "sector",
       "entityId": 1100,
-      "parentEntityId": 110,
+      "parentName": "1B",
       "latitude": 37.664294,
       "longitude": -121.047581
     },
     {
-      "name": "Modesto2",
+      "name": "100056_Blackfoot_1",
       "geoEntity": "sector",
       "entityId": 1101,
-      "parentEntityId": 111,
+      "parentName": "1B",
       "latitude": 37.650765,
       "longitude": -121.010197
     },
     {
-      "name": "Modesto3",
+      "name": "100027_Rigby_1",
       "geoEntity": "sector",
       "entityId": 1102,
-      "parentEntityId": 112,
+      "parentName": "1B",
       "latitude": 37.631528,
       "longitude": -121.025919
     },
     {
-      "name": "Sacramento1",
+      "name": "100002_Hagerman_1",
       "geoEntity": "sector",
       "entityId": 1200,
-      "parentEntityId": 120,
+      "parentName": "1C",
       "latitude": 38.619836,
       "longitude": -121.484118
     },
     {
-      "name": "Sacramento2",
+      "name": "100010_TFHigh_1",
       "geoEntity": "sector",
       "entityId": 1201,
-      "parentEntityId": 120,
+      "parentName": "1C",
       "latitude": 38.595596,
       "longitude": -121.496478
     },
     {
-      "name": "Sacramento3",
+      "name": "100022_LambWeston_1",
       "geoEntity": "sector",
       "entityId": 1202,
-      "parentEntityId": 120,
+      "parentName": "1C",
       "latitude": 38.599977,
       "longitude": -121.449274
     }

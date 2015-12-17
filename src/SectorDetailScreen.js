@@ -30,11 +30,7 @@ var {
   ActivityIndicatorIOS,
 } = React;
 
-var API_URL = 'http://api.rottentomatoes.com/api/public/v1.0/';
-var API_KEYS = [
-  '7waqfqbprs7pajbz28mqf6vz',
-  // 'y4vwv8m33hed9ety83jmv52f', Fallback api_key
-];
+var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
 
 // map display radius
 var mileRadius = 10.0
@@ -117,12 +113,13 @@ var SectorDetailScreen = React.createClass({
     this.setState({
       tabNumber: 0,
     });
-    // get all 7 sector KPI files
-    this.getData("accessibility");
-    this.getData("retainability");
-    this.getData("dlthroughput");
-    this.getData("ulthroughput");
-    this.getData("fallback");
+    // get all 5 sector KPI files
+    var query = this.props.zoneName + '/kpi/';
+    this.getData(query + "Data Accessibility");
+    this.getData(query + "Data Retainability");
+    this.getData(query + "Downlink Throughput");
+    this.getData(query + "Uplink Throughput");
+    this.getData(query + "Fallback");
     // this.getData("tnol");
     // this.getData("volteaccessibility");
     // this.getData("volteretainability");
@@ -137,78 +134,65 @@ var SectorDetailScreen = React.createClass({
     Orientation.lockToPortrait(); //this will lock the view to Portrait
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
-    var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
       return (
-        API_URL + 'movies.json?apikey=' + apiKey + '&q=' +
-        encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
+        SECTOR_URL + query + '/'
       );
     } else {
       // With no query, load latest markets
-      var queryString = API_URL + 'lists/movies/in_theaters.json?apikey=' + apiKey +
-        '&page_limit=20&page=' + pageNumber
+      var queryString = SECTOR_URL + this.props.zoneName + '/kpi/' + this.props.kpi + '/'
       return queryString;
     }
   },
   refreshData: function(query:string, result:{}) {
-    if (query === "zonelocation") {
+    if (query.toLowerCase() === "zonelocation") {
       this.findZoneLocation(result);
-    } else if (query === "sectorlocation") {
+    } else if (query.toLowerCase() === "sectorlocation") {
       this.findSectorLocation(result);
     } else {
       this.findSectorKpiData(result);
     }
   },
   fetchData: function(query, queryString) {
-    switch(query.toLowerCase()) {
-      case "accessibility":
-        var sectors = require('../simulatedData/SectorsAccessibility.json');
-        break;
-      case "retainability":
-        var sectors = require('../simulatedData/SectorsRetainability.json');
-        break;
-      case "dlthroughput":
-        var sectors = require('../simulatedData/SectorsDlThroughput.json');
-        break;
-      case "ulthroughput":
-        var sectors = require('../simulatedData/SectorsUlThroughput.json');
-        break;
-      case "tnol":
-        var sectors = require('../simulatedData/SectorsTNOL.json');
-        break;
-      case "volteaccessibility":
-        var sectors = require('../simulatedData/SectorsVOLTEAccessibility.json');
-        break;
-      case "volteretainability":
-        var sectors = require('../simulatedData/SectorsVOLTERetainability.json');
-        break;
-      case "fallback":
-        var sectors = require('../simulatedData/SectorsCSFB.json');
-        break;
-      case "zonelocation":
-        var zone = require('../simulatedData/ZonesLocation.json');
-        break;
-      case "sectorlocation":
-        var sectors = require('../simulatedData/SectorsLocation.json');
-        break;
-    }
-    if (sectors) {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = sectors.result.length;
-        resultsCache.dataForQuery[query] = sectors.result;
-        // resultsCache.nextPageNumberForQuery[query] = 2;
+    if (query.toLowerCase() !== "zonelocation" && query.toLowerCase() !== 'sectorlocation') {
+      fetch(queryString)
+        .then((response) => response.json())
+        .then((responseData) => {
+          var sectors = responseData;
+          if (sectors) {
+              LOADING[query] = false;
+              resultsCache.totalForQuery[query] = sectors.length;
+              resultsCache.dataForQuery[query] = sectors;
+              // resultsCache.nextPageNumberForQuery[query] = 2;
 
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
-        }
+              /* NOTE: doesn't work with fetch()
+              if (this.state.filter !== query) {
+                // do not update state if the query is stale
+                return;
+              }
+              */
 
-        // this gets the right data from the results
-        this.refreshData(query, sectors.result);
-        this.setState({
-          isLoading: false,
-        });
-    } else if (zone) {
+              // this gets the right data from the results
+              this.refreshData(query, sectors);
+              this.setState({
+                isLoading: false,
+              });
+          } else {
+            LOADING[query] = false;
+            resultsCache.dataForQuery[query] = undefined;
+
+            this.setState({
+              dataSource: this.getDataSource([]),
+              isLoading: false,
+            });
+          }
+        })
+        .catch((ex) => {
+          console.log('response failed', ex)
+        })
+    } else if (query.toLowerCase() === 'zonelocation'){
+      var zone = require('../simulatedData/ZonesLocation.json');
+      if (zone) {
         LOADING[query] = false;
         resultsCache.totalForQuery[query] = zone.result.length;
         resultsCache.dataForQuery[query] = zone.result;
@@ -224,13 +208,40 @@ var SectorDetailScreen = React.createClass({
         this.setState({
           isLoading: false,
         });
-    } else {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = undefined;
+      } else {
+          LOADING[query] = false;
+          resultsCache.dataForQuery[query] = undefined;
 
+          this.setState({
+            isLoading: false,
+          });
+      }
+    } else {
+      var sectors = require('../simulatedData/SectorsLocation.json');
+      if (sectors) {
+        LOADING[query] = false;
+        resultsCache.totalForQuery[query] = sectors.result.length;
+        resultsCache.dataForQuery[query] = sectors.result;
+        // resultsCache.nextPageNumberForQuery[query] = 2;
+
+        if (this.state.filter !== query) {
+          // do not update state if the query is stale
+          return;
+        }
+
+        // this gets the right data from the results
+        this.refreshData(query, sectors.result);
         this.setState({
           isLoading: false,
         });
+      } else {
+          LOADING[query] = false;
+          resultsCache.dataForQuery[query] = undefined;
+
+          this.setState({
+            isLoading: false,
+          });
+      }
     }
   },
   findZoneLocation: function(result) {
@@ -268,7 +279,7 @@ var SectorDetailScreen = React.createClass({
     // find the sector first
     for (var i=0; i<result.length; i++) {
       var item = result[i];
-      if (this.props.market.entityId === item.entityId) {
+      if (this.props.sector.name === item.name) {
         centerLng = item.longitude;
         centerLat = item.latitude;
         var location = {
@@ -277,7 +288,7 @@ var SectorDetailScreen = React.createClass({
           "longitude": centerLng,
         }
         var scalingFactor = Math.abs(Math.cos(2 * Math.PI * location.latitude / 360.0))
-        var key = item.entityId;
+        var key = item.name;
         this.state.sectorLocation[key] = location;
         latitudeDelta = mileRadius/69.0;
         longitudeDelta = mileRadius/(scalingFactor * 69.0)
@@ -306,7 +317,7 @@ var SectorDetailScreen = React.createClass({
           "latitude": item.latitude,
           "longitude": item.longitude,
         }
-        var key = item.entityId;
+        var key = item.name;
         this.state.sectorLocation[key] = location;
       }
     }
@@ -328,7 +339,7 @@ var SectorDetailScreen = React.createClass({
   findSectorKpiData: function(result) {
     for (var i=0; i<result.length; i++) {
       var item = result[i];
-      if (this.props.market.entityId === item.entityId) {
+      if (this.props.sector.name === item.name) {
         var kpiData = {
           "category": item.category,
           "kpi": item.kpi,
@@ -336,6 +347,16 @@ var SectorDetailScreen = React.createClass({
           "unit": item.unit,
           "thresholds": item.thresholds,
         }
+        if (item.kpi.indexOf("Downlink") !== -1) {
+          item.category = "Downlink";
+        }
+        if (item.kpi.indexOf("Uplink") !== -1) {
+          item.category = "Uplink";
+        }
+        item.kpi = item.kpi.replace("Data ", "");
+        item.kpi = item.kpi.replace("Downlink ", "");
+        item.kpi = item.kpi.replace("Uplink ", "");
+
         var kpiKey = item.category.toLowerCase() + "-" + item.kpi.toLowerCase();
         this.state.sectorKpiData[kpiKey] = kpiData;
         break;
@@ -354,7 +375,7 @@ var SectorDetailScreen = React.createClass({
     // NOTE: Since we are not really query via HTTP but directly via simulatedData files
     //       and there is no UI refresh, we update the state.filter directly for now
     //       THIS IS AN ABNORMAL USAGE!
-    this.state.filter = query;
+    // this.state.filter = query;  // This doesn't work with fetch with error code
     // this.setState({filter: query});
 
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
@@ -379,6 +400,7 @@ var SectorDetailScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
+    console.log("SectorDetails queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
@@ -412,7 +434,7 @@ var SectorDetailScreen = React.createClass({
     var sectorLocations = this.state.sectorLocation;
     for (var key in sectorLocations) {
       var image = require('./assets/icons/Sector_Icon_03.png');
-      if (this.props.market.entityId.toString() === key) {
+      if (this.props.sector.name === key) {
         image = require('./assets/icons/Sector_Icon_focused_03.png');
       }
       var title = this.props.areaName;
@@ -1019,7 +1041,7 @@ var styles = StyleSheet.create({
   },
   dailyAverage: {
     flex:1,
-    fontSize: 23,
+    fontSize: 20,
     fontWeight: "800",
     textAlign: "right",
     marginTop: 0,

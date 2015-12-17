@@ -15,12 +15,14 @@
  */
 'use strict';
 
+var getThreshold = require('./getThreshold');
+var getDailyAverage = require('./getDailyAverage');
 var getImageFromAverage = require('./getImageFromAverage');
 
 function getIconFromKpiData(kpiKey:string, kpiData:{}): string {
-  var redThreshold = kpiData.thresholds.red;
-  var greenThreshold = kpiData.thresholds.green;
-  var dailyAverage = kpiData.dailyAverage;
+  var redThreshold = getThreshold(kpiData.thresholds, "red", kpiData.kpi);
+  var greenThreshold = getThreshold(kpiData.thresholds, "green", kpiData.kpi);
+  var dailyAverage = getDailyAverage(kpiData.dailyAverage);
   switch(kpiKey) {
     case "data-accessibility":
       var kpiImage = "Icon_DA";
