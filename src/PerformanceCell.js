@@ -232,8 +232,8 @@ var PerformanceCell = React.createClass({
           <View style={styles.kpiSpace}></View>
         </View>
         <View style={styles.textContainer}>
-          <View style={styles.marketContainer}>
-            <Text style={styles.marketTitle}>
+          <View style={styles.geoAreaContainer}>
+            <Text style={styles.geoAreaTitle}>
                 {this.props.geoArea.name}
             </Text>
           </View>
@@ -263,11 +263,11 @@ var PerformanceCell = React.createClass({
     var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
     var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
     var dailyAverage = this.getDailyAverage();
-    var redDir =  redThreshold > greenThreshold?">":"<";
-    var greenDir =  redThreshold > greenThreshold?"<":">";
+    var redDir =  redThreshold > greenThreshold?"\u2265":"\u2264";
+    var greenDir =  redThreshold > greenThreshold?"\u2264":"\u2265";
     var unit = this.props.geoArea.unit;
     var data = this.getData();
-    var yellowLowThreshold = redThreshold + 1;
+    var yellowLowThreshold = redThreshold;
     var yellowHighThreshold = greenThreshold;
     if (kpi.indexOf("Throughput") !== -1 || kpi.toLowerCase() == "throughput" || kpi.toLowerCase() == "fallback") {
       yellowLowThreshold = redThreshold;
@@ -492,15 +492,15 @@ var styles = StyleSheet.create({
     // borderColor: "white",
     // borderWidth: 1,
   },
-  marketContainer: {
+  geoAreaContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "flex-start",
     // borderColor: "yellow",
     // borderWidth: 2,
   },
-  marketTitle: {
-    fontSize: 14,
+  geoAreaTitle: {
+    fontSize: 13,
     fontWeight: '600',
     color: 'white',
     fontFamily: 'Helvetica Neue',

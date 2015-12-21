@@ -31,6 +31,10 @@ var {
 } = React;
 
 var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
+var NUM_CACHE_ENTRY = 7;  // 5 kpis and two locations
+
+// TEST:  Makes the overlays a global and set with the annotations at the same time
+// var overlays = [];  // didn't work
 
 // map display radius
 var mileRadius = 10.0
@@ -110,9 +114,13 @@ var SectorDetailScreen = React.createClass({
 
     // var query = this.props.markets.entityId;
     this.setAnimatingTimeout();
+    // set default region first to remove warnings
     this.setState({
-      tabNumber: 0,
+      tabNumber: 0
     });
+    // plot the map
+    this.getZoneLocation();
+    this.getSectorLocation();
     // get all 5 sector KPI files
     var query = this.props.zoneName + '/kpi/';
     this.getData(query + "Data Accessibility");
@@ -120,11 +128,10 @@ var SectorDetailScreen = React.createClass({
     this.getData(query + "Downlink Throughput");
     this.getData(query + "Uplink Throughput");
     this.getData(query + "Fallback");
+    // empties out the dictionary
     // this.getData("tnol");
     // this.getData("volteaccessibility");
     // this.getData("volteretainability");
-    this.getSectorLocation();
-    this.getZoneLocation();
   },
   componentWillUnmount: function() {
     Orientation.getOrientation((err,orientation)=> {
@@ -154,109 +161,55 @@ var SectorDetailScreen = React.createClass({
     }
   },
   fetchData: function(query, queryString) {
-    if (query.toLowerCase() !== "zonelocation" && query.toLowerCase() !== 'sectorlocation') {
-      fetch(queryString)
-        .then((response) => response.json())
-        .then((responseData) => {
-          var sectors = responseData;
-          if (sectors) {
-              LOADING[query] = false;
-              resultsCache.totalForQuery[query] = sectors.length;
-              resultsCache.dataForQuery[query] = sectors;
-              // resultsCache.nextPageNumberForQuery[query] = 2;
-
-              /* NOTE: doesn't work with fetch()
-              if (this.state.filter !== query) {
-                // do not update state if the query is stale
-                return;
-              }
-              */
-
-              // this gets the right data from the results
-              this.refreshData(query, sectors);
-              this.setState({
-                isLoading: false,
-              });
-          } else {
+    fetch(queryString)
+      .then((response) => response.json())
+      .then((responseData) => {
+        var sectors = responseData;
+        if (sectors) {
             LOADING[query] = false;
-            resultsCache.dataForQuery[query] = undefined;
+            resultsCache.totalForQuery[query] = sectors.length;
+            resultsCache.dataForQuery[query] = sectors;
+            // resultsCache.nextPageNumberForQuery[query] = 2;
 
+            /* NOTE: doesn't work with fetch()
+            if (this.state.filter !== query) {
+              // do not update state if the query is stale
+              return;
+            }
+            */
+            // this gets the right data from the results
+            this.refreshData(query, sectors);
             this.setState({
-              dataSource: this.getDataSource([]),
               isLoading: false,
             });
-          }
-        })
-        .catch((ex) => {
-          console.log('response failed', ex)
-          this.setState({isLoading: false});
-        })
-    } else if (query.toLowerCase() === 'zonelocation'){
-      var zone = require('../simulatedData/ZonesLocation.json');
-      if (zone) {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = zone.result.length;
-        resultsCache.dataForQuery[query] = zone.result;
-        // resultsCache.nextPageNumberForQuery[query] = 2;
-
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
-        }
-
-        // this gets the right data from the results
-        this.refreshData(query, zone.result);
-        this.setState({
-          isLoading: false,
-        });
-      } else {
+        } else {
           LOADING[query] = false;
           resultsCache.dataForQuery[query] = undefined;
 
           this.setState({
+            dataSource: this.getDataSource([]),
             isLoading: false,
           });
-      }
-    } else {
-      var sectors = require('../simulatedData/SectorsLocation.json');
-      if (sectors) {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = sectors.result.length;
-        resultsCache.dataForQuery[query] = sectors.result;
-        // resultsCache.nextPageNumberForQuery[query] = 2;
-
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
         }
-
-        // this gets the right data from the results
-        this.refreshData(query, sectors.result);
-        this.setState({
-          isLoading: false,
-        });
-      } else {
-          LOADING[query] = false;
-          resultsCache.dataForQuery[query] = undefined;
-
-          this.setState({
-            isLoading: false,
-          });
-      }
-    }
+      })
+      .catch((ex) => {
+        console.log('response failed', ex)
+        this.setState({isLoading: false});
+      })
   },
   findZoneLocation: function(result) {
     var overlays = [];
     for (var i=0; i<result.length; i++) {
       var item = result[i];
       if (this.props.zoneName === item.name) {
+        var coordinates = item.coordinates;
         // add the additional point from the first point
-        item.coordinates.push(item.coordinates[0])
+        coordinates.push(item.coordinates[0])
         overlays.push(
           {
-            coordinates: item.coordinates,
+            coordinates: coordinates,
             strokeColor: "rgba(124,209,238,0.7)",
-            fillColor: "rgba(124,209,238,0.7)",
+            // fillColor: "rgba(124,209,238,0.7)",
             // strokeColor: "#7cd1ee",
             // fillColor: "#7cd1ee",
             lineWidth: 3,
@@ -270,7 +223,6 @@ var SectorDetailScreen = React.createClass({
     }
   },
   findSectorLocation: function(result) {
-    // empties out the dictionary
     this.state.sectorLocation = {};
     var centerLat = 0.0;
     var centerLng = 0.0;
@@ -307,6 +259,9 @@ var SectorDetailScreen = React.createClass({
           longitudeDelta: longitudeDelta,
         }
         break;
+      } else {
+        // set default region
+        region={latitude: 39.06, longitude: -95.22, latitudeDelta: 25.0, longitudeDelta: 35.0};
       }
     }
     // find the neighboring sectors
@@ -365,10 +320,28 @@ var SectorDetailScreen = React.createClass({
     }
   },
   getZoneLocation: function() {
-    this.getData("zonelocation");
+    var zone = require('../simulatedData/ZonesLocation.json');
+    var query = "zonelocation";
+    if (zone) {
+      LOADING[query] = false;
+      resultsCache.totalForQuery[query] = zone.result.length;
+      resultsCache.dataForQuery[query] = zone.result;
+
+      // this gets the right data from the results
+      this.refreshData(query, zone.result);
+    }
   },
   getSectorLocation: function() {
-    this.getData("sectorlocation");
+    var sectors = require('../simulatedData/SectorsLocation.json');
+    var query = "sectorlocation";
+    if (sectors) {
+      LOADING[query] = false;
+      resultsCache.totalForQuery[query] = sectors.result.length;
+      resultsCache.dataForQuery[query] = sectors.result;
+
+      // this gets the right data from the results
+      this.refreshData(query, sectors.result);
+    }
   },
   getData: function(query: string) {
     this.timeoutID = null;
@@ -383,9 +356,11 @@ var SectorDetailScreen = React.createClass({
     if (cachedResultsForQuery) {
       if (!LOADING[query]) {
         this.refreshData(query, cachedResultsForQuery);
-        this.setState({
-          isLoading: false
-        });
+        if (resultsCache.totalForQuery.length >= NUM_CACHE_ENTRY && this.state.isLoading === true) {
+          this.setState({
+            isLoading: false
+          });
+        }
       } else {
         this.setState({isLoading: true});
       }
@@ -433,10 +408,17 @@ var SectorDetailScreen = React.createClass({
   _getAnnotations(region) {
     var annotations = [];
     var sectorLocations = this.state.sectorLocation;
+    // var resolveAssetSource = require('resolveAssetSource');
     for (var key in sectorLocations) {
       var image = require('./assets/icons/Sector_Icon_03.png');
+      // var image = resolveAssetSource(require('./assets/icons/Sector_Icon_03.png'));
+      var sectorView =
+          <Image style={styles.test} source={require('./assets/icons/Sector_Icon_03.png')}/>
       if (this.props.sector.name === key) {
         image = require('./assets/icons/Sector_Icon_focused_03.png');
+        // image = resolveAssetSource(require('./assets/icons/Sector_Icon_focused_03.png'));
+        sectorView =
+          <Image style={styles.test} source={require("./assets/icons/Sector_Icon_focused_03.png")}/>
       }
       var title = this.props.areaName;
       var subtitle = this.props.zoneName + " - " + sectorLocations[key].name;
@@ -448,6 +430,7 @@ var SectorDetailScreen = React.createClass({
         title: title,
         subtitle: subtitle,
         image: image,
+        // view: sectorView,
         // tintColor: "#1C75BC",  additional tint on site icon, not used
       });
     }
@@ -532,11 +515,7 @@ var SectorDetailScreen = React.createClass({
           region={this.state.mapRegion || undefined}
           annotations={this.state.annotations || undefined}
           overlays={this.state.overlays || undefined}
-          >
-          <View style={styles.sectorNameOverlap}>
-            <Text style={styles.sectorName}>Text</Text>
-          </View>
-        </MapView>
+        />
         {this.showKpiView()}
       </View>
     );
@@ -872,18 +851,6 @@ var styles = StyleSheet.create({
     // borderColor: "violet",
     // borderWidth: 2,
   },
-  sectorNameOverlap: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 166, 216, 0.1)',
-    height: 50,
-    // borderColor: "blue",
-    // borderWidth: 2,
-  },
-  sectorName: {
-    height: 50,
-    //borderColor: "red",
-    //borderWidth: 1,
-  },
   kpiTabContainer: {
     flex:1,
     flexDirection: "row",
@@ -1073,6 +1040,12 @@ var styles = StyleSheet.create({
     height: 1 / PixelRatio.get(),
     marginVertical: 10,
   },
+  test: {
+    height: 25,
+    width: 25,
+    borderColor: "red",
+    borderWidth: 1,
+  }
 });
 
 module.exports = SectorDetailScreen;

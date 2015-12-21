@@ -49,9 +49,9 @@ function getThreshold(thresholds: any, thresholdName: string, kpi: string) {
         return redThreshold;
       }
       if (redDirection == ">") {
-        return redThreshold + 1;
+        return redThreshold;
       } else {
-        return redThreshold === 0?0:redThreshold-1;
+        return redThreshold === 0?0:redThreshold;
       }
       break;
     case "green":
@@ -59,9 +59,9 @@ function getThreshold(thresholds: any, thresholdName: string, kpi: string) {
         return greenThreshold;
       }
       if (redDirection == ">") {
-        return greenThreshold === 0?0:greenThreshold-1;
+        return greenThreshold === 0?0:greenThreshold;
       } else {
-        return greenThreshold + 1;
+        return greenThreshold;
       }
       break;
   }
