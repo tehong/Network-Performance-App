@@ -108,27 +108,30 @@ var SectorScreen = React.createClass({
         var query = "Data TNOL";
         break;
       case "fallback":
-        var query = "Fallback";
+        var query = "CS Fallback";
         break;
+    }
+    if (query.indexOf("Throughput") > -1) {
+      var category = "Data";
+      var kpi = query;
+    } else {
+      var category = query.substring(0, query.indexOf(" "));
+      var kpi = query.substring(query.indexOf(" ") + 1, query.length);
     }
 
     // inlcude query name with zoneName
-    query = this.props.zoneName + "/kpi/" + query;
+    query = this.props.zoneName + "/category/" + category + "/kpi/" + kpi + "/";
     this.getSectors(query);
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
-      return (
-        SECTOR_URL + query + '/'
-        // API_URL + 'movies.json?apikey=' + apiKey + '&q=' + encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
-      );
+      var queryString = SECTOR_URL + query;
     } else {
-      // With no query, load latest sectors
-      var queryString = SECTOR_URL + this.props.zoneName + '/kpi/' + this.props.kpi + '/'
-      return queryString;
+      var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
     }
+    return queryString;
   },
   fetchData: function(query, queryString) {
     /*
@@ -246,7 +249,7 @@ var SectorScreen = React.createClass({
     return this.state.dataSource.cloneWithRows(sortedMarkets);
   },
 
-  selectMarket: function(sector: Object) {
+  selectSector: function(sector: Object) {
     var titleComponent = SectorDetailTitle;
     if (Platform.OS === 'ios') {
       this.props.toRoute({
@@ -319,10 +322,11 @@ var SectorScreen = React.createClass({
     return (
       <PerformanceCell
         key={sector.id}
-        onSelect={() => this.selectMarket(sector)}
+        onSelect={() => this.selectSector(sector)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={sector}
+        geoEntity="sector"
       />
     );
   },

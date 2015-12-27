@@ -5,7 +5,7 @@
 */
 'use strict';
 
-var BeeperVersion = "0.1.4";
+var BeeperVersion = "0.1.5";
 
 var React = require('react-native');
 // var Router = require('./Router');

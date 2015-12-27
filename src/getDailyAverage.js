@@ -17,7 +17,7 @@
 
 function getDailyAverage(dailyAverage: string) {
   if (typeof dailyAverage === "string") {
-    return parseInt(dailyAverage);
+    return parseFloat(dailyAverage);
   }
   return dailyAverage;
 }

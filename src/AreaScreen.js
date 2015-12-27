@@ -35,11 +35,7 @@ var getSortedDataArray = require('./getSortedDataArray');
  * In case you want to use the Rotten Tomatoes' API on a real app you should
  * create an account at http://developer.rottentomatoes.com/
  */
-var API_URL = 'http://api.rottentomatoes.com/api/public/v1.0/';
-var API_KEYS = [
-  '7waqfqbprs7pajbz28mqf6vz',
-  // 'y4vwv8m33hed9ety83jmv52f', Fallback api_key
-];
+var AREA_URL = 'http://52.20.201.145:3000/kpis/v1/area/all/kpi/all';
 
 // Results should be cached keyed by the query
 // with values of null meaning "being fetched"
@@ -75,24 +71,49 @@ var AreaScreen = React.createClass({
   },
 
   componentDidMount: function() {
-    this.getMarkets('');
+    this.getAreas('area');
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
-    var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
-    if (query) {
       return (
-        API_URL + 'movies.json?apikey=' + apiKey + '&q=' +
-        encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
+        AREA_URL
       );
-    } else {
-      // With no query, load latest areas
-      var queryString = API_URL + 'lists/movies/in_theaters.json?apikey=' + apiKey +
-        '&page_limit=20&page=' + pageNumber
-      return queryString;
-    }
   },
   fetchData: function(query, queryString) {
+    fetch(queryString)
+      .then((response) => response.json())
+      .then((responseData) => {
+        var areas = responseData;
+        if (areas) {
+            LOADING[query] = false;
+            resultsCache.totalForQuery[query] = areas.length;
+            resultsCache.dataForQuery[query] = areas;
+            // resultsCache.nextPageNumberForQuery[query] = 2;
+            if (this.state.filter !== query) {
+              // do not update state if the query is stale
+              return;
+            }
+            this.setState({
+              isLoading: false,
+              // dataSource: this.getDataSource(responseData.movies),
+              dataSource: this.getDataSource(areas),
+            });
+        } else {
+            LOADING[query] = false;
+            resultsCache.dataForQuery[query] = undefined;
+
+            this.setState({
+              dataSource: this.getDataSource([]),
+              isLoading: false,
+            });
+        }
+      })
+      .catch((ex) => {
+        console.log('response failed', ex)
+        this.setState({isLoading: false});
+      })
+
+      /*`
     var areas = require('../simulatedData/Areas.json');
     if (areas) {
         LOADING[query] = false;
@@ -119,8 +140,9 @@ var AreaScreen = React.createClass({
           isLoading: false,
         });
     }
+    */
   },
-  getMarkets: function(query: string) {
+  getAreas: function(query: string) {
     this.timeoutID = null;
 
     this.setState({filter: query});
@@ -224,11 +246,11 @@ var AreaScreen = React.createClass({
 
   getDataSource: function(areas: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
-    var sortedMarkets = getSortedDataArray(areas);
-    return this.state.dataSource.cloneWithRows(sortedMarkets);
+    var sortedAreas = getSortedDataArray(areas);
+    return this.state.dataSource.cloneWithRows(sortedAreas );
   },
 
-  selectMarket: function(area: Object) {
+  selectArea: function(area: Object) {
     var cat = area.category.toLowerCase();
     var kpi = area.kpi;
     switch(kpi.toLowerCase()) {
@@ -290,7 +312,7 @@ var AreaScreen = React.createClass({
     var filter = event.nativeEvent.text.toLowerCase();
 
     this.clearTimeout(this.timeoutID);
-    this.timeoutID = this.setTimeout(() => this.getMarkets(filter), 100);
+    this.timeoutID = this.setTimeout(() => this.getAreas(filter), 100);
   },
 
   renderFooter: function() {
@@ -333,10 +355,11 @@ var AreaScreen = React.createClass({
     return (
       <PerformanceCell
         key={area.id}
-        onSelect={() => this.selectMarket(area)}
+        onSelect={() => this.selectArea(area)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={area}
+        geoEntity="area"
       />
     );
   },

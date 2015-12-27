@@ -37,7 +37,7 @@ var NUM_CACHE_ENTRY = 7;  // 5 kpis and two locations
 // var overlays = [];  // didn't work
 
 // map display radius
-var mileRadius = 10.0
+var mileRadius = 10.0;
 
 var resultsCache = {
   dataForQuery: {},
@@ -93,9 +93,9 @@ var SectorDetailScreen = React.createClass({
   },
   _orientationDidChange: function(orientation) {
     if(orientation == 'LANDSCAPE'){
-      this.setState({isLandscape: true})
+      this.setState({isLandscape: true});
     }else{
-      this.setState({isLandscape: false})
+      this.setState({isLandscape: false});
     }
   },
   componentDidMount: function() {
@@ -122,32 +122,35 @@ var SectorDetailScreen = React.createClass({
     this.getZoneLocation();
     this.getSectorLocation();
     // get all 5 sector KPI files
-    var query = this.props.zoneName + '/kpi/';
-    this.getData(query + "Data Accessibility");
-    this.getData(query + "Data Retainability");
-    this.getData(query + "Downlink Throughput");
-    this.getData(query + "Uplink Throughput");
-    this.getData(query + "Fallback");
+    // inlcude query name with zoneName
+    var query = this.props.zoneName + "/category/";
+    this.getData(query + "Data" + "/kpi/" + "Accessibility");
+    this.getData(query + "Data" + "/kpi/" + "Retainability");
+    this.getData(query + "Data" + "/kpi/" + "Downlink Throughput");
+    this.getData(query + "Data" + "/kpi/" + "Uplink Throughput");
+    this.getData(query + "CS" + "/kpi/" + "Fallback");
     // empties out the dictionary
     // this.getData("tnol");
     // this.getData("volteaccessibility");
     // this.getData("volteretainability");
   },
   componentWillUnmount: function() {
+    /*
     Orientation.getOrientation((err,orientation)=> {
         console.log("Current Device Orientation: ", orientation);
     });
+    */
     Orientation.removeOrientationListener(this._orientationDidChange);
     Orientation.lockToPortrait(); //this will lock the view to Portrait
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     if (query) {
       return (
-        SECTOR_URL + query + '/'
+        SECTOR_URL + query
       );
     } else {
       // With no query, load latest markets
-      var queryString = SECTOR_URL + this.props.zoneName + '/kpi/' + this.props.kpi + '/'
+      var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/';
       return queryString;
     }
   },
@@ -237,8 +240,10 @@ var SectorDetailScreen = React.createClass({
         centerLat = item.latitude;
         var location = {
           "name": item.name,
+          "parentEntityName": item.parentEntityName,
           "latitude": centerLat,
           "longitude": centerLng,
+          "azimuth": item.azimuth,
         }
         var scalingFactor = Math.abs(Math.cos(2 * Math.PI * location.latitude / 360.0))
         var key = item.name;
@@ -247,7 +252,6 @@ var SectorDetailScreen = React.createClass({
         longitudeDelta = mileRadius/(scalingFactor * 69.0)
         /* TODO: not working, if user started with landscape, it seems that the zoom level is two times!
         if (this.state.isLandscape) {
-          debugger;
           longitudeDelta = longitudeDelta / 2;  // initial landsacape need smaller radius
           latitudeDelta = latitudeDelta / 2;
         }
@@ -270,8 +274,10 @@ var SectorDetailScreen = React.createClass({
       if(this.isWithinRegion(item, centerLat, centerLng, latitudeDelta, longitudeDelta)) {
         var location = {
           "name": item.name,
+          "parentEntityName": item.parentEntityName,
           "latitude": item.latitude,
           "longitude": item.longitude,
+          "azimuth": item.azimuth,
         }
         var key = item.name;
         this.state.sectorLocation[key] = location;
@@ -410,18 +416,33 @@ var SectorDetailScreen = React.createClass({
     var sectorLocations = this.state.sectorLocation;
     // var resolveAssetSource = require('resolveAssetSource');
     for (var key in sectorLocations) {
-      var image = require('./assets/icons/Sector_Icon_03.png');
+      // var image = require('./assets/icons/Sector_Icon_03.png');
       // var image = resolveAssetSource(require('./assets/icons/Sector_Icon_03.png'));
+      if (sectorLocations[key].azimuth !== undefined) {
+        var azimuth = sectorLocations[key].azimuth + "deg";
+      } else {
+        var azimuth = "0deg";
+      }
       var sectorView =
-          <Image style={styles.test} source={require('./assets/icons/Sector_Icon_03.png')}/>
+          <View style={styles.sectorViewWrapper}>
+            <Image style={[styles.sectorView, {transform: [{rotate: azimuth}]}]} source={require('./assets/icons/Icon_Sector_01.png')}/>
+          </View>
       if (this.props.sector.name === key) {
-        image = require('./assets/icons/Sector_Icon_focused_03.png');
+        // image = require('./assets/icons/Sector_Icon_focused_03.png');
         // image = resolveAssetSource(require('./assets/icons/Sector_Icon_focused_03.png'));
         sectorView =
-          <Image style={styles.test} source={require("./assets/icons/Sector_Icon_focused_03.png")}/>
+          <View style={styles.sectorViewWrapper}>
+            <Image style={[styles.sectorView, {transform: [{rotate: azimuth}]}]} source={require('./assets/icons/Icon_Sector_Selected_01.png')}/>
+          </View>
       }
       var title = this.props.areaName;
-      var subtitle = this.props.zoneName + " - " + sectorLocations[key].name;
+      // var subtitle = this.props.zoneName + " - " + sectorLocations[key].name;
+      // show sector name or site name based on which site it is.  If it is the site of the selected sector => show sector name
+      if (this.props.sector.parentEntityName === sectorLocations[key].parentEntityName) {
+        var subtitle = this.props.zoneName + " - " + this.props.sector.name;
+      } else {
+        var subtitle = this.props.zoneName + " - " + sectorLocations[key].parentEntityName;
+      }
       var latitude = sectorLocations[key].latitude;
       var longitude = sectorLocations[key].longitude;
       annotations.push({
@@ -429,8 +450,8 @@ var SectorDetailScreen = React.createClass({
         latitude: latitude,
         title: title,
         subtitle: subtitle,
-        image: image,
-        // view: sectorView,
+        // image: image,
+        view: sectorView,
         // tintColor: "#1C75BC",  additional tint on site icon, not used
       });
     }
@@ -511,6 +532,7 @@ var SectorDetailScreen = React.createClass({
       <View style={styles.container}>
         <MapView style={styles.map}
           onRegionChange={this._onRegionChange}
+          animateDrop={true}
           onRegionChangeComplete={this._onRegionChangeComplete}
           region={this.state.mapRegion || undefined}
           annotations={this.state.annotations || undefined}
@@ -627,6 +649,15 @@ var KpiDetails = React.createClass({
     return this.getKpiDetails(icon, data);
   },
   getKpiDetails: function(icon:string, data:{}) {
+
+    // treat the throughput differently
+    if (data.kpi.indexOf("Throughput") > -1) {
+      var category = data.kpi.substring(0, data.kpi.indexOf(" "));
+      var kpi = data.kpi.substring(data.kpi.indexOf(" ") + 1, data.kpi.length);
+    } else {
+      var category = data.category;
+      var kpi = data.kpi;
+    }
     var styleColor = "#00A9E9";
     if(icon.indexOf("Red") > -1) {
       styleColor = "#DD1F27";
@@ -645,8 +676,8 @@ var KpiDetails = React.createClass({
           {this.getIconView(icon)}
         </View>
         <View style={styles.kpiTextContainer}>
-          <Text style={[styleText.text, styles.kpiCatText]}>{data.category}</Text>
-          <Text style={[styleText.text, styles.kpiNameText]}>{data.kpi}</Text>
+          <Text style={[styleText.text, styles.kpiCatText]}>{category}</Text>
+          <Text style={[styleText.text, styles.kpiNameText]}>{kpi}</Text>
         </View>
         <View style={styles.dailyAverageContainer}>
           <Text style={[styleText.text, styles.dailyAverage]}>{data.dailyAverage}</Text>
@@ -1008,8 +1039,8 @@ var styles = StyleSheet.create({
     // borderWidth: 1,
   },
   dailyAverage: {
-    flex:1,
-    fontSize: 20,
+    flex:2,
+    fontSize: 19,
     fontWeight: "800",
     textAlign: "right",
     marginTop: 0,
@@ -1018,7 +1049,7 @@ var styles = StyleSheet.create({
   },
   kpiUnit: {
     flex:1,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
     textAlign: "left",
     marginTop: 5,
@@ -1040,11 +1071,17 @@ var styles = StyleSheet.create({
     height: 1 / PixelRatio.get(),
     marginVertical: 10,
   },
-  test: {
-    height: 25,
-    width: 25,
-    borderColor: "red",
-    borderWidth: 1,
+  sectorViewWrapper: {
+    backgroundColor: 'transparent',
+  },
+  sectorView: {
+    // transform: [{rotate: '0deg'}],
+    height: 33,
+    width: 33,
+    backgroundColor: 'rgba(0,0,0,0)',
+    // backgroundColor: 'transparent',
+    // borderColor: "red",
+    // borderWidth: 1,
   }
 });
 

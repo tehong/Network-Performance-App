@@ -58,11 +58,15 @@ var PerformanceCell = React.createClass({
     );
   },
   getDailyAverage() {
+    /*
     if (this.props.geoArea.geoEntity === "area") {
       var dailyAverage = this.props.geoArea.dailyAverage;
     } else {
-      var dailyAverage = parseInt(this.props.geoArea.dailyAverage);
+    */
+      var dailyAverage = parseFloat(this.props.geoArea.dailyAverage);
+      /*
     }
+    */
     return dailyAverage;
   },
   getThreshold(thresholds: string, thresholdName: string) {
@@ -187,6 +191,9 @@ var PerformanceCell = React.createClass({
     // find minY
     for (var i in data) {
       var item = data[i][1];
+      if (item === "") {
+        continue;
+      }
       if (item < minY) {
         minY = item;
       }
@@ -273,8 +280,8 @@ var PerformanceCell = React.createClass({
       yellowLowThreshold = redThreshold;
     }
     var yScale = this.findYScale();
-    var yMinValue = Math.round(yScale[0] * 10) / 10;
-    var yMaxValue = Math.round((yMinValue + yScale[1]) * 10) / 10 ;
+    var yMinValue = Math.floor(Math.round(yScale[0] * 10) / 10);
+    var yMaxValue = Math.ceil(Math.round((yMinValue + yScale[1]) * 10) / 10) ;
     var yUnit = "";
     if (yMinValue < 0) {
       yMinValue = 0;
@@ -339,21 +346,22 @@ var PerformanceCell = React.createClass({
   sectorCounterView: function(dailyAverage, redThreshold, greenThreshold) {
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     var totalNumSectors = 9;  // default sectors per zone
-    // don't show sector count for zone for now
-    /*
-    if (this.props.geoArea.geoEntity !== "area" || this.props.geoArea.name === "1A"  || this.props.geoArea.name === "1B"  || this.props.geoArea.name === "1C" ) {
+    // don't show sector count for sector page
+    if (this.props.geoEntity === "sector"){
       return;
     }
-    */
-    if (this.props.geoArea.geoEntity === "area") {
-      totalNumSectors = 27;
+    if (this.props.geoEntity === "area") {
+      totalNumSectors = 135;
+    }
+    if (this.props.geoEntity === "zone") {
+      totalNumSectors = 45;
     }
     var sectorCounts = {
       "red": 0,
       "yellow": 0,
       "green": 0,
     }
-    var highNum = this.getRandomInt(Math.floor(totalNumSectors/2) + 1, totalNumSectors - 2);
+    var highNum = this.getRandomInt(Math.floor(totalNumSectors/2) + 1, totalNumSectors/2 + 2);
     var mediumNum = this.getRandomInt(Math.floor((totalNumSectors - highNum)/2), totalNumSectors - highNum - 1);
     var lowNum = totalNumSectors - highNum - mediumNum;
     switch(backgroundImage) {
@@ -523,7 +531,7 @@ var styles = StyleSheet.create({
   },
   dailyValue: {
     color: 'white',
-    fontSize: 35,
+    fontSize: 31,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
   },

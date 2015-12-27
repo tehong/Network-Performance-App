@@ -34,8 +34,7 @@ var getSortedDataArray = require('./getSortedDataArray');
 /**
  *  REST URL for zones and sectors
  */
-var ZONE_URL = 'http://52.20.201.145:3000/kpis/v1/zone/all/kpi/';
-var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
+var ZONE_URL = 'http://52.20.201.145:3000/kpis/v1/zone/all/';
 
 // Results should be cached keyed by the query
 // with values of null meaning "being fetched"
@@ -99,7 +98,7 @@ var ZoneScreen = React.createClass({
         var query = "Data TNOL";
         break;
       case "fallback":
-        var query = "Fallback";
+        var query = "CS Fallback";
         break;
     }
     this.getZoneKPI(query);
@@ -107,8 +106,15 @@ var ZoneScreen = React.createClass({
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     if (query) {
+      if (query.indexOf("Throughput") > -1) {
+        var category = "Data";
+        var kpi = query;
+      } else {
+        var category = query.substring(0, query.indexOf(" "));
+        var kpi = query.substring(query.indexOf(" ") + 1, query.length);
+      }
       return (
-        ZONE_URL + query + '/'
+        ZONE_URL + 'category/' + category + '/kpi/' + kpi + "/"
         /*
         ZONE_URL + 'movies.json?apikey=' + '&q=' +
         encodeURIComponent(query) + '&page_limit=20&page=' + pageNumber
@@ -328,6 +334,7 @@ var ZoneScreen = React.createClass({
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={zone}
+        geoEntity="zone"
       />
     );
   },
