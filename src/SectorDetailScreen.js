@@ -28,10 +28,14 @@ var {
   ListView,
   TouchableHighlight,
   ActivityIndicatorIOS,
+  Alert,
 } = React;
 
 var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
+var SECTOR_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/sectors/all/';
+var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/all/';
 var NUM_CACHE_ENTRY = 7;  // 5 kpis and two locations
+var numEntryProcessed = 0;
 
 // TEST:  Makes the overlays a global and set with the annotations at the same time
 // var overlays = [];  // didn't work
@@ -99,6 +103,11 @@ var SectorDetailScreen = React.createClass({
     }
   },
   componentDidMount: function() {
+    // set default region first to remove warnings
+    this.setState({
+      tabNumber: 0,
+      isLoading: true
+    });
     Orientation.getOrientation((err,orientation)=> {
       if (orientation === "LANDSCAPE") {
         this.setState({isLandscape: true});
@@ -114,10 +123,7 @@ var SectorDetailScreen = React.createClass({
 
     // var query = this.props.markets.entityId;
     this.setAnimatingTimeout();
-    // set default region first to remove warnings
-    this.setState({
-      tabNumber: 0
-    });
+    numEntryProcessed = 0; // reset the number data entry processed to 0
     // plot the map
     this.getZoneLocation();
     this.getSectorLocation();
@@ -144,7 +150,11 @@ var SectorDetailScreen = React.createClass({
     Orientation.lockToPortrait(); //this will lock the view to Portrait
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
-    if (query) {
+    if (query === "zonelocation") {
+      return ZONE_LOC_URL;
+    } else if (query === "sectorlocation") {
+      return SECTOR_LOC_URL;
+    } else if (query) {
       return (
         SECTOR_URL + query
       );
@@ -182,9 +192,15 @@ var SectorDetailScreen = React.createClass({
             */
             // this gets the right data from the results
             this.refreshData(query, sectors);
-            this.setState({
-              isLoading: false,
-            });
+            // don't set isLoading to false unless all data are loaded
+            // console.log("queryNumber = " + this.state.queryNumber);
+            // this.state.queryNumber won't be updated until later when the view is shown
+            //   so an static number is shown
+            if (numEntryProcessed >= NUM_CACHE_ENTRY) {
+              this.setState({
+                isLoading: false,
+              });
+            }
         } else {
           LOADING[query] = false;
           resultsCache.dataForQuery[query] = undefined;
@@ -196,7 +212,14 @@ var SectorDetailScreen = React.createClass({
         }
       })
       .catch((ex) => {
-        console.log('response failed', ex)
+        var alertMessage = 'Timeout on retrieving data: ' + ex;
+        Alert.alert(
+          'Timeout Alert',
+          alertMessage,
+          [
+            {text: 'OK', onPress: () => console.log(alertMessage)},
+          ]
+        );
         this.setState({isLoading: false});
       })
   },
@@ -240,7 +263,7 @@ var SectorDetailScreen = React.createClass({
         centerLat = item.latitude;
         var location = {
           "name": item.name,
-          "parentEntityName": item.parentEntityName,
+          "parentEntityName": item.parentName,
           "latitude": centerLat,
           "longitude": centerLng,
           "azimuth": item.azimuth,
@@ -274,7 +297,7 @@ var SectorDetailScreen = React.createClass({
       if(this.isWithinRegion(item, centerLat, centerLng, latitudeDelta, longitudeDelta)) {
         var location = {
           "name": item.name,
-          "parentEntityName": item.parentEntityName,
+          "parentEntityName": item.parentName,
           "latitude": item.latitude,
           "longitude": item.longitude,
           "azimuth": item.azimuth,
@@ -326,6 +349,8 @@ var SectorDetailScreen = React.createClass({
     }
   },
   getZoneLocation: function() {
+    this.getData("zonelocation");
+    /*
     var zone = require('../simulatedData/ZonesLocation.json');
     var query = "zonelocation";
     if (zone) {
@@ -336,8 +361,11 @@ var SectorDetailScreen = React.createClass({
       // this gets the right data from the results
       this.refreshData(query, zone.result);
     }
+    */
   },
   getSectorLocation: function() {
+    this.getData("sectorlocation");
+    /*
     var sectors = require('../simulatedData/SectorsLocation.json');
     var query = "sectorlocation";
     if (sectors) {
@@ -348,8 +376,10 @@ var SectorDetailScreen = React.createClass({
       // this gets the right data from the results
       this.refreshData(query, sectors.result);
     }
+    */
   },
   getData: function(query: string) {
+    numEntryProcessed = numEntryProcessed + 1;
     this.timeoutID = null;
 
     // NOTE: Since we are not really query via HTTP but directly via simulatedData files
@@ -362,11 +392,14 @@ var SectorDetailScreen = React.createClass({
     if (cachedResultsForQuery) {
       if (!LOADING[query]) {
         this.refreshData(query, cachedResultsForQuery);
-        if (resultsCache.totalForQuery.length >= NUM_CACHE_ENTRY && this.state.isLoading === true) {
+        // if (resultsCache.totalForQuery.length >= NUM_CACHE_ENTRY && this.state.isLoading === true) {
+
+        if (numEntryProcessed >= NUM_CACHE_ENTRY) {
           this.setState({
             isLoading: false
           });
         }
+        // }
       } else {
         this.setState({isLoading: true});
       }
@@ -376,13 +409,12 @@ var SectorDetailScreen = React.createClass({
     LOADING[query] = true;
     resultsCache.dataForQuery[query] = null;
     this.setState({
-      isLoading: true,
       queryNumber: this.state.queryNumber + 1,
       isLoadingTail: false,
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    console.log("SectorDetails queryString = " + queryString);
+    // console.log("SectorDetails queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
@@ -528,19 +560,30 @@ var SectorDetailScreen = React.createClass({
     }
   },
   render: function() {
-    return (
-      <View style={styles.container}>
-        <MapView style={styles.map}
-          onRegionChange={this._onRegionChange}
-          animateDrop={true}
-          onRegionChangeComplete={this._onRegionChangeComplete}
-          region={this.state.mapRegion || undefined}
-          annotations={this.state.annotations || undefined}
-          overlays={this.state.overlays || undefined}
+    if (this.state.isLoading) {
+      return(
+        <ActivityIndicatorIOS
+          animating={true}
+          style={[styles.centering, {height: 100}]}
+          color={"#00A9E9"}
+          size="large"
         />
-        {this.showKpiView()}
-      </View>
-    );
+      );
+    } else {
+      return (
+        <View style={styles.container}>
+          <MapView style={styles.map}
+            onRegionChange={this._onRegionChange}
+            animateDrop={true}
+            onRegionChangeComplete={this._onRegionChangeComplete}
+            region={this.state.mapRegion || undefined}
+            annotations={this.state.annotations || undefined}
+            overlays={this.state.overlays || undefined}
+          />
+          {this.showKpiView()}
+        </View>
+      );
+    }
   },
 });
 

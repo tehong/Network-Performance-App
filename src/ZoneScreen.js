@@ -157,7 +157,7 @@ var ZoneScreen = React.createClass({
     }
     */
 
-    console.log("ZoneScreen queryString = " + queryString);
+    // console.log("ZoneScreen queryString = " + queryString);
     fetch(queryString)
       .then((response) => response.json())
       .then((responseData) => {
