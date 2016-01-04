@@ -365,25 +365,34 @@ var AreaScreen = React.createClass({
   },
 
   render: function() {
-    var content = this.state.dataSource.getRowCount() === 0 ?
-      <NoMarkets
-        filter={this.state.filter}
-        isLoading={this.state.isLoading}
-      />
-      :
-      <ListView
-        ref="listview"
-        dataSource={this.state.dataSource}
-        renderFooter={this.renderFooter}
-        renderRow={this.renderRow}
-        onEndReached={this.onEndReached}
-        automaticallyAdjustContentInsets={false}
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps={true}
-        showsVerticalScrollIndicator={false}
-      />
-        /*renderSeparator={this.renderSeparator}*/
-
+    if (this.state.isLoading) {
+      var content =
+      <ActivityIndicatorIOS
+        animating={true}
+        style={[styles.centering, {height: 100}]}
+        color={"#00A9E9"}
+        size="large"
+      />;
+    } else {
+      var content = this.state.dataSource.getRowCount() === 0 ?
+        <NoMarkets
+          filter={this.state.filter}
+          isLoading={this.state.isLoading}
+        />
+        :
+        <ListView
+          ref="listview"
+          dataSource={this.state.dataSource}
+          renderFooter={this.renderFooter}
+          renderRow={this.renderRow}
+          onEndReached={this.onEndReached}
+          automaticallyAdjustContentInsets={false}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps={true}
+          showsVerticalScrollIndicator={false}
+        />
+    }
+    /*renderSeparator={this.renderSeparator}*/
     return (
       <View style={styles.container}>
         {content}

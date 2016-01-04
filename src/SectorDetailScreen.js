@@ -32,8 +32,10 @@ var {
 } = React;
 
 var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
-var SECTOR_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/sectors/all/';
-var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/all/';
+// var SECTOR_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/sectors/all/';
+var SECTOR_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/sectors/zone/';
+// var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/all/';
+var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/zone/';
 var NUM_CACHE_ENTRY = 7;  // 5 kpis and two locations
 var numEntryProcessed = 0;
 
@@ -150,10 +152,10 @@ var SectorDetailScreen = React.createClass({
     Orientation.lockToPortrait(); //this will lock the view to Portrait
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
-    if (query === "zonelocation") {
-      return ZONE_LOC_URL;
-    } else if (query === "sectorlocation") {
-      return SECTOR_LOC_URL;
+    if (query.indexOf("zonelocation") > -1) {
+      return ZONE_LOC_URL + this.props.zoneName;
+    } else if (query.indexOf("sectorlocation") > -1) {
+      return SECTOR_LOC_URL + this.props.zoneName;
     } else if (query) {
       return (
         SECTOR_URL + query
@@ -165,15 +167,16 @@ var SectorDetailScreen = React.createClass({
     }
   },
   refreshData: function(query:string, result:{}) {
-    if (query.toLowerCase() === "zonelocation") {
+    if (query.indexOf("zonelocation") > -1) {
       this.findZoneLocation(result);
-    } else if (query.toLowerCase() === "sectorlocation") {
+    } else if (query.indexOf("sectorlocation") > -1) {
       this.findSectorLocation(result);
     } else {
       this.findSectorKpiData(result);
     }
   },
   fetchData: function(query, queryString) {
+    console.log("queryString = " + queryString);
     fetch(queryString)
       .then((response) => response.json())
       .then((responseData) => {
@@ -225,27 +228,23 @@ var SectorDetailScreen = React.createClass({
   },
   findZoneLocation: function(result) {
     var overlays = [];
-    for (var i=0; i<result.length; i++) {
-      var item = result[i];
-      if (this.props.zoneName === item.name) {
-        var coordinates = item.coordinates;
-        // add the additional point from the first point
-        coordinates.push(item.coordinates[0])
-        overlays.push(
-          {
-            coordinates: coordinates,
-            strokeColor: "rgba(124,209,238,0.7)",
-            // fillColor: "rgba(124,209,238,0.7)",
-            // strokeColor: "#7cd1ee",
-            // fillColor: "#7cd1ee",
-            lineWidth: 3,
-          }
-        )
-        this.setState({
-          overlays: overlays,
-        });
-        break;
-      }
+    if (this.props.zoneName === result.name) {
+      var coordinates = result.coordinates;
+      // add the additional point from the first point
+      coordinates.push(result.coordinates[0]);
+      overlays.push(
+        {
+          coordinates: coordinates,
+          strokeColor: "rgba(124,209,238,0.7)",
+          // fillColor: "rgba(124,209,238,0.7)",
+          // strokeColor: "#7cd1ee",
+          // fillColor: "#7cd1ee",
+          lineWidth: 3,
+        }
+      )
+      this.setState({
+        overlays: overlays,
+      });
     }
   },
   findSectorLocation: function(result) {
@@ -349,7 +348,8 @@ var SectorDetailScreen = React.createClass({
     }
   },
   getZoneLocation: function() {
-    this.getData("zonelocation");
+    // add the zone name in the query
+    this.getData(this.props.zoneName + "/zonelocation");
     /*
     var zone = require('../simulatedData/ZonesLocation.json');
     var query = "zonelocation";
@@ -364,7 +364,7 @@ var SectorDetailScreen = React.createClass({
     */
   },
   getSectorLocation: function() {
-    this.getData("sectorlocation");
+    this.getData(this.props.zoneName + "/sectorlocation");
     /*
     var sectors = require('../simulatedData/SectorsLocation.json');
     var query = "sectorlocation";

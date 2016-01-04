@@ -350,9 +350,6 @@ var PerformanceCell = React.createClass({
     if (this.props.geoEntity === "sector"){
       return;
     }
-    if (this.props.geoEntity === "area") {
-      totalNumSectors = 135;
-    }
     if (this.props.geoEntity === "zone") {
       totalNumSectors = 45;
     }
@@ -361,25 +358,32 @@ var PerformanceCell = React.createClass({
       "yellow": 0,
       "green": 0,
     }
-    var highNum = this.getRandomInt(Math.floor(totalNumSectors/2) + 1, totalNumSectors/2 + 2);
-    var mediumNum = this.getRandomInt(Math.floor((totalNumSectors - highNum)/2), totalNumSectors - highNum - 1);
-    var lowNum = totalNumSectors - highNum - mediumNum;
-    switch(backgroundImage) {
-      case "BG_Red_KPI_Item":
-        sectorCounts["red"] = highNum;
-        sectorCounts["yellow"] = mediumNum;
-        sectorCounts["green"] = lowNum;
-        break;
-      case "BG_Green_KPI_Item":
-        sectorCounts["green"] = highNum;
-        sectorCounts["yellow"] = mediumNum;
-        sectorCounts["red"] = lowNum;
-        break;
-      case "BG_Yellow_KPI_Item":
-        sectorCounts["yellow"] = highNum;
-        sectorCounts["red"] = mediumNum;
-        sectorCounts["green"] = lowNum;
-        break;
+    if (this.props.geoEntity !== "area") {
+      // totalNumSectors = 135;
+      var highNum = this.getRandomInt(Math.floor(totalNumSectors/2) + 1, totalNumSectors/2 + 2);
+      var mediumNum = this.getRandomInt(Math.floor((totalNumSectors - highNum)/2), totalNumSectors - highNum - 1);
+      var lowNum = totalNumSectors - highNum - mediumNum;
+      switch(backgroundImage) {
+        case "BG_Red_KPI_Item":
+          sectorCounts["red"] = highNum;
+          sectorCounts["yellow"] = mediumNum;
+          sectorCounts["green"] = lowNum;
+          break;
+        case "BG_Green_KPI_Item":
+          sectorCounts["green"] = highNum;
+          sectorCounts["yellow"] = mediumNum;
+          sectorCounts["red"] = lowNum;
+          break;
+        case "BG_Yellow_KPI_Item":
+          sectorCounts["yellow"] = highNum;
+          sectorCounts["red"] = mediumNum;
+          sectorCounts["green"] = lowNum;
+          break;
+      }
+    } else {
+      sectorCounts["red"] = this.props.geoArea.sectorStatusCount.red;
+      sectorCounts["yellow"] = this.props.geoArea.sectorStatusCount.yellow;
+      sectorCounts["green"] = this.props.geoArea.sectorStatusCount.green;
     }
     return(
         <View style={styles.sectorContainer}>

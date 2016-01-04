@@ -7,6 +7,7 @@
 var React = require('react-native');
 var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var Moment = require('moment');
+var Parse = require('parse/react-native');
 var MP_TOKEN = '4024c26ca43386d763c0c38a21a5cb99';
 
 
@@ -21,6 +22,7 @@ var {
   Image,
   TouchableHighlight,
   AlertIOS,
+  ActivityIndicatorIOS,
 } = React;
 
 var AreaScreen = require('./AreaScreen');
@@ -40,18 +42,25 @@ var LoginScreen = React.createClass({
     return {
       currentAppState: AppStateIOS.currentState,
       memoryWarnings: 0,
-      login: '',
+      username: '',
       password: '',
+      isLoading: false,
     }
   },
+  componentWillMount: function() {
+  },
   componentDidMount: function() {
+    // set up handlers for state changes
     AppStateIOS.addEventListener('change', this._handleAppStateChange);
     AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
+    // mark app active
     this.mpAppActive();
   },
   componentWillUnmount: function() {
+    // remove state change handlers
     AppStateIOS.removeEventListener('change', this._handleAppStateChange);
     AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
+    // mark app inactive
     this.mpAppInactive();
   },
   _handleAppStateChange: function(currentAppState) {
@@ -70,44 +79,58 @@ var LoginScreen = React.createClass({
   },
   render: function() {
     var TouchableElement = TouchableHighlight;  // for iOS or Android variation
+    var content = this.state.isLoading ?
+    <Image style={styles.logo} source={require('./assets/images/Logo_Beeper.png')}>
+      <ActivityIndicatorIOS
+        animating={true}
+        style={[styles.logo, {height: 200}]}
+        color={"white"}
+        size="large"
+      />
+    </Image>
+    :
+    <Image style={styles.logo} source={require('./assets/images/Logo_Beeper.png')}/>;
+
     // NOTE: Can't use "require()" for background image to stretch it, need to use uri mothod!
     return (
-          <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login.png')}>
-            <View style={styles.container}>
-              <TouchableElement style={styles.logoContainer} underlayColor={"#119BA8"} onPress={this.onPressLogo}>
-                <Image style={styles.logo} source={require('./assets/images/Logo_Beeper.png')}/>
-              </TouchableElement>
-              <View style={styles.loginContainer}>
-                <TextInput style={styles.loginText}
-                  onChangeText={(login) => this.setState({login})}
-                  value={this.state.login}
-                  placeholder='     USERNAME'
-                  placeholderTextColor='#7AA5AD'
-                  autoCorrect={false}
-                  autoFocus={true}
-                />
-                <TextInput style={styles.loginText}
-                  onChangeText={(password) => this.setState({password})}
-                  value={this.state.password}
-                  placeholder='     PASSWORD'
-                  placeholderTextColor='#7AA5AD'
-                  secureTextEntry={true}
-                  autoCorrect={false}
-                />
-              </View>
-              <View style={styles.loginButtonContainer}>
-                <TouchableElement
-                  style={styles.button}
-                  onPress={this.onPressLogin}
-                  underlayColor={"#105D95"}>
-                  <Text style={styles.loginButtonText}>LOGIN</Text>
-                </TouchableElement>
-              </View>
-              <Text style={styles.forgot} onPress={() => LinkingIOS.openURL('http://www.3ten8.com')}>
-                Forgotten Username or Password
-              </Text>
+      <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login.png')}>
+        <View style={styles.container}>
+          <TouchableElement style={styles.logoContainer} underlayColor={"#119BA8"} onPress={this.onPressLogo}>
+            {content}
+          </TouchableElement>
+          <View style={styles.loginContainer}>
+            <TextInput style={styles.loginText}
+              onChangeText={(text) => this.setState({username: text})}
+              value={this.state.username}
+              placeholder='     USERNAME'
+              placeholderTextColor='#7AA5AD'
+              autoCorrect={false}
+              autoFocus={true}
+              autoCapitalize={'none'}
+              editable={!this.state.isLoading}
+            />
+            <TextInput style={styles.loginText}
+              onChangeText={(text) => this.setState({password: text})}
+              value={this.state.password}
+              placeholder='     PASSWORD'
+              placeholderTextColor='#7AA5AD'
+              secureTextEntry={true}
+              editable={!this.state.isLoading}
+            />
           </View>
-        </Image>
+          <View style={styles.loginButtonContainer}>
+            <TouchableElement
+              style={styles.button}
+              onPress={this.onPressLogin}
+              underlayColor={"#105D95"}>
+              <Text style={styles.loginButtonText}>LOGIN</Text>
+            </TouchableElement>
+          </View>
+          <Text style={styles.forgot} onPress={() => LinkingIOS.openURL('http://www.3ten8.com')}>
+            Forgotten Username or Password
+          </Text>
+        </View>
+      </Image>
     );
   },
   onPressLogo: function() {
@@ -117,63 +140,43 @@ var LoginScreen = React.createClass({
     );
   },
   onPressLogin: function() {
-    /*
-        leftButtonIcon: require('image!BTN_Back'),
-        rightButtonIcon: require('image!Logo_ATT_BG'),
-        onLeftButtonPress: () => this.props.navigator.pop(),
-        */
-    this.setState({
-      login:'',
-      password:'',
-    });
-    if (Platform.OS === 'ios') {
-      this.props.toRoute({
-        titleComponent: PerfNavTitle,
-        backButtonComponent: BackButton,
-        rightCorner: LogoRight,
-        component: AreaScreen,
-        headerStyle: styles.header,
-        hideNavigationBar: false,
-      });
-      /*
-      this.props.navigator.push({
-        renderScene: {(route, navigator) =>
-          <AreaScreen
-            name={route.name}
-            onForward={() => {
-              var nextIndex = route.index + 1;
-              navigator.push({
-                name: 'Scene ' + nextIndex,
-                index: nextIndex,
-                message: 'Market',
-              });
-            }}
-            onBack={() => {
-              if (route.index > 0) {
-                navigator.pop();
-              }
-            }}
-          />
-        },
-        navigationBar: {
-          <Navigator.NavigationBar
-            routeMapper={NavigationBarRouteMapper}
-            style={styles.navBar}
-          />
+    // async storage in ioS so need to use currentAsync()
+    this.setState({isLoading: true});
+    Parse.User.currentAsync()
+    .then((user) => {Parse.User.logOut();})
+    // Log the user in
+    Parse.User.logIn(this.state.username, this.state.password, {
+      success: (user) => {
+        this.setState({password: '', isLoading: false});
+        if (Platform.OS === 'ios') {
+          this.props.toRoute({
+            titleComponent: PerfNavTitle,
+            backButtonComponent: BackButton,
+            rightCorner: LogoRight,
+            component: AreaScreen,
+            headerStyle: styles.header,
+            hideNavigationBar: false,
+          });
+        } else {  // for android, no op for now
+          dismissKeyboard();
         }
-      });
-      */
-    } else {  // for android, no op for now
-      dismissKeyboard();
-      this.props.navigator.push({
-        // title: market.title,
-        name: 'market',
-        // market: market,
-      });
-    }
+      },
+      error: (user, error) => {
+        this.setState({isLoading: false});
+        AlertIOS.alert(
+          'Login Error',
+          error.message,
+        );
+      }
+    });
+
   },
   onPressRegister: function() {
-    LinkingIOS.openURL('http://www.3ten8.com');
+    if (this.state.isLoading) {
+      return;
+    } else {
+      LinkingIOS.openURL('http://www.3ten8.com');
+    }
   },
   mpAppLaunch: function() {
     Mixpanel.track('App Launch', null);
@@ -243,7 +246,7 @@ var styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0B858B',
     color: 'white',
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: 'Helvetica Neue',
     fontWeight: "500",
     marginTop: 5,

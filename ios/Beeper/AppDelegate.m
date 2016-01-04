@@ -41,6 +41,10 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   
+  // manually set the TextField tintColor to white
+  [[UITextField appearance] setTintColor:[UIColor whiteColor]];
+
+  
   // Register a callback for when a new build becomes available.
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(newBuildDidBecomeAvailable:)
@@ -70,7 +74,7 @@
    * on the same Wi-Fi network.
    */
   
-  // sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
+  sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
   
   /**
    * OPTION 2
@@ -98,7 +102,7 @@
    */
   
   AHBuild *build = [[AppHub buildManager] currentBuild];
-  sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
+  // sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
   
   return sourceURL;
 }

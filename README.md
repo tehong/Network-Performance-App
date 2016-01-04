@@ -33,10 +33,12 @@
      jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
      '''
 
+    2. On xCode:  Product => Scheme => Edit Scheme (Command + <), set the "Build Configuration" to "Release" so debug mode can be set to off
+
     2. On the root directory of the app, build your bundle:
 
       '''
-      GitHub/RN-iOS-Beeper  git:(master*) $ react-native bundle --minify --entry-file "./src/BeeperApp.js" --platform ios --bundle-output ./main.jsbundle --assets-dest /tmp/bundle-assets
+      GitHub/RN-iOS-Beeper  git:(master*) $ react-native bundle --minify --entry-file "./src/BeeperApp.js" --dev false --platform ios --bundle-output ./main.jsbundle --assets-dest /tmp/bundle-assets
       '''
 
     3. Add the main.jsbundle in the IOS project by right click on the project directory and "Add files to Beeper".   *You only needs to do this once.  No need to do it a second time.*
