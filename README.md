@@ -33,7 +33,7 @@
      jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
      '''
 
-    2. On xCode:  Product => Scheme => Edit Scheme (Command + <), set the "Build Configuration" to "Release" so debug mode can be set to off
+    2. On xCode:  Product => Scheme => Edit Scheme (Command + <), set the "Build Configuration" to "Release" so debug mode can be set to off.  
 
     2. On the root directory of the app, build your bundle:
 

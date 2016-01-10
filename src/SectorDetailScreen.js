@@ -26,7 +26,7 @@ var {
   MapView,
   Modal,
   ListView,
-  TouchableHighlight,
+  TouchableOpacity,
   ActivityIndicatorIOS,
   Alert,
 } = React;
@@ -511,7 +511,7 @@ var SectorDetailScreen = React.createClass({
     });
   },
   showKpiView: function() {
-    var TouchableElement = TouchableHighlight;  // for iOS or Android variation
+    var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     // var textBlock =  SectorDiagnosis;
     // var textBlock =  SectorRemedy;
     // var textBlock =  SectorKpiList;
@@ -537,8 +537,8 @@ var SectorDetailScreen = React.createClass({
           <View style={styles.kpiTabContainer}>
             <TouchableElement
               style={styles.button}
-              onPress={this.onPressPerformance}
-              underlayColor={"#00A9E9"}>
+              activeOpacity={0.5}
+              onPress={this.onPressPerformance}>
               <Text style={buttonStyle1}>Performance</Text>
             </TouchableElement>
             <TouchableElement
@@ -678,7 +678,7 @@ var SectorDetails = React.createClass({
   },
 });
 
-var getIconFromKpiData = require("./getIconFromKpiData");
+var getIconFromKpiData = require("./components/getIconFromKpiData");
 var KpiDetails = React.createClass({
   render: function() {
     var data = this.props.data;

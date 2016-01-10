@@ -13,7 +13,9 @@
     "parse": "^1.6.13",
     "parse-react": "^0.5.0",
     "react-native": "facebook/react-native#97fe0ea",
+    "react-native-intercom": "0.0.4",
     "react-native-orientation": "^1.9.0",
+    "react-native-storage": "0.0.10",
     "react-timer-mixin": "^0.13.3",
     "react-tween-state": "^0.1.3"
   }

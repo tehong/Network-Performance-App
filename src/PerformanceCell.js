@@ -22,15 +22,14 @@ var {
   Platform,
   StyleSheet,
   Text,
-  TouchableHighlight,
-  TouchableNativeFeedback,
+  TouchableOpacity,
   View
 } = React;
 
-var getImageSource = require('./getImageSource');
-var getTextFromScore = require('./getTextFromScore');
-var getImageFromAverage = require('./getImageFromAverage');
-var getImageViewFromParentKPI = require('./getImageViewFromParentKPI');
+var getImageSource = require('./components/getImageSource');
+var getTextFromScore = require('./components/getTextFromScore');
+var getImageFromAverage = require('./components/getImageFromAverage');
+var getImageViewFromParentKPI = require('./components/getImageViewFromParentKPI');
 var SparklineView= require('./SparklineView');
 
 var PerformanceCell = React.createClass({
@@ -38,21 +37,12 @@ var PerformanceCell = React.createClass({
     var dailyAverage = this.getDailyAverage();
     var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
     var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
-    var TouchableElement = TouchableHighlight;
-    if (Platform.OS === 'android') {
-      TouchableElement = TouchableNativeFeedback;
-    }
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     // backgroundImage = require("./assets/images/" + backgroundImage + ".png");  // can't use vairables
     // default to yellow
     return (
       <View>
-        <TouchableElement style={styles.container}
-            onPress={this.props.onSelect}
-            onShowUnderlay={this.props.onHighlight}
-            onHideUnderlay={this.props.onUnhighlight}>
-            {this.contentView(backgroundImage)}
-        </TouchableElement>
+        {this.contentView(backgroundImage)}
         {this.sectorCounterView(dailyAverage, redThreshold, greenThreshold)}
       </View>
     );
@@ -135,23 +125,35 @@ var PerformanceCell = React.createClass({
   },
   // Can't use variable in the "require()" statement for some reason so had to use this utility function
   contentView: function(backgroundImage) {
+    var TouchableElement = TouchableOpacity;
+    if (Platform.OS === 'android') {
+      TouchableElement = TouchableNativeFeedback;
+    }
+    var touchContent =
+      <TouchableElement style={styles.container}
+          onPress={this.props.onSelect}
+          onShowUnderlay={this.props.onHighlight}
+          activeOpacity={0.5}
+          onHideUnderlay={this.props.onUnhighlight}>
+          {this.innerContentView()}
+      </TouchableElement>;
     switch(backgroundImage) {
       case "BG_Red_KPI_Item":
         return(
           <Image style={styles.backgroundImage} source={require("./assets/images/BG_Red_KPI_Item.png")}>
-            {this.innerContentView()}
+            {touchContent}
           </Image>
         );
       case "BG_Green_KPI_Item":
         return(
           <Image style={styles.backgroundImage} source={require("./assets/images/BG_Green_KPI_Item.png")}>
-            {this.innerContentView()}
+            {touchContent}
           </Image>
         );
       case "BG_Yellow_KPI_Item":
         return(
           <Image style={styles.backgroundImage} source={require("./assets/images/BG_Yellow_KPI_Item.png")}>
-            {this.innerContentView()}
+            {touchContent}
           </Image>
         );
     }
@@ -175,8 +177,6 @@ var PerformanceCell = React.createClass({
   findYScale: function() {
     var yScale = [];
     var data = this.getData();
-    if (this.props.geoArea.geoEntity !== "area") {
-    }
     var maxY = 0.0;
     yScale[0] = 0.0;
     yScale[1] = 0.0;
@@ -217,6 +217,20 @@ var PerformanceCell = React.createClass({
       yScale[1] = (maxY - greenThreshold) * 2
     }
     */
+    // show at least scale of 10
+    if (minY === maxY) {
+      if (maxY === 0.0) {
+        maxY = 10.0;
+      } else if (maxY === 100.0) {
+        minY = 90.0
+      } else {
+        maxY = (minY * 110);
+        if (minY < 100.0 && maxY > 100.0) {
+          maxY = 100.0
+          minY = 90.0
+        }
+      }
+    }
     yScale[0] = minY;
     yScale[1] = maxY - minY;
     return yScale;

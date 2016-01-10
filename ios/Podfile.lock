@@ -1,11 +1,13 @@
 PODS:
   - CorePlot (2.1)
+  - Intercom (2.3.18)
   - Mixpanel (2.9.0):
     - Mixpanel/Mixpanel (= 2.9.0)
   - Mixpanel/Mixpanel (2.9.0)
 
 DEPENDENCIES:
   - CorePlot (from `https://github.com/core-plot/core-plot.git`, branch `release-2.1`)
+  - Intercom
   - Mixpanel
 
 EXTERNAL SOURCES:
@@ -20,6 +22,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   CorePlot: 0116acaa98ce2f8369e6e25ec889968bca0b87c9
+  Intercom: 1d2f2c9fd6bbb292a82640e710ca156133a1ae8c
   Mixpanel: 42ae6168effc48481d957f7883dd8514a398738d
 
 COCOAPODS: 0.39.0

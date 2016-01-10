@@ -3,7 +3,8 @@
 */
 'use strict';
 // Program version number
-var BeeperVersion = "0.1.8";
+var BeeperVersion = "0.2.1";
+import Storage from 'react-native-storage';
 
 var React = require('react-native');
 var Parse = require('parse/react-native');
@@ -13,7 +14,27 @@ var BackButton = require('./components/icons/BackButton');
 
 var {
   StyleSheet,
+  AlertIOS,
+  Alert,
 } = React;
+
+var storage = new Storage({
+    // maximum capacity, default 1000
+    size: 1000,
+
+    // expire time, default 1 day(1000 * 3600 * 24 secs)
+    defaultExpires: 1000 * 3600 * 24,
+
+    // cache data in the memory. default is true.
+    enableCache: true,
+
+    // if data was not found in storage or expired,
+    // the corresponding sync method will be invoked and return
+    // the latest data.
+    sync : {
+        // we'll talk about the details later.
+    }
+});
 
 var LoginScreen = require('./LoginScreen');
 
@@ -29,10 +50,28 @@ var firstRoute = {
 
 module.exports = React.createClass({
   componentWillMount: function() {
-    // initialize Parse with App Key and JS Key
-    Parse.initialize("Df3vSYw5LPzc8ETCwflAdhkq9NFplAmuApK600Go", "8TX1uMCvgzSNKM0kUxeLYpRC19CzTEpCxhvciiVj");
+    global.storage = storage;
   },
   render: function() {
+    /*
+    var appIdAlert = AlertIOS.alert(
+        'Application ID',
+        'Please enter the Application ID given to you',
+        [
+          {text: 'Submit', onPress: (text) => this.saveAppID(text)},
+        ],
+        'plain-text',
+      );
+    var appKeyAlert =
+      AlertIOS.alert(
+        'Application Key',
+        'Please enter the Application Key given to you',
+        [
+          {text: 'Submit', onPress: (text) => this.saveAppKey(text)},
+        ],
+        'plain-text',
+      );
+      */
     return (
       <Router
         firstRoute={firstRoute}

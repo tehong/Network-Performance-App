@@ -1,0 +1,29 @@
+- Beeper iOS 0.1.9 Release Note
+Release 0.1.9 is on TestFlight:
+(1) Swapped out the touch element so instead creating shadows on touch, it just dims the touch element.  This removes the background artifact of elements that have no background image.
+(2) Changed the sorting of the KPI to base on worst to best values instead of colors.
+(3) Readjusted the KPI max and min values on chart to at least show 10% or 10Kbps range IF the chart is a flat line chart.
+(4) Fixed the front-end 5 KPI display bugs in the SectorDetail screen.
+(5) Implemented the user profile screen and populated the information from Parse backend user profile DB into the user profile screen.
+(6) Integrated Intercom and allowed the ability to invoke it in the user profile by pressing the conversational icon.
+
+- Beeper iOS 0.2.1 Release Note
+Release 0.2.1 is on TestFlight:
+(1) Fixed a bug on User Profile to show the right First Name and Last Name on the title.
+(2) Made minor cosmetic adjustments on UI.
+(3) Completed the User Registration story by adding password update step if the Parse "isUpdatePassword" field is set to "True". After the password is updated, the "isUpdatePassword" field in Parse will set to "False" by the App.
+  >>>> Please use your own first name as your login and initial password.  "dev" login is no longer valid.
+(4) Completed the User Profile story per UI design and Story.
+(5) 24-hour in-acitivity login credential expiration period implemented. User's login and password will be autofilled when re-login within the 24-hour window.  You can just press "LOGIN" to login without typing.  This scheme allows user to use different login credential if needed.
+(6) Added Application ID and Application Key prompts to connect to the correct BAAS app in Parse.  User can also change the App ID and App Key in the user profile. This is one time only but if app is uninstalled and re-installed, these will be asked again.
+
+  Here are the app ID and app Key for our development BAAS app in Parse:
+
+  - Beeper - Development:  (Use this set!)
+
+   App ID:  Df3vSYw5LPzc8ETCwflAdhkq9NFplAmuApK600Go
+   App Key: 8TX1uMCvgzSNKM0kUxeLYpRC19CzTEpCxhvciiVj
+
+  >>>> Best way to enter these info is to put these strings on your phone in email/slack/document form so you can cut and paste on to the app when asked.
+
+  The "Beeper - Thumb" BAAS app in Parse, which will be used for Thumb support, will have its own application ID/Key set.

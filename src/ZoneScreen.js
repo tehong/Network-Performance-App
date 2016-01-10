@@ -28,7 +28,7 @@ var DltNavTitle = require('./components/icons/sectors/DltNavTitle');
 var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/sectors/TNOLNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
-var getSortedDataArray = require('./getSortedDataArray');
+var getSortedDataArray = require('./components/getSortedDataArray');
 
 
 /**

@@ -28,7 +28,7 @@ var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
 var MobNavTitle = require('./components/icons/sectors/MobNavTitle');
 */
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
-var getSortedDataArray = require('./getSortedDataArray');
+var getSortedDataArray = require('./components/getSortedDataArray');
 
 /**
  * This is for demo purposes only, and rate limited.

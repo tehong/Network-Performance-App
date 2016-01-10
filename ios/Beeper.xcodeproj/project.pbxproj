@@ -14,6 +14,7 @@
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
 		0708EA791C228C1200CEA10B /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 0708EA781C228C1200CEA10B /* main.jsbundle */; };
 		071A60F81BDC811F00F339E9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 071A60F71BDC811F00F339E9 /* LaunchScreen.xib */; };
+		075A711E1C3B92AD008298B8 /* IntercomWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 075A711C1C3B92AD008298B8 /* IntercomWrapper.m */; };
 		07B7094C1C1264E0009F6288 /* Orientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094A1C1264E0009F6288 /* Orientation.m */; };
 		07B709501C126535009F6288 /* RNMixpanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094F1C126535009F6288 /* RNMixpanel.m */; };
 		07B7096D1C126635009F6288 /* SparklineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B709691C126635009F6288 /* SparklineViewController.swift */; };
@@ -117,6 +118,8 @@
 		00E356F21AD99517003FC87E /* BeeperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BeeperTests.m; sourceTree = "<group>"; };
 		0708EA781C228C1200CEA10B /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		071A60F71BDC811F00F339E9 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
+		075A711C1C3B92AD008298B8 /* IntercomWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntercomWrapper.m; sourceTree = "<group>"; };
+		075A711D1C3B92AD008298B8 /* IntercomWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntercomWrapper.h; sourceTree = "<group>"; };
 		076ADF401BE308C300C5C29F /* Beeper-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Beeper-Bridging-Header.h"; sourceTree = "<group>"; };
 		07B7094A1C1264E0009F6288 /* Orientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Orientation.m; path = RCTOrientation/Orientation.m; sourceTree = "<group>"; };
 		07B7094B1C1264E0009F6288 /* Orientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orientation.h; path = RCTOrientation/Orientation.h; sourceTree = "<group>"; };
@@ -275,6 +278,8 @@
 		13B07FAE1A68108700A75B9A /* Beeper */ = {
 			isa = PBXGroup;
 			children = (
+				075A711C1C3B92AD008298B8 /* IntercomWrapper.m */,
+				075A711D1C3B92AD008298B8 /* IntercomWrapper.h */,
 				0708EA781C228C1200CEA10B /* main.jsbundle */,
 				07B709851C1638E4009F6288 /* AppDelegate.m */,
 				07B709861C1638E4009F6288 /* Info.plist */,
@@ -626,6 +631,7 @@
 			files = (
 				07B7098E1C1638E4009F6288 /* main.m in Sources */,
 				07B7096F1C126635009F6288 /* RN_SparklineViewManager.m in Sources */,
+				075A711E1C3B92AD008298B8 /* IntercomWrapper.m in Sources */,
 				07B7098B1C1638E4009F6288 /* AppDelegate.m in Sources */,
 				07B7094C1C1264E0009F6288 /* Orientation.m in Sources */,
 				07B709701C126635009F6288 /* SparklineViewManager.swift in Sources */,
