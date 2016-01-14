@@ -70,6 +70,14 @@ var LoginScreen = React.createClass({
     AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
     // mark app active
     this.mpAppActive();
+    Intercom.reset();
+    Intercom.registerIdentifiedUser({ userId: "Forgotten username/password"})
+    .then(() => {
+      return Intercom.updateUser({
+        name: "Unknown",
+        email: "Unknown",
+      });
+    })
   },
   componentWillUnmount: function() {
     // remove state change handlers
@@ -274,7 +282,6 @@ var LoginScreen = React.createClass({
               placeholderTextColor='#7AA5AD'
               secureTextEntry={this.state.isUpdatePassword}
               autoCorrect={false}
-              autoFocus={true}
               autoCapitalize={'none'}
               editable={!this.state.isLoading}
             />
@@ -295,7 +302,7 @@ var LoginScreen = React.createClass({
               <Text style={styles.loginButtonText}>{this.state.loginButtonLabel}</Text>
             </TouchableElement>
           </View>
-          <Text style={styles.forgot} onPress={() => LinkingIOS.openURL('http://www.3ten8.com')}>
+          <Text style={styles.forgot} onPress={() => Intercom.displayMessageComposer()}>
             Forgotten Username or Password
           </Text>
         </View>
@@ -428,7 +435,7 @@ var LoginScreen = React.createClass({
         this.setState({currentUser: 'undefined'});
     }
     Parse.User.logOut();
-    Intercom.reset();
+    Intercom.reset()  // reset again
     // Log the user in
     this.setState({isLoading: true});
     Parse.User.logIn(this.state.username, this.state.password, {

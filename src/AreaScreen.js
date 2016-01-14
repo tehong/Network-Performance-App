@@ -16,9 +16,13 @@ var TimerMixin = require('react-timer-mixin');
 
 var PerformanceCell = require('./PerformanceCell');
 var ZoneScreen = require('./ZoneScreen');
+var SiteScreen = require('./SiteScreen');
 var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
+// title for the next scene
+/* zone */
+/*
 var AccNavTitle = require('./components/icons/zones/AccNavTitle');
 var CSFBNavTitle = require('./components/icons/zones/CSFBNavTitle');
 var VOLTEAccNavTitle = require('./components/icons/zones/VOLTEAccNavTitle');
@@ -27,15 +31,28 @@ var VOLTERetNavTitle = require('./components/icons/zones/VOLTERetNavTitle');
 var DltNavTitle = require('./components/icons/zones/DltNavTitle');
 var UltNavTitle = require('./components/icons/zones/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/zones/TNOLNavTitle');
+*/
+/* sites */
+var AccNavTitle = require('./components/icons/sites/AccNavTitle');
+var CSFBNavTitle = require('./components/icons/sites/CSFBNavTitle');
+var VOLTEAccNavTitle = require('./components/icons/sites/VOLTEAccNavTitle');
+var RetNavTitle = require('./components/icons/sites/RetNavTitle');
+var VOLTERetNavTitle = require('./components/icons/sites/VOLTERetNavTitle');
+var DltNavTitle = require('./components/icons/sites/DltNavTitle');
+var UltNavTitle = require('./components/icons/sites/UltNavTitle');
+var TNOLNavTitle = require('./components/icons/sites/TNOLNavTitle');
+
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
-var getSortedDataArray = require('./components/getSortedDataArray');
+var getSortedDataArray = require('./components/getSortedAreaDataArray');
 
 /**
  * This is for demo purposes only, and rate limited.
  * In case you want to use the Rotten Tomatoes' API on a real app you should
  * create an account at http://developer.rottentomatoes.com/
  */
-var AREA_URL = 'http://52.20.201.145:3000/kpis/v1/area/all/kpi/all';
+// var NETWORK_URL = 'http://52.20.201.145:3000/kpis/v1/area/all/kpi/all';
+// Thumb network URL
+var NETWORK_URL = 'http://52.20.201.145:3010/kpis/v1/network/all/kpi/all';
 
 // Results should be cached keyed by the query
 // with values of null meaning "being fetched"
@@ -76,11 +93,15 @@ var AreaScreen = React.createClass({
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
       return (
-        AREA_URL
+        NETWORK_URL
       );
   },
   fetchData: function(query, queryString) {
-    fetch(queryString)
+    fetch(queryString, {
+      headers: {
+        'networkid': 'thumb',
+      },
+    })
       .then((response) => response.json())
       .then((responseData) => {
         var areas = responseData;
@@ -290,7 +311,8 @@ var AreaScreen = React.createClass({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,
         rightCorner: LogoRight,
-        component: ZoneScreen,
+        // component: ZoneScreen,
+        component: SiteScreen,
         headerStyle: styles.header,
         passProps: {
           category: area.category,

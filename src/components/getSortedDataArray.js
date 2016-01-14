@@ -17,11 +17,31 @@
 
 var getThreshold = require('./getThreshold');
 var getDailyAverage = require('./getDailyAverage');
+var isDataEmpty = require('./isDataEmpty');
+
 
 function getSortedDataArray(dataArray: Array<any>): Array<any> {
   dataArray.sort(
     function(a,b) {
       // red = -11, yellow = 0, green = 1 , we need to to put red in lower place i.e. smaller at the front of the array
+      var aEmpty = isDataEmpty(a["data"]);
+      var bEmpty = isDataEmpty(b["data"]);
+      // could be that the data is not there so put that in the back
+      if (aEmpty) {
+        if (bEmpty) {
+          return 0;
+        } else {
+          return 1;
+        }
+      }
+      if (bEmpty) {
+        if (aEmpty) {
+          return 0;
+        } else {
+          return -1;
+        }
+      }
+      // start the real sorting
       var kpi = a["kpi"];
       // temp. fix the category of the zone and sector service API results
       if (a["geoEntity"] !== "area") {

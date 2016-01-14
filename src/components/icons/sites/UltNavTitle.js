@@ -10,17 +10,17 @@ var {
   StyleSheet,
 } = React;
 
-var TNOLNavTitle = React.createClass({
+var UltNavTitle = React.createClass({
   render() {
     var styles = getNavBarStyles();
     return (
         // <Image underlayColor="transparent" source={{uri: 'Logo_ATT', isStatic: true}} />
         <View style={styles.container}>
-          <Text style={styles.title}>Zone TNoL </Text>
+          <Text style={styles.title}>Site UL Throughput </Text>
           <Text style={styles.icon}>{Moment().subtract(1, 'days').format("MM/DD/YYYY")}</Text>
         </View>
     );
   }
 });
 
-module.exports = TNOLNavTitle;
+module.exports = UltNavTitle;

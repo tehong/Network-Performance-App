@@ -16,8 +16,8 @@ var PerfNavTitle = React.createClass({
     return (
         // <Image underlayColor="transparent" source={{uri: 'Logo_ATT', isStatic: true}} />
         <View style={styles.container}>
-          <Text style={styles.title}>Area Performance </Text>
-          <Text style={styles.icon}>{Moment().format("MM/DD/YYYY")}</Text>
+          <Text style={styles.title}>Network Performance </Text>
+          <Text style={styles.icon}>{Moment().subtract(1, 'days').format("MM/DD/YYYY")}</Text>
         </View>
     );
   }

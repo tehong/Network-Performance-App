@@ -16,7 +16,7 @@ var TNOLNavTitle = React.createClass({
     return (
         // <Image underlayColor="transparent" source={{uri: 'Logo_ATT', isStatic: true}} />
         <View style={styles.container}>
-          <Text style={styles.title}>Zone TNoL </Text>
+          <Text style={styles.title}>Site TNoL </Text>
           <Text style={styles.icon}>{Moment().subtract(1, 'days').format("MM/DD/YYYY")}</Text>
         </View>
     );

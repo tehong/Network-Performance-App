@@ -27,3 +27,16 @@ Release 0.2.1 is on TestFlight:
   >>>> Best way to enter these info is to put these strings on your phone in email/slack/document form so you can cut and paste on to the app when asked.
 
   The "Beeper - Thumb" BAAS app in Parse, which will be used for Thumb support, will have its own application ID/Key set.
+
+- Beeper iOS 0.2.2 Release Note
+Release 0.2.2 is on TestFlight:
+(1) Completed network performance KPI story with new backend data.
+(2) Completed site performance KPI story with new backend data.
+(3) Completed sector performance KPI story with new backend data.
+(4) Completed sector detail story with new backend data.
+(5) Sector location and map is working with new backend data.
+(6) Added Intercom "Forgotten username/password" user on pressing the "Forgotten username or password" link.
+(7) Now showing "No Data" in network/site/sector/sector-detail screens when there is no data for a KPI.
+(8) "No Data" KPI table cell is now placed at the end of the list and shown as "Yellow".
+(9) Changed the area sort to sort by color first then by alphabetically.
+(10) Changed the default map radius to 10 miles to showcase neighboring sites.

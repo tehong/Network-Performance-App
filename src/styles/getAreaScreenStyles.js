@@ -24,6 +24,7 @@ function getAreaScreenStyles(): StyleSheet {
     container: {
       flex: 1,
       alignItems: 'stretch',
+      backgroundColor: 'gray',
       backgroundColor: 'rgba(10,10,10,0.8)',
     },
     /*
@@ -44,7 +45,7 @@ function getAreaScreenStyles(): StyleSheet {
     },
     noMoviesText: {
       marginTop: 80,
-      color: '#888888',
+      color: '#00BBF0',
     },
     separator: {
       height: 1,

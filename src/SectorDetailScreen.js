@@ -31,19 +31,24 @@ var {
   Alert,
 } = React;
 
-var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
-// var SECTOR_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/sectors/all/';
-var SECTOR_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/sectors/zone/';
-// var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/all/';
-var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/zone/';
-var NUM_CACHE_ENTRY = 7;  // 5 kpis and two locations
+/* Thumb operator */
+var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sector/';
+var SECTOR_LOC_URL = 'http://52.20.201.145:3010/kpis/v1/location/sectors/all';
+
+// syringa
+// var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
+// var SECTOR_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/sectors/zone/';
+
+var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/all/';
+// var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/zone/';
+var NUM_CACHE_ENTRY = 2;  // 5 kpis and two locations
 var numEntryProcessed = 0;
 
 // TEST:  Makes the overlays a global and set with the annotations at the same time
 // var overlays = [];  // didn't work
 
-// map display radius
-var mileRadius = 10.0;
+// map display diameter (double of the radius)
+var mileDiameter = 20.0;
 
 var resultsCache = {
   dataForQuery: {},
@@ -127,16 +132,25 @@ var SectorDetailScreen = React.createClass({
     this.setAnimatingTimeout();
     numEntryProcessed = 0; // reset the number data entry processed to 0
     // plot the map
-    this.getZoneLocation();
+    // this.getZoneLocation();  // Syringa only
     this.getSectorLocation();
     // get all 5 sector KPI files
-    // inlcude query name with zoneName
-    var query = this.props.zoneName + "/category/";
+    // inlcude query name with zoneName (Syringa only)
+    // var query = this.props.zoneName + "/category/";
+    // Thumb:
+    var query = this.props.sector.name + "/daily/kpi";
+
+    // Thumb
+    this.getData(query);
+
+    // syringa
+    /*
     this.getData(query + "Data" + "/kpi/" + "Accessibility");
     this.getData(query + "Data" + "/kpi/" + "Retainability");
     this.getData(query + "Data" + "/kpi/" + "Downlink Throughput");
     this.getData(query + "Data" + "/kpi/" + "Uplink Throughput");
     this.getData(query + "CS" + "/kpi/" + "Fallback");
+    */
     // empties out the dictionary
     // this.getData("tnol");
     // this.getData("volteaccessibility");
@@ -155,14 +169,17 @@ var SectorDetailScreen = React.createClass({
     if (query.indexOf("zonelocation") > -1) {
       return ZONE_LOC_URL + this.props.zoneName;
     } else if (query.indexOf("sectorlocation") > -1) {
-      return SECTOR_LOC_URL + this.props.zoneName;
+      // return SECTOR_LOC_URL + this.props.zoneName;
+      return SECTOR_LOC_URL;
     } else if (query) {
       return (
         SECTOR_URL + query
       );
     } else {
-      // With no query, load latest markets
-      var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/';
+      // With no query, load sector's KPIs
+      // var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/';
+      // thumb:
+      var queryString = SECTOR_URL + this.props.sector.name + 'daily/kpi/';
       return queryString;
     }
   },
@@ -177,7 +194,11 @@ var SectorDetailScreen = React.createClass({
   },
   fetchData: function(query, queryString) {
     console.log("queryString = " + queryString);
-    fetch(queryString)
+    fetch(queryString, {
+      headers: {
+        'networkid': 'thumb',
+      },
+    })
       .then((response) => response.json())
       .then((responseData) => {
         var sectors = responseData;
@@ -270,8 +291,8 @@ var SectorDetailScreen = React.createClass({
         var scalingFactor = Math.abs(Math.cos(2 * Math.PI * location.latitude / 360.0))
         var key = item.name;
         this.state.sectorLocation[key] = location;
-        latitudeDelta = mileRadius/69.0;
-        longitudeDelta = mileRadius/(scalingFactor * 69.0)
+        latitudeDelta = mileDiameter/69.0;
+        longitudeDelta = mileDiameter/(scalingFactor * 69.0)
         /* TODO: not working, if user started with landscape, it seems that the zoom level is two times!
         if (this.state.isLandscape) {
           longitudeDelta = longitudeDelta / 2;  // initial landsacape need smaller radius
@@ -323,12 +344,25 @@ var SectorDetailScreen = React.createClass({
   findSectorKpiData: function(result) {
     for (var i=0; i<result.length; i++) {
       var item = result[i];
-      if (this.props.sector.name === item.name) {
+      // if (this.props.sector.name === item.kpi) {
+        /* Syringa
         var kpiData = {
           "category": item.category,
           "kpi": item.kpi,
           "dailyAverage": item.dailyAverage,
           "unit": item.unit,
+          "thresholds": item.thresholds,
+        }
+        */
+        var unit = item.unit;
+        if (item.dailyAverage === "No Data") {
+          unit = "";
+        }
+        var kpiData = {
+          "category": item.category,
+          "kpi": item.kpi,
+          "dailyAverage": item.dailyAverage,
+          "unit": unit,
           "thresholds": item.thresholds,
         }
         if (item.kpi.indexOf("Downlink") !== -1) {
@@ -343,8 +377,7 @@ var SectorDetailScreen = React.createClass({
 
         var kpiKey = item.category.toLowerCase() + "-" + item.kpi.toLowerCase();
         this.state.sectorKpiData[kpiKey] = kpiData;
-        break;
-      }
+      // }
     }
   },
   getZoneLocation: function() {
@@ -414,7 +447,7 @@ var SectorDetailScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    // console.log("SectorDetails queryString = " + queryString);
+    console.log("SectorDetails queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },

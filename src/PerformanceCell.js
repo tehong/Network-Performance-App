@@ -31,10 +31,11 @@ var getTextFromScore = require('./components/getTextFromScore');
 var getImageFromAverage = require('./components/getImageFromAverage');
 var getImageViewFromParentKPI = require('./components/getImageViewFromParentKPI');
 var SparklineView= require('./SparklineView');
+var isDataEmpty = require('./components/isDataEmpty');
 
 var PerformanceCell = React.createClass({
   render: function() {
-    var dailyAverage = this.getDailyAverage();
+    var dailyAverage = this.getDailyAverage(true);
     var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
     var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
@@ -47,13 +48,20 @@ var PerformanceCell = React.createClass({
       </View>
     );
   },
-  getDailyAverage() {
+  getDailyAverage(zeroFill) {
     /*
     if (this.props.geoArea.geoEntity === "area") {
       var dailyAverage = this.props.geoArea.dailyAverage;
     } else {
     */
+      var dataArray = this.props.geoArea.data;
       var dailyAverage = parseFloat(this.props.geoArea.dailyAverage);
+      // might be invalid data when length < 2, i.e. 1
+
+      if (isDataEmpty(dataArray) && zeroFill === false) {
+        var dailyAverage = "No Data";
+      }
+
       /*
     }
     */
@@ -159,14 +167,15 @@ var PerformanceCell = React.createClass({
     }
   },
   getData() {
-    if (this.props.geoArea.geoEntity === "area") {
-      return this.props.geoArea.data;
-    }
-
     var dataArray = this.props.geoArea.data;
     var newDataArray = [];
     for (var i=0; i < dataArray.length; i++) {
-      var array = [dataArray[i][0].toString(), parseFloat(dataArray[i][1])];
+      // the second element in the dataArray[i] could be empty due to no data, check it
+      if (dataArray[i].length > 1) {
+        var array = [dataArray[i][0].toString(), parseFloat(dataArray[i][1])];
+      } else {
+        var array = [dataArray[i][0].toString(), 0.0];
+      }
       newDataArray.push(array);
     }
     return newDataArray;
@@ -244,8 +253,11 @@ var PerformanceCell = React.createClass({
   },
   kpiView: function() {
     var kpiImage = getImageViewFromParentKPI(this.props.geoArea.category, this.props.geoArea.kpi);
-    var dailyAverage = this.getDailyAverage()
+    var dailyAverage = this.getDailyAverage(false)
     var unit = this.props.geoArea.unit;
+    if (dailyAverage === "No Data") {
+      unit = "";
+    }
     return(
       <View style={styles.kpiContainer}>
         <View style={styles.iconContainer}>
@@ -283,9 +295,11 @@ var PerformanceCell = React.createClass({
 
     var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
     var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
-    var dailyAverage = this.getDailyAverage();
-    var redDir =  redThreshold > greenThreshold?"\u2265":"\u2264";
-    var greenDir =  redThreshold > greenThreshold?"\u2264":"\u2265";
+    var dailyAverage = this.getDailyAverage(true);
+    // var redDir =  redThreshold > greenThreshold?"\u2265":"\u2264";
+    // var greenDir =  redThreshold > greenThreshold?"\u2264":"\u2265";
+    var redDir =  redThreshold > greenThreshold?">":"<";
+    var greenDir =  redThreshold > greenThreshold?"<":">";
     var unit = this.props.geoArea.unit;
     var data = this.getData();
     var yellowLowThreshold = redThreshold;
@@ -361,7 +375,7 @@ var PerformanceCell = React.createClass({
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     var totalNumSectors = 9;  // default sectors per zone
     // don't show sector count for sector page
-    if (this.props.geoEntity === "sector"){
+    if (this.props.geoEntity === "sector" || this.props.geoEntity === "site"){
       return;
     }
     if (this.props.geoEntity === "zone") {
@@ -395,9 +409,23 @@ var PerformanceCell = React.createClass({
           break;
       }
     } else {
-      sectorCounts["red"] = this.props.geoArea.sectorStatusCount.red;
-      sectorCounts["yellow"] = this.props.geoArea.sectorStatusCount.yellow;
-      sectorCounts["green"] = this.props.geoArea.sectorStatusCount.green;
+      var dataArray = this.props.geoArea.data;
+      var redCount = this.props.geoArea.sectorStatusCount.red;
+      var greenCount = this.props.geoArea.sectorStatusCount.green;
+      var yellowCount = this.props.geoArea.sectorStatusCount.yellow;
+      if (isDataEmpty(dataArray)) {
+        // set yellowCount to the total count when data is empty
+        if (redCount !== 0) {
+          yellowCount = redCount;
+          redCount = 0;
+        } else if (greenCount !== 0) {
+          yellowCount = greenCount;
+          greenCount = 0;
+        }
+      }
+      sectorCounts["red"] = redCount;
+      sectorCounts["yellow"] = yellowCount;
+      sectorCounts["green"] = greenCount;
     }
     return(
         <View style={styles.sectorContainer}>

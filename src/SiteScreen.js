@@ -14,27 +14,28 @@ var {
 var TimerMixin = require('react-timer-mixin');
 
 var PerformanceCell = require('./PerformanceCell');
-var SectorDetailScreen = require('./SectorDetailScreen');
+var SectorScreen = require('./SectorScreen');
 var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
-var SectorDetailTitle = require('./components/icons/sectors/SectorDetailTitle');
-/*
+// title for the next scene
 var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
-var AvaNavTitle = require('./components/icons/sectors/AvaNavTitle');
+var CSFBNavTitle = require('./components/icons/sectors/CSFBNavTitle');
+var VOLTEAccNavTitle = require('./components/icons/sectors/VOLTEAccNavTitle');
 var RetNavTitle = require('./components/icons/sectors/RetNavTitle');
+var VOLTERetNavTitle = require('./components/icons/sectors/VOLTERetNavTitle');
 var DltNavTitle = require('./components/icons/sectors/DltNavTitle');
 var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
-var MobNavTitle = require('./components/icons/sectors/MobNavTitle');
-*/
+var TNOLNavTitle = require('./components/icons/sectors/TNOLNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedDataArray');
 
-
- /* with syringa */
- // var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
- /* with Thumb without the zone, just site */
- var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sectors/site/';
+/**
+ * This is for demo purposes only, and rate limited.
+ * In case you want to use the Rotten Tomatoes' API on a real app you should
+ * create an account at http://developer.rottentomatoes.com/
+ */
+ var SITE_URL = 'http://52.20.201.145:3010/kpis/v1/site/all/';
  /*
 var API_KEYS = [
   '7waqfqbprs7pajbz28mqf6vz',
@@ -54,7 +55,7 @@ var resultsCache = {
 
 var LOADING = {};
 
-var SectorScreen = React.createClass({
+var SiteScreen = React.createClass({
 
   mixins: [TimerMixin],
 
@@ -119,50 +120,22 @@ var SectorScreen = React.createClass({
     }
 
     // inlcude query name with zoneName
-    // query = this.props.zoneName + "/category/" + category + "/kpi/" + kpi + "/";
-    query = this.props.zoneName + "/category/" + category + "/kpi/" + kpi + "/";
-    this.getSectors(query);
+    query = "category/" + category + "/kpi/" + kpi + "/";
+    this.getSites(query);
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
-      var queryString = SECTOR_URL + query;
+      var queryString = SITE_URL + query;
     } else {
-      var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
+      var queryString = SITE_URL + 'category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
     }
     return queryString;
   },
   fetchData: function(query, queryString) {
-    /*
-    switch(query.toLowerCase()) {
-      case "accessibility":
-        var sectors = require('../simulatedData/SectorsAccessibility.json');
-        break;
-      case "retainability":
-        var sectors = require('../simulatedData/SectorsRetainability.json');
-        break;
-      case "dlthroughput":
-        var sectors = require('../simulatedData/SectorsDlThroughput.json');
-        break;
-      case "ulthroughput":
-        var sectors = require('../simulatedData/SectorsUlThroughput.json');
-        break;
-      case "tnol":
-        var sectors = require('../simulatedData/SectorsTNOL.json');
-        break;
-      case "volteaccessiblity":
-        var sectors = require('../simulatedData/SectorsVOLTEAccessibility.json');
-        break;
-      case "volteretainability":
-        var sectors = require('../simulatedData/SectorsVOLTERetainability.json');
-        break;
-      case "fallback":
-        var sectors = require('../simulatedData/SectorsCSFB.json');
-        break;
-    }
-    */
-    // var queryString = 'https://52.20.201.145:55555/kpis/v1/sector/930018_Watrousville_1/daily/kpi';
+    // var queryString = 'https://52.20.201.145:55555/kpis/v1/site/930018_Watrousville_1/daily/kpi';
+    // var queryString = 'http://52.20.201.145:3010/kpis/v1/site/930018_Watrousville_1/daily/kpi';
     fetch(queryString, {
       headers: {
         'networkid': 'thumb',
@@ -171,11 +144,11 @@ var SectorScreen = React.createClass({
     // fetch(queryString)
       .then((response) => response.json())
       .then((responseData) => {
-        var sectors = responseData;
-        if (sectors) {
+        var sites = responseData;
+        if (sites) {
             LOADING[query] = false;
-            resultsCache.totalForQuery[query] = sectors.length;
-            resultsCache.dataForQuery[query] = sectors;
+            resultsCache.totalForQuery[query] = sites.length;
+            resultsCache.dataForQuery[query] = sites;
             // resultsCache.nextPageNumberForQuery[query] = 2;
 
             if (this.state.filter !== query) {
@@ -185,7 +158,7 @@ var SectorScreen = React.createClass({
             this.setState({
               isLoading: false,
               // dataSource: this.getDataSource(responseData.movies),
-              dataSource: this.getDataSource(sectors),
+              dataSource: this.getDataSource(sites),
             });
         } else {
             LOADING[query] = false;
@@ -202,7 +175,7 @@ var SectorScreen = React.createClass({
         this.setState({isLoading: false});
       })
   },
-  getSectors: function(query: string) {
+  getSites: function(query: string) {
     this.timeoutID = null;
 
     // NOTE: Since we are not really query via HTTP but directly via simulatedData files
@@ -233,7 +206,7 @@ var SectorScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    // console.log("SectorScreen queryString = " + queryString);
+    // console.log("SiteScreen queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
@@ -241,8 +214,8 @@ var SectorScreen = React.createClass({
   onEndReached: function() {
   },
 
-  getDataSource: function(sectors: Array<any>): ListView.DataSource {
-    var sortedMarkets = getSortedDataArray(sectors);
+  getDataSource: function(sites: Array<any>): ListView.DataSource {
+    var sortedMarkets = getSortedDataArray(sites);
     /*
     var filteredSet = [];
     for (var i in sortedMarkets) {
@@ -255,28 +228,61 @@ var SectorScreen = React.createClass({
     return this.state.dataSource.cloneWithRows(sortedMarkets);
   },
 
-  selectSector: function(sector: Object) {
-    var titleComponent = SectorDetailTitle;
+  selectSite: function(site: Object) {
+    var uncorrectedKpi = site.kpi;
+    var kpi = uncorrectedKpi.replace("Data ", "");
+    kpi = kpi.replace("Uplink ", "");
+    kpi = kpi.replace("Downlink ", "");
+    var cat = site.category.toLowerCase();
+    switch(kpi.toLowerCase()) {
+      case "accessibility":
+        if (cat === "data") {
+          var titleComponent = AccNavTitle;
+        } else {
+          var titleComponent = VOLTEAccNavTitle;
+        }
+        break;
+      case "retainability":
+        if (cat === "data") {
+          var titleComponent = RetNavTitle;
+        } else {
+          var titleComponent = VOLTERetNavTitle;
+        }
+        break;
+      case "throughput":
+        if (cat === "downlink") {
+          var titleComponent = DltNavTitle;
+        } else {
+          var titleComponent = UltNavTitle;
+        }
+        break;
+      case "tnol":
+        var titleComponent = TNOLNavTitle;
+        break;
+      case "fallback":
+        var titleComponent = CSFBNavTitle;
+        break;
+    }
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,
         rightCorner: LogoRight,
-        component: SectorDetailScreen,
+        component: SectorScreen,
         headerStyle: styles.header,
         passProps: {
-          title: sector.title,
-          sector: sector,
+          category: site.category,
+          kpi: site.kpi,
           areaName: this.props.areaName,
-          zoneName: this.props.zoneName,
+          zoneName: site.name,
         }
       });
     } else {
       dismissKeyboard();
       this.props.navigator.push({
-        title: sector.title,
-        name: 'sector',
-        sector: sector,
+        title: site.title,
+        name: 'site',
+        site: site,
       });
     }
   },
@@ -285,7 +291,7 @@ var SectorScreen = React.createClass({
     var filter = event.nativeEvent.text.toLowerCase();
 
     this.clearTimeout(this.timeoutID);
-    this.timeoutID = this.setTimeout(() => this.getSectors(filter), 100);
+    this.timeoutID = this.setTimeout(() => this.getSites(filter), 100);
   },
 
   renderFooter: function() {
@@ -320,19 +326,19 @@ var SectorScreen = React.createClass({
   },
 
   renderRow: function(
-    sector: Object,
+    site: Object,
     sectionID: number | string,
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
     return (
       <PerformanceCell
-        key={sector.id}
-        onSelect={() => this.selectSector(sector)}
+        key={site.id}
+        onSelect={() => this.selectSite(site)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
-        geoArea={sector}
-        geoEntity="sector"
+        geoArea={site}
+        geoEntity="site"
       />
     );
   },
@@ -389,9 +395,9 @@ var NoMarkets = React.createClass({
     if (this.props.filter) {
       text = `No results for "${this.props.filter}"`;
     } else if (!this.props.isLoading) {
-      // If we're looking at the latest sectors, aren't currently loading, and
+      // If we're looking at the latest sites, aren't currently loading, and
       // still have no results, show a message
-      text = 'No sectors found';
+      text = 'No sites found';
     }
 
     return (
@@ -403,5 +409,5 @@ var NoMarkets = React.createClass({
 });
 var styles = getAreaScreenStyles();
 
-module.exports = SectorScreen;
+module.exports = SiteScreen;
 //
