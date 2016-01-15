@@ -48,7 +48,7 @@ var numEntryProcessed = 0;
 // var overlays = [];  // didn't work
 
 // map display diameter (double of the radius)
-var mileDiameter = 20.0;
+var mileDiameter = 110.0;
 
 var resultsCache = {
   dataForQuery: {},
@@ -456,11 +456,13 @@ var SectorDetailScreen = React.createClass({
   },
 
   onPressPerformance: function() {
+    /*
     this.setState({
       animating: true,
       tabNumber: 0,
     });
     this.setAnimatingTimeout();
+    */
   },
   onPressDiagnosis: function() {
     this.setState({
@@ -506,7 +508,7 @@ var SectorDetailScreen = React.createClass({
       if (this.props.sector.parentEntityName === sectorLocations[key].parentEntityName) {
         var subtitle = this.props.zoneName + " - " + this.props.sector.name;
       } else {
-        var subtitle = this.props.zoneName + " - " + sectorLocations[key].parentEntityName;
+        var subtitle = sectorLocations[key].parentEntityName;
       }
       var latitude = sectorLocations[key].latitude;
       var longitude = sectorLocations[key].longitude;
@@ -565,6 +567,18 @@ var SectorDetailScreen = React.createClass({
     if (this.state.isLandscape) {
       return;
     } else {
+      /*
+      <TouchableElement
+        style={styles.button}
+        onPress={this.onPressDiagnosis}>
+        <Text style={buttonStyle2}>Diagnosis</Text>
+      </TouchableElement>
+      <TouchableElement
+        style={styles.button}
+        onPress={this.onPressRemedy}>
+        <Text style={buttonStyle3}>Remedy</Text>
+      </TouchableElement>
+      */
       return(
         <View style={styles.kpiContainer}>
           <View style={styles.kpiTabContainer}>
@@ -572,17 +586,7 @@ var SectorDetailScreen = React.createClass({
               style={styles.button}
               activeOpacity={0.5}
               onPress={this.onPressPerformance}>
-              <Text style={buttonStyle1}>Performance</Text>
-            </TouchableElement>
-            <TouchableElement
-              style={styles.button}
-              onPress={this.onPressDiagnosis}>
-              <Text style={buttonStyle2}>Diagnosis</Text>
-            </TouchableElement>
-            <TouchableElement
-              style={styles.button}
-              onPress={this.onPressRemedy}>
-              <Text style={buttonStyle3}>Remedy</Text>
+              <Text style={buttonStyle1}>Sector Performance ({this.props.sector.name})</Text>
             </TouchableElement>
           </View>
           <View style={styles.kpiListContainer}>
@@ -635,6 +639,11 @@ var SectorDetails = React.createClass({
     switch (this.props.tabNumber) {
       case 0:
         var data = this.props.sectorKpiData;
+        /*
+            <View style={styles.kpiRowContainer}>
+              <KpiDetails kpiKey={"cs-fallback"} data={data["cs-fallback"]}/>
+            </View>
+        */
         return (
           <ScrollView contentContainerStyle={styles.contentContainer}>
             <View style={styles.kpiRowContainer}>
@@ -648,9 +657,6 @@ var SectorDetails = React.createClass({
             </View>
             <View style={styles.kpiRowContainer}>
               <KpiDetails kpiKey={"uplink-throughput"} data={data["uplink-throughput"]}/>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"cs-fallback"} data={data["cs-fallback"]}/>
             </View>
           </ScrollView>
         );
@@ -949,7 +955,7 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   map: {
-    flex: 5,
+    flex: 13,
     // borderColor: "red",
     // borderWidth: 2,
   },

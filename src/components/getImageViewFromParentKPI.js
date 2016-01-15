@@ -23,10 +23,10 @@ var {
 
 function getImageViewFromParentKPI(category: string, kpi: string): string {
   var cat = category.toLowerCase();
-  if (category.indexOf("Uplink")) {
+  if (category.toLowerCase().indexOf("uplink") > -1) {
     cat = "uplink";
   }
-  if (category.indexOf("Downlink")) {
+  if (category.toLowerCase().indexOf("downlink") > -1) {
     cat = "downlink";
   }
   var correctedKpi = kpi.replace("Data ", "");

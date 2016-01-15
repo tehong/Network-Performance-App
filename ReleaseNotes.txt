@@ -40,3 +40,13 @@ Release 0.2.2 is on TestFlight:
 (8) "No Data" KPI table cell is now placed at the end of the list and shown as "Yellow".
 (9) Changed the area sort to sort by color first then by alphabetically.
 (10) Changed the default map radius to 10 miles to showcase neighboring sites.
+
+- Beeper iOS 0.2.3 Release Note
+Release 0.2.3 is on TestFlight:
+(1) Fixed the sector details map annotation popup to show only site name if the sector is not the selected sector.
+(2) Removed the diagnosis and remedy tabs in sector details.
+(3) Changed the "Performance" tab to "Sector Performance (SECTOR_NAME)".
+(4) Widened the map diameter to 110 miles or radius of 55 miles to show all sites within that radius.
+(5) Fixed the DT/UT icon mixed up problem.
+(6) Removed the CS Fallback KPI in sector details.
+(7) Made the map bigger on the sector details in portrait mode since now there are only four KPIs.

@@ -3,7 +3,7 @@
 */
 'use strict';
 // Program version number
-var BeeperVersion = "0.2.2";
+var BeeperVersion = "0.2.3";
 import Storage from 'react-native-storage';
 
 var React = require('react-native');
