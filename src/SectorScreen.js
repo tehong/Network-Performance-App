@@ -29,7 +29,7 @@ var MobNavTitle = require('./components/icons/sectors/MobNavTitle');
 */
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedDataArray');
-
+var mixpanelTrack = require('./components/mixpanelTrack');
 
  /* with syringa */
  // var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
@@ -256,6 +256,7 @@ var SectorScreen = React.createClass({
   },
 
   selectSector: function(sector: Object) {
+    this.mpSelectSector(sector.name);
     var titleComponent = SectorDetailTitle;
     if (Platform.OS === 'ios') {
       this.props.toRoute({
@@ -268,6 +269,7 @@ var SectorScreen = React.createClass({
           title: sector.title,
           sector: sector,
           areaName: this.props.areaName,
+          currentUser: this.props.currentUser,
           zoneName: this.props.zoneName,
         }
       });
@@ -287,7 +289,9 @@ var SectorScreen = React.createClass({
     this.clearTimeout(this.timeoutID);
     this.timeoutID = this.setTimeout(() => this.getSectors(filter), 100);
   },
-
+  mpSelectSector: function(sectorName) {
+    mixpanelTrack("Sector Selected", {"Sector Name": sectorName}, this.props.currentUser);
+  },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
       return <View style={styles.scrollSpinner} />;

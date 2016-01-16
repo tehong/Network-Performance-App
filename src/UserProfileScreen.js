@@ -15,17 +15,22 @@ var {
 
 var Parse = require('parse/react-native');
 var Intercom = require('react-native-intercom');
+var mixpanelTrack = require('./components/mixpanelTrack');
 
 module.exports = React.createClass({
   getInitialState: function() {
     return {
       appID: global.appID,
       appKey: global.appKey,
+      currentUser: null,
     }
   },
   componentWillMount: function() {
     Parse.User.currentAsync()
     .then((user) => {this.setState({currentUser: user});});
+  },
+  componentDidMount: function() {
+    this.mpUserProfile();
   },
   saveAppKeysToStorage: function() {
     global.storage.save({
@@ -74,6 +79,9 @@ module.exports = React.createClass({
   },
   onPressAppDetails: function() {
     this.saveAppKeys();
+  },
+  mpUserProfile: function() {
+    mixpanelTrack("User Profile", null, this.state.currentUser);
   },
   render: function() {
     var user = this.state.currentUser;

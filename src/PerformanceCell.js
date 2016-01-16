@@ -567,7 +567,7 @@ var styles = StyleSheet.create({
   },
   kpi: {
     color: 'rgba(30,30,30,0.7)',
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'Helvetica Neue',
   },
   dailyAverage: {

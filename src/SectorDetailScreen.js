@@ -31,6 +31,8 @@ var {
   Alert,
 } = React;
 
+var mixpanelTrack = require('./components/mixpanelTrack');
+
 /* Thumb operator */
 var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sector/';
 var SECTOR_LOC_URL = 'http://52.20.201.145:3010/kpis/v1/location/sectors/all';
@@ -72,7 +74,6 @@ var SectorDetailScreen = React.createClass({
       animating: true,
       tabNumber: 0,
       isLoading: false,
-      isLoadingTail: false,
       sectorKpiData: {},
       sectorLocation: {},
       overlays: [],
@@ -80,7 +81,6 @@ var SectorDetailScreen = React.createClass({
       mapRegionInput: null,
       annotations: null,
       isFirstLoad: true,
-      filter: '',
       queryNumber: 0,
       isLandscape: false,
     };
@@ -208,12 +208,6 @@ var SectorDetailScreen = React.createClass({
             resultsCache.dataForQuery[query] = sectors;
             // resultsCache.nextPageNumberForQuery[query] = 2;
 
-            /* NOTE: doesn't work with fetch()
-            if (this.state.filter !== query) {
-              // do not update state if the query is stale
-              return;
-            }
-            */
             // this gets the right data from the results
             this.refreshData(query, sectors);
             // don't set isLoading to false unless all data are loaded
@@ -314,7 +308,8 @@ var SectorDetailScreen = React.createClass({
     // find the neighboring sectors
     for (var i=0; i<result.length; i++) {
       var item = result[i];
-      if(this.isWithinRegion(item, centerLat, centerLng, latitudeDelta, longitudeDelta)) {
+      // add all sites without the is isWithRegion
+      //if(this.isWithinRegion(item, centerLat, centerLng, latitudeDelta, longitudeDelta)) {
         var location = {
           "name": item.name,
           "parentEntityName": item.parentName,
@@ -324,7 +319,7 @@ var SectorDetailScreen = React.createClass({
         }
         var key = item.name;
         this.state.sectorLocation[key] = location;
-      }
+      // }
     }
     this._onRegionInputChanged(region);
   },
@@ -415,12 +410,6 @@ var SectorDetailScreen = React.createClass({
     numEntryProcessed = numEntryProcessed + 1;
     this.timeoutID = null;
 
-    // NOTE: Since we are not really query via HTTP but directly via simulatedData files
-    //       and there is no UI refresh, we update the state.filter directly for now
-    //       THIS IS AN ABNORMAL USAGE!
-    // this.state.filter = query;  // This doesn't work with fetch with error code
-    // this.setState({filter: query});
-
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
     if (cachedResultsForQuery) {
       if (!LOADING[query]) {
@@ -443,7 +432,6 @@ var SectorDetailScreen = React.createClass({
     resultsCache.dataForQuery[query] = null;
     this.setState({
       queryNumber: this.state.queryNumber + 1,
-      isLoadingTail: false,
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
@@ -506,7 +494,7 @@ var SectorDetailScreen = React.createClass({
       // var subtitle = this.props.zoneName + " - " + sectorLocations[key].name;
       // show sector name or site name based on which site it is.  If it is the site of the selected sector => show sector name
       if (this.props.sector.parentEntityName === sectorLocations[key].parentEntityName) {
-        var subtitle = this.props.zoneName + " - " + this.props.sector.name;
+        var subtitle = this.props.sector.name;
       } else {
         var subtitle = sectorLocations[key].parentEntityName;
       }
@@ -544,6 +532,9 @@ var SectorDetailScreen = React.createClass({
       mapRegionInput: region,
       annotations: this._getAnnotations(region),
     });
+  },
+  _onAnnotationPressed(annotation) {
+    this.mpAnnotationPressed(annotation["subtitle"]);
   },
   showKpiView: function() {
     var TouchableElement = TouchableOpacity;  // for iOS or Android variation
@@ -596,6 +587,9 @@ var SectorDetailScreen = React.createClass({
       );
     }
   },
+  mpAnnotationPressed: function(siteName) {
+    mixpanelTrack("Map Site Pressed", {siteName: siteName}, this.props.currentUser);
+  },
   render: function() {
     if (this.state.isLoading) {
       return(
@@ -616,6 +610,7 @@ var SectorDetailScreen = React.createClass({
             region={this.state.mapRegion || undefined}
             annotations={this.state.annotations || undefined}
             overlays={this.state.overlays || undefined}
+            onAnnotationPress={this._onAnnotationPressed}
           />
           {this.showKpiView()}
         </View>

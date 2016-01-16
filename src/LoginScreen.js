@@ -5,10 +5,14 @@
 'use strict';
 
 var React = require('react-native');
-var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var Moment = require('moment');
 var Parse = require('parse/react-native');
-var MP_TOKEN = '4024c26ca43386d763c0c38a21a5cb99';
+// var MP_TOKEN = '4024c26ca43386d763c0c38a21a5cb99';
+// Beeper - Thumb
+var MP_TOKEN = '970733248f1d5b0c892c4681ee7a3747';
+// Beeper - Development
+// var MP_TOKEN = '68946dfa2a1740741933bf4b235b362f';
+var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var Intercom = require('react-native-intercom');
 var DEFAULT_LOGIN_BUTTON_TEXT= "LOGIN";
 var DEFAULT_USERNAME= "USERNAME";
@@ -41,6 +45,7 @@ var Login = require('./components/icons/Login');
 var LogoRight = require('./components/icons/LogoRight');
 var BackButton = require('./components/icons/BackButton');
 var Orientation = require('react-native-orientation');
+var mixpanelTrack = require('./components/mixpanelTrack');
 
 var LoginScreen = React.createClass({
 
@@ -158,7 +163,6 @@ var LoginScreen = React.createClass({
         syncInBackground: true
       }).then( ret => {
         // found data goes to then()
-        console.log("success retreiving login info");
         // sanity check
         this.setState({
             username: ret.username,
@@ -185,7 +189,6 @@ var LoginScreen = React.createClass({
       // set to 24 hours
       expires: 1000 * 3600 * 24,
     });
-    console.log("login saved!")
     this.setState({
       usernameStored: this.state.username,
       passwordStored: this.state.password,
@@ -202,7 +205,6 @@ var LoginScreen = React.createClass({
       // if set to null, then it will never expires.
       expires: null,
     });
-    console.log("App Keys saved!");
     global.appID = this.state.appID;
     global.appKey = this.state.appKey;
   },
@@ -224,7 +226,6 @@ var LoginScreen = React.createClass({
           appID: ret.appID,
           appKey: ret.appKey,
         });
-        console.log("found App Keys");
         global.appID = ret.appID;
         global.appKey = ret.appKey;
       }
@@ -234,7 +235,6 @@ var LoginScreen = React.createClass({
     }).catch( err => {
       // any exception including data not found
       // goes to catch()
-      console.log("App Keys not found!");
       this.setState({
         username: '',
         password: '',
@@ -302,7 +302,7 @@ var LoginScreen = React.createClass({
               <Text style={styles.loginButtonText}>{this.state.loginButtonLabel}</Text>
             </TouchableElement>
           </View>
-          <Text style={styles.forgot} onPress={() => Intercom.displayMessageComposer()}>
+          <Text style={styles.forgot} onPress={this.onPressForgotten}>
             Forgotten Username or Password
           </Text>
         </View>
@@ -314,6 +314,10 @@ var LoginScreen = React.createClass({
       'App Info',
       'Version: ' + this.props.appVersion,
     );
+  },
+  onPressForgotten: function() {
+    this.mpForgotten();
+    Intercom.displayMessageComposer();
   },
   toDataScreen: function() {
     var username = this.state.usernameStored;
@@ -327,6 +331,7 @@ var LoginScreen = React.createClass({
       loginButtonLabel: DEFAULT_LOGIN_BUTTON_TEXT,
     });
     if (Platform.OS === 'ios') {
+      this.mpAppLogin();
       this.props.toRoute({
         titleComponent: PerfNavTitle,
         backButtonComponent: BackButton,
@@ -344,7 +349,7 @@ var LoginScreen = React.createClass({
   },
   loginUser: function(user) {
     // check if password needs to be updated
-    if (this.state.loginButtonLabel === DEFAULT_LOGIN_BUTTON_TEXT&& user.get("isUpdatePassword")) {
+    if (this.state.loginButtonLabel === DEFAULT_LOGIN_BUTTON_TEXT && user.get("isUpdatePassword")) {
       this.setState({
         isLoading: false,
         isUpdatePassword: true,
@@ -356,6 +361,7 @@ var LoginScreen = React.createClass({
         currentUser: user,
       });
     } else {
+      this.setState({currentUser: user});
       this.saveLoginToStorage();
       this.toDataScreen();
     }
@@ -474,18 +480,23 @@ var LoginScreen = React.createClass({
     }
   },
   mpAppLaunch: function() {
-    Mixpanel.track('App Launch', null);
+    mixpanelTrack('App Launch', null, null)
   },
   mpAppActive: function() {
-    Mixpanel.track('App Active', null);
+    mixpanelTrack("App Active", null, this.state.currentUser);
+  },
+  mpForgotten: function() {
+    mixpanelTrack("Forgotten username/password", null, this.state.currentUser);
+  },
+  mpAppLogin: function() {
+    mixpanelTrack("App Login", null, this.state.currentUser);
   },
   mpAppInactive: function() {
-    Mixpanel.track('App Inactive', null);
+    mixpanelTrack("App Inactive", null, this.state.currentUser);
     this.saveLoginToStorage();
   },
   mpAppMemoryWarning: function() {
-    Mixpanel.track(
-      'App Memory Warning', null);
+    mixpanelTrack("App Memory Warning", null, this.state.currentUser);
   }
 });
 

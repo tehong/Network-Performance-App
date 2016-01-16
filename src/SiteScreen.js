@@ -29,6 +29,8 @@ var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/sectors/TNOLNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedDataArray');
+var mixpanelTrack = require('./components/mixpanelTrack');
+
 
 /**
  * This is for demo purposes only, and rate limited.
@@ -229,6 +231,7 @@ var SiteScreen = React.createClass({
   },
 
   selectSite: function(site: Object) {
+    this.mpSelectSite(site.name);
     var uncorrectedKpi = site.kpi;
     var kpi = uncorrectedKpi.replace("Data ", "");
     kpi = kpi.replace("Uplink ", "");
@@ -274,6 +277,7 @@ var SiteScreen = React.createClass({
           category: site.category,
           kpi: site.kpi,
           areaName: this.props.areaName,
+          currentUser: this.props.currentUser,
           zoneName: site.name,
         }
       });
@@ -286,14 +290,15 @@ var SiteScreen = React.createClass({
       });
     }
   },
-
   onSearchChange: function(event: Object) {
     var filter = event.nativeEvent.text.toLowerCase();
 
     this.clearTimeout(this.timeoutID);
     this.timeoutID = this.setTimeout(() => this.getSites(filter), 100);
   },
-
+  mpSelectSite: function(siteName) {
+    mixpanelTrack("Site Selected", {"Site Name": siteName}, this.props.currentUser);
+  },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
       return <View style={styles.scrollSpinner} />;

@@ -50,3 +50,10 @@ Release 0.2.3 is on TestFlight:
 (5) Fixed the DT/UT icon mixed up problem.
 (6) Removed the CS Fallback KPI in sector details.
 (7) Made the map bigger on the sector details in portrait mode since now there are only four KPIs.
+
+- Beeper iOS 0.2.4 Release Note
+(1) Allows all sectors to be displayed on the map by removing the search for neighboring sites and just show all sites.
+(2) Modified the map annotations to only show "Network - SectorName" when user clicks on focused sector on the map.
+(3) Reduced the KPI letter fonts to fit better for iPhone 6.
+(4) Added "Alpha Release" in the Launch image.
+(5) Added additional Mixpanel tracking events and properties for "Beeper - Thumb" iOS app.

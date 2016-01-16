@@ -44,6 +44,7 @@ var TNOLNavTitle = require('./components/icons/sites/TNOLNavTitle');
 
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedAreaDataArray');
+var mixpanelTrack = require('./components/mixpanelTrack');
 
 /**
  * This is for demo purposes only, and rate limited.
@@ -271,7 +272,8 @@ var AreaScreen = React.createClass({
     return this.state.dataSource.cloneWithRows(sortedAreas );
   },
 
-  selectArea: function(area: Object) {
+  selectKpi: function(area: Object) {
+    this.mpSelectKpi(area.category + " " + area.kpi);
     var cat = area.category.toLowerCase();
     var kpi = area.kpi;
     switch(kpi.toLowerCase()) {
@@ -318,6 +320,7 @@ var AreaScreen = React.createClass({
           category: area.category,
           kpi: area.kpi,
           areaName: area.name,
+          currentUser: this.props.currentUser,
         }
       });
     } else {
@@ -336,7 +339,9 @@ var AreaScreen = React.createClass({
     this.clearTimeout(this.timeoutID);
     this.timeoutID = this.setTimeout(() => this.getAreas(filter), 100);
   },
-
+  mpSelectKpi: function(kpi) {
+    mixpanelTrack("Network KPI", {"KPI": kpi}, this.props.currentUser);
+  },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
       return <View style={styles.scrollSpinner} />;
@@ -377,7 +382,7 @@ var AreaScreen = React.createClass({
     return (
       <PerformanceCell
         key={area.id}
-        onSelect={() => this.selectArea(area)}
+        onSelect={() => this.selectKpi(area)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={area}
