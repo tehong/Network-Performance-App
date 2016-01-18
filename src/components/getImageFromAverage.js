@@ -15,8 +15,11 @@
  */
 'use strict';
 
-function getImageFromAverage(dailyAverage: number, redThreshold: number,
-  greenThreshold: number): string {
+function getImageFromAverage(dailyAverage: number, redThreshold: number, greenThreshold: number): string {
+  // check for no data
+  if (dailyAverage === "No Data") {
+    return "BG_Grey_KPI_Item";
+  }
   var backgroundImage = "BG_Yellow_KPI_Item";
   if(redThreshold < greenThreshold) {
     if (dailyAverage <= redThreshold) {

@@ -50,7 +50,7 @@ var numEntryProcessed = 0;
 // var overlays = [];  // didn't work
 
 // map display diameter (double of the radius)
-var mileDiameter = 110.0;
+var MILE_DIAMETER = 50.0;
 
 var resultsCache = {
   dataForQuery: {},
@@ -285,8 +285,8 @@ var SectorDetailScreen = React.createClass({
         var scalingFactor = Math.abs(Math.cos(2 * Math.PI * location.latitude / 360.0))
         var key = item.name;
         this.state.sectorLocation[key] = location;
-        latitudeDelta = mileDiameter/69.0;
-        longitudeDelta = mileDiameter/(scalingFactor * 69.0)
+        latitudeDelta = MILE_DIAMETER/69.0;
+        longitudeDelta = MILE_DIAMETER/(scalingFactor * 69.0)
         /* TODO: not working, if user started with landscape, it seems that the zoom level is two times!
         if (this.state.isLandscape) {
           longitudeDelta = longitudeDelta / 2;  // initial landsacape need smaller radius
@@ -301,7 +301,7 @@ var SectorDetailScreen = React.createClass({
         }
         break;
       } else {
-        // set default region
+        // set default region of USA
         region={latitude: 39.06, longitude: -95.22, latitudeDelta: 25.0, longitudeDelta: 35.0};
       }
     }
@@ -577,7 +577,7 @@ var SectorDetailScreen = React.createClass({
               style={styles.button}
               activeOpacity={0.5}
               onPress={this.onPressPerformance}>
-              <Text style={buttonStyle1}>Sector Performance ({this.props.sector.name})</Text>
+              <Text style={buttonStyle1}>Performance ({this.props.sector.name})</Text>
             </TouchableElement>
           </View>
           <View style={styles.kpiListContainer}>
@@ -740,6 +740,8 @@ var KpiDetails = React.createClass({
       styleColor = "#DD1F27";
     } else if (icon.indexOf("Yellow") > -1) {
       styleColor = "#D99A12";
+    } else if (icon.indexOf("Grey") > -1) {
+      styleColor = "#7a7a7c";
     }
     var styleText = StyleSheet.create({
       text: {
@@ -767,7 +769,7 @@ var KpiDetails = React.createClass({
     if(icon.indexOf("Red") > -1) {
       switch(icon) {
         case "Icon_DA_Red":
-          return (
+          rGrey (
             <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DA_Red.png")}/>
           );
           break;
@@ -791,24 +793,58 @@ var KpiDetails = React.createClass({
             <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_T_Red.png")}/>
           );
           break;
-        case "Icon_VA_Red":
-          return (
-            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VA_Red.png")}/>
-          );
-          break;
-        case "Icon_VR_Red":
-          return (
-            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VR_Red.png")}/>
-          );
-          break;
         case "Icon_CS_Red":
           return (
             <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_CS_Red.png")}/>
           );
           break;
       }
-    }
-    else if(icon.indexOf("Green") > -1) {
+    } else if(icon.indexOf("Grey") > -1) {
+      switch(icon) {
+        case "Icon_DA_Grey":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DA_Grey.png")}/>
+          );
+          break;
+        case "Icon_DR_Grey":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DR_Grey.png")}/>
+          );
+          break;
+        case "Icon_DT_Grey":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DT_Grey.png")}/>
+          );
+          break;
+        case "Icon_UT_Grey":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_UT_Grey.png")}/>
+          );
+          break;
+          /*
+        case "Icon_T_Grey":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_T_Grey.png")}/>
+          );
+          break;
+        case "Icon_VA_Grey":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VA_Grey.png")}/>
+          );
+          break;
+        case "Icon_VR_Grey":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VR_Grey.png")}/>
+          );
+          break;
+          */
+        case "Icon_CS_Grey":
+          return (
+            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_CS_Grey.png")}/>
+          );
+          break;
+      }
+    } else if(icon.indexOf("Green") > -1) {
       switch(icon) {
         case "Icon_DA_Green":
           return (
@@ -835,24 +871,13 @@ var KpiDetails = React.createClass({
             <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_T_Green.png")}/>
           );
           break;
-        case "Icon_VA_Green":
-          return (
-            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VA_Green.png")}/>
-          );
-          break;
-        case "Icon_VR_Green":
-          return (
-            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VR_Green.png")}/>
-          );
-          break;
         case "Icon_CS_Green":
           return (
             <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_CS_Green.png")}/>
           );
           break;
       }
-    }
-    else {
+    } else {
       switch(icon) {
         case "Icon_DA_Yellow":
           return (
@@ -877,16 +902,6 @@ var KpiDetails = React.createClass({
         case "Icon_T_Yellow":
           return (
             <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_T_Yellow.png")}/>
-          );
-          break;
-        case "Icon_VA_Yellow":
-          return (
-            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VA_Yellow.png")}/>
-          );
-          break;
-        case "Icon_VR_Yellow":
-          return (
-            <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_VR_Yellow.png")}/>
           );
           break;
         case "Icon_CS_Yellow":
@@ -987,20 +1002,18 @@ var styles = StyleSheet.create({
     fontFamily: 'Helvetica Neue',
     backgroundColor: '#00A9E9',
     color: '#D4E6EF',
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 5,
+    paddingBottom: 5,
     // borderColor: "yellow",
     // borderWidth: 1,
   },
   buttonText2: {
     textAlign: 'center',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "500",
     fontFamily: 'Helvetica Neue',
     backgroundColor: '#D4E6EF',
     color: '#00A9E9',
-    paddingTop: 8,
-    paddingBottom: 8,
     // borderColor: "red",
     // borderWidth: 1,
   },
@@ -1087,7 +1100,7 @@ var styles = StyleSheet.create({
     // borderWidth: 1,
   },
   dailyAverageContainer: {
-    flex: 10,
+    flex: 14,
     flexDirection:"row",
     justifyContent:"center",
     alignItems:"center",
@@ -1117,7 +1130,7 @@ var styles = StyleSheet.create({
   },
   dailyAverage: {
     flex:2,
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: "800",
     textAlign: "right",
     marginTop: 0,

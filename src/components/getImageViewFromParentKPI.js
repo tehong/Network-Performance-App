@@ -34,26 +34,14 @@ function getImageViewFromParentKPI(category: string, kpi: string): string {
   correctedKpi = correctedKpi.replace("Downlink ", "");
   switch(correctedKpi.toLowerCase()) {
     case "accessibility":
-      if (cat === "volte") {
-        return (
-          <Image style={styles.kpiImage} source={require("../assets/icons/Icon_VA.png")}/>
-        );
-      } else {
         return (
           <Image style={styles.kpiImage} source={require("../assets/icons/Icon_DA.png")}/>
         );
-      }
       break;
     case "retainability":
-      if (cat == "volte") {
-        return (
-          <Image style={styles.kpiImage} source={require("../assets/icons/Icon_VR.png")}/>
-        );
-      } else {
         return (
           <Image style={styles.kpiImage} source={require("../assets/icons/Icon_DR.png")}/>
         );
-      }
       break;
     case "throughput":
       if (cat === "downlink") {

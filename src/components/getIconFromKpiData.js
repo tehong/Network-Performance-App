@@ -54,6 +54,8 @@ function getIconFromKpiData(kpiKey:string, kpiData:{}): string {
     kpiImage = kpiImage + "_Red";
   } else if (colorBackground.indexOf("yellow") > -1) {
     kpiImage = kpiImage + "_Yellow";
+  } else if (colorBackground.indexOf("grey") > -1) {
+    kpiImage = kpiImage + "_Grey";
   } else {
     kpiImage = kpiImage + "_Green";
   }

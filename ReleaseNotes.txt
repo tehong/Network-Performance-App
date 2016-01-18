@@ -51,9 +51,22 @@ Release 0.2.3 is on TestFlight:
 (6) Removed the CS Fallback KPI in sector details.
 (7) Made the map bigger on the sector details in portrait mode since now there are only four KPIs.
 
-- Beeper iOS 0.2.4 Release Note
-(1) Allows all sectors to be displayed on the map by removing the search for neighboring sites and just show all sites.
+- Beeper iOS 0.2.5 Release Note
+(1) Allows all sectors to be displayed on the map by removing the search for neighboring sectors and just show all sectors.
+(9) Changed the default map diameter to 50 miles to show less crowded sectors on the map.
 (2) Modified the map annotations to only show "Network - SectorName" when user clicks on focused sector on the map.
-(3) Reduced the KPI letter fonts to fit better for iPhone 6.
-(4) Added "Alpha Release" in the Launch image.
+(3) Reduced the several letter fonts to fit better for iPhone 6.
+(4) Replaced "Alpha Release" image the Launch image.
 (5) Added additional Mixpanel tracking events and properties for "Beeper - Thumb" iOS app.
+(6) Mixpanel Token is changed from hardcoded to obtain automatically from the new master control DB in Parse.
+(7) Changed the KPI items with "No Data" to grey background color.
+(8) Changed the Sector Details KPI items with "No Data" to grey color.
+(10) Added a new App ID and Key control system with these new set of Application ID and Key:
+
+  - "Beeper - Thumb"
+   Application ID: yj1PYQftAo
+   Application Key: dj35AnncE1
+
+  - "Beeper - Development"
+   Application ID: Df3vSYw5LP
+   Application Key: 8TX1uMCvgz

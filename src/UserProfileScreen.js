@@ -1,5 +1,5 @@
 var React = require('react-native');
-var APP_KEYS_STORAGE_TOKEN = 'appKeys';
+var CONTROL_KEYS_STORAGE_TOKEN = 'controlKeys';
 
 var {
   Alert,
@@ -34,10 +34,10 @@ module.exports = React.createClass({
   },
   saveAppKeysToStorage: function() {
     global.storage.save({
-      key: APP_KEYS_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
+      key: CONTROL_KEYS_STORAGE_TOKEN,
       rawData: {
-          appID: this.state.appID,
-          appKey: this.state.appKey
+          controlUsername: this.state.appID,
+          controlPassword: this.state.appKey
       },
       // if not specified, the defaultExpires will be applied instead.
       // if set to null, then it will never expires.
@@ -52,17 +52,17 @@ module.exports = React.createClass({
   },
   saveAppKeys: function() {
     var valid = true;
-    if (this.state.appID.length !== 40) {
+    if (this.state.appID.length !== 10) {
       Alert.alert(
         'Incorrect Application ID Entry!',
-        'It should be 40 characters, your entry is ' + this.state.appID.length,
+        'It should be 10 characters, your entry is ' + this.state.appID.length,
       );
       valid = false;
     }
-    if (this.state.appKey.length !== 40) {
+    if (this.state.appKey.length !== 10) {
       Alert.alert(
         'Incorrect Applicaiton Key Entry!',
-        'It should be 40 characters, your entry is ' + this.state.appKey.length,
+        'It should be 10 characters, your entry is ' + this.state.appKey.length,
       );
       valid = false;
     }

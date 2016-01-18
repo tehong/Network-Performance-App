@@ -35,7 +35,7 @@ var isDataEmpty = require('./components/isDataEmpty');
 
 var PerformanceCell = React.createClass({
   render: function() {
-    var dailyAverage = this.getDailyAverage(true);
+    var dailyAverage = this.getDailyAverage(false);
     var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
     var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
@@ -161,6 +161,12 @@ var PerformanceCell = React.createClass({
       case "BG_Yellow_KPI_Item":
         return(
           <Image style={styles.backgroundImage} source={require("./assets/images/BG_Yellow_KPI_Item.png")}>
+            {touchContent}
+          </Image>
+        );
+      case "BG_Grey_KPI_Item":
+        return(
+          <Image style={styles.backgroundImage} source={require("./assets/images/BG_Grey_KPI_Item.png")}>
             {touchContent}
           </Image>
         );
@@ -381,66 +387,34 @@ var PerformanceCell = React.createClass({
     if (this.props.geoEntity === "zone") {
       totalNumSectors = 45;
     }
-    var sectorCounts = {
-      "red": 0,
-      "yellow": 0,
-      "green": 0,
-    }
-    if (this.props.geoEntity !== "area") {
-      // totalNumSectors = 135;
-      var highNum = this.getRandomInt(Math.floor(totalNumSectors/2) + 1, totalNumSectors/2 + 2);
-      var mediumNum = this.getRandomInt(Math.floor((totalNumSectors - highNum)/2), totalNumSectors - highNum - 1);
-      var lowNum = totalNumSectors - highNum - mediumNum;
-      switch(backgroundImage) {
-        case "BG_Red_KPI_Item":
-          sectorCounts["red"] = highNum;
-          sectorCounts["yellow"] = mediumNum;
-          sectorCounts["green"] = lowNum;
-          break;
-        case "BG_Green_KPI_Item":
-          sectorCounts["green"] = highNum;
-          sectorCounts["yellow"] = mediumNum;
-          sectorCounts["red"] = lowNum;
-          break;
-        case "BG_Yellow_KPI_Item":
-          sectorCounts["yellow"] = highNum;
-          sectorCounts["red"] = mediumNum;
-          sectorCounts["green"] = lowNum;
-          break;
+    var dataArray = this.props.geoArea.data;
+    var redCount = this.props.geoArea.sectorStatusCount.red;
+    var greenCount = this.props.geoArea.sectorStatusCount.green;
+    var yellowCount = this.props.geoArea.sectorStatusCount.yellow;
+    if (isDataEmpty(dataArray)) {
+      // set yellowCount to the total count when data is empty
+      if (redCount !== 0) {
+        yellowCount = redCount;
+        redCount = 0;
+      } else if (greenCount !== 0) {
+        yellowCount = greenCount;
+        greenCount = 0;
       }
-    } else {
-      var dataArray = this.props.geoArea.data;
-      var redCount = this.props.geoArea.sectorStatusCount.red;
-      var greenCount = this.props.geoArea.sectorStatusCount.green;
-      var yellowCount = this.props.geoArea.sectorStatusCount.yellow;
-      if (isDataEmpty(dataArray)) {
-        // set yellowCount to the total count when data is empty
-        if (redCount !== 0) {
-          yellowCount = redCount;
-          redCount = 0;
-        } else if (greenCount !== 0) {
-          yellowCount = greenCount;
-          greenCount = 0;
-        }
-      }
-      sectorCounts["red"] = redCount;
-      sectorCounts["yellow"] = yellowCount;
-      sectorCounts["green"] = greenCount;
     }
     return(
         <View style={styles.sectorContainer}>
           <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Red.png")}>
-            <Text style={styles.sectorCountText}>{sectorCounts["red"]}</Text>
+            <Text style={styles.sectorCountText}>{redCount}</Text>
             <Text style={styles.sectors}>Sectors</Text>
           </Image>
           <View style={styles.lineVertical}></View>
           <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Yellow.png")}>
-            <Text style={styles.sectorCountText}>{sectorCounts["yellow"]}</Text>
+            <Text style={styles.sectorCountText}>{yellowCount}</Text>
             <Text style={styles.sectors}>Sectors</Text>
           </Image>
           <View style={styles.lineVertical}></View>
           <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Green.png")}>
-            <Text style={styles.sectorCountText}>{sectorCounts["green"]}</Text>
+            <Text style={styles.sectorCountText}>{greenCount}</Text>
             <Text style={styles.sectors}>Sectors</Text>
           </Image>
         </View>

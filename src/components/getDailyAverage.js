@@ -16,7 +16,7 @@
 'use strict';
 
 function getDailyAverage(dailyAverage: string) {
-  if (typeof dailyAverage === "string") {
+  if (typeof dailyAverage === "string" && dailyAverage !== 'No Data') {
     return parseFloat(dailyAverage);
   }
   return dailyAverage;

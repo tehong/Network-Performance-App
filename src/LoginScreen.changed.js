@@ -481,9 +481,7 @@ var LoginScreen = React.createClass({
         // query the user info using current user.get
         var email=user.get("email");
         var name=user.get('firstName') + ' ' + user.get('lastName');
-        var username = this.state.username.replace('@', '-');
-        // var username = this.state.username;
-        Intercom.registerIdentifiedUser({ userId: username })
+        Intercom.registerIdentifiedUser({ userId: this.state.username })
         .then(() => {
           return Intercom.updateUser({
             name: name,
