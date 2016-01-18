@@ -298,7 +298,8 @@ var LoginScreen = React.createClass({
 
     // NOTE: Can't use "require()" for background image to stretch it, need to use uri mothod!
     return (
-      <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login.png')}>
+      // <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login.png')}>
+      <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login_Alpha.png')}>
         <View style={styles.container}>
           <TouchableElement
             style={styles.logoContainer}
@@ -344,7 +345,7 @@ var LoginScreen = React.createClass({
   onPressLogo: function() {
     Alert.alert(
       'App Info',
-      'Version: ' + this.props.appVersion,
+      'Version: ' + this.props.appVersion + '\n\n' + this.props.releaseNotes,
     );
   },
   onPressForgotten: function() {
@@ -514,23 +515,23 @@ var LoginScreen = React.createClass({
   },
   mpAppActive: function() {
     if (this.state.currentUser) {
-      mixpanelTrack("App Active", null, this.state.currentUser);
+      mixpanelTrack("App Active", {"App Version": this.props.appVersion}, this.state.currentUser);
     } else {
-      mixpanelTrack("App Launch", null, null);
+      mixpanelTrack("App Launch", {"App Version": this.props.appVersion}, null);
     }
   },
   mpForgotten: function() {
-    mixpanelTrack("Forgotten username/password", null, this.state.currentUser);
+    mixpanelTrack("Forgotten username/password", {"App Version": this.props.appVersion}, this.state.currentUser);
   },
   mpAppLogin: function() {
-    mixpanelTrack("App Login", null, this.state.currentUser);
+    mixpanelTrack("App Login", {"App Version": this.props.appVersion}, this.state.currentUser);
   },
   mpAppInactive: function() {
-    mixpanelTrack("App Inactive", null, this.state.currentUser);
+    mixpanelTrack("App Inactive", {"App Version": this.props.appVersion}, this.state.currentUser);
     this.saveLoginToStorage();
   },
   mpAppMemoryWarning: function() {
-    mixpanelTrack("App Memory Warning", null, this.state.currentUser);
+    mixpanelTrack("App Memory Warning", {"App Version": this.props.appVersion}, this.state.currentUser);
   }
 });
 

@@ -70,3 +70,8 @@ Release 0.2.3 is on TestFlight:
   - "Beeper - Development"
    Application ID: Df3vSYw5LP
    Application Key: 8TX1uMCvgz
+
+- Beeper iOS 0.2.6 Release Note
+  (1) Put in the Alpha release login screen.
+  (2) Fixed the chart plot problem.
+  (3) Added App Version" in Mixpanel stats (AppLauch, AppActive, AppInactive, AppLogin).

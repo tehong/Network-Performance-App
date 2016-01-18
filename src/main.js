@@ -2,8 +2,10 @@
 *  Main program entry
 */
 'use strict';
-// Program version number
-var BeeperVersion = "0.2.5";
+// Program version number and customer visible release notes
+var BeeperVersion = "0.2.6";
+var CustomerReleaseNotes = "Release notes:\n Initial Alpha Release"
+
 import Storage from 'react-native-storage';
 
 var React = require('react-native');
@@ -45,6 +47,7 @@ var firstRoute = {
   trans: true,
   passProps: {
     appVersion: BeeperVersion,
+    releaseNotes: CustomerReleaseNotes,
   }
 };
 

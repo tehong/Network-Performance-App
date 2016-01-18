@@ -213,6 +213,11 @@ var PerformanceCell = React.createClass({
         minY = item;
       }
     }
+    var minY = Math.floor(Math.round(minY * 10) / 10);
+    var maxY = Math.ceil(Math.round((maxY) * 10) / 10) ;
+    if (minY < 0) {
+      minY = 0;
+    }
 
     // This algorithm centers the redThreshold line horizontally on the chart by finding the right display location and length of y-axis
 
@@ -314,12 +319,10 @@ var PerformanceCell = React.createClass({
       yellowLowThreshold = redThreshold;
     }
     var yScale = this.findYScale();
-    var yMinValue = Math.floor(Math.round(yScale[0] * 10) / 10);
-    var yMaxValue = Math.ceil(Math.round((yMinValue + yScale[1]) * 10) / 10) ;
+    var yMinValue = yScale[0]
+    var yMaxValue = yMinValue + yScale[1];
     var yUnit = "";
-    if (yMinValue < 0) {
-      yMinValue = 0;
-    }
+
     /*
     if (unit === "%" && yMaxValue > 100) {
       yMaxValue = 100;
