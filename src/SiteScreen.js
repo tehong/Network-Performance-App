@@ -19,6 +19,7 @@ var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 // title for the next scene
+/* no special KPI-based title for site performace
 var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
 var CSFBNavTitle = require('./components/icons/sectors/CSFBNavTitle');
 var VOLTEAccNavTitle = require('./components/icons/sectors/VOLTEAccNavTitle');
@@ -27,6 +28,8 @@ var VOLTERetNavTitle = require('./components/icons/sectors/VOLTERetNavTitle');
 var DltNavTitle = require('./components/icons/sectors/DltNavTitle');
 var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/sectors/TNOLNavTitle');
+*/
+var SectorNavTitle = require('./components/icons/sectors/SectorNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedDataArray');
 var mixpanelTrack = require('./components/mixpanelTrack');
@@ -76,6 +79,10 @@ var SiteScreen = React.createClass({
   },
 
   componentWillMount: function() {
+    // now every time the page is visited a new result is retrieved so basically the cache is usless
+    // TODO  => we might have to take the cache out unless it is for paging
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
   },
 
   componentDidMount: function() {
@@ -236,6 +243,8 @@ var SiteScreen = React.createClass({
     var kpi = uncorrectedKpi.replace("Data ", "");
     kpi = kpi.replace("Uplink ", "");
     kpi = kpi.replace("Downlink ", "");
+    var titleComponent = SectorNavTitle;
+    /* no special KPI-based title for the sector screen
     var cat = site.category.toLowerCase();
     switch(kpi.toLowerCase()) {
       case "accessibility":
@@ -266,6 +275,7 @@ var SiteScreen = React.createClass({
         var titleComponent = CSFBNavTitle;
         break;
     }
+    */
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         titleComponent: titleComponent,
@@ -359,7 +369,7 @@ var SiteScreen = React.createClass({
       />;
     } else {
       var content = this.state.dataSource.getRowCount() === 0 ?
-        <NoMarkets
+        <NoSites
           filter={this.state.filter}
           isLoading={this.state.isLoading}
         /> :
@@ -394,11 +404,11 @@ var SiteScreen = React.createClass({
   },
 });
 
-var NoMarkets = React.createClass({
+var NoSites = React.createClass({
   render: function() {
     var text = '';
     if (this.props.filter) {
-      text = `No results for "${this.props.filter}"`;
+      text = 'No sites found';
     } else if (!this.props.isLoading) {
       // If we're looking at the latest sites, aren't currently loading, and
       // still have no results, show a message
@@ -407,7 +417,7 @@ var NoMarkets = React.createClass({
 
     return (
       <View style={[styles.container, styles.centerText]}>
-        <Text style={styles.noMoviesText}>{text}</Text>
+        <Text style={styles.noResultText}>{text}</Text>
       </View>
     );
   }

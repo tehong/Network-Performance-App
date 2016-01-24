@@ -1,17 +1,5 @@
 /**
- * The examples provided by Facebook are for non-commercial testing and
- * evaluation purposes only.
  *
- * Facebook reserves all rights not expressly granted.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL
- * FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
- * AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * @flow
  */
 'use strict';
 
@@ -44,7 +32,7 @@ var SECTOR_LOC_URL = 'http://52.20.201.145:3010/kpis/v1/location/sectors/all';
 var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/all/';
 // var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/zone/';
 var NUM_CACHE_ENTRY = 2;  // 5 kpis and two locations
-var numEntryProcessed = 0;
+// var numEntryProcessed = 0;
 
 // TEST:  Makes the overlays a global and set with the annotations at the same time
 // var overlays = [];  // didn't work
@@ -75,6 +63,9 @@ var SectorDetailScreen = React.createClass({
       tabNumber: 0,
       isLoading: false,
       sectorKpiData: {},
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2,
+      }),
       sectorLocation: {},
       overlays: [],
       mapRegion: null,
@@ -86,6 +77,10 @@ var SectorDetailScreen = React.createClass({
     };
   },
   componentWillMount: function() {
+    // now every time the page is visited a new result is retrieved so basically the cache is usless
+    // TODO  => we might have to take the cache out unless it is for paging
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
   },
   /**
   * Returns a random number between min (inclusive) and max (exclusive)
@@ -130,7 +125,7 @@ var SectorDetailScreen = React.createClass({
 
     // var query = this.props.markets.entityId;
     this.setAnimatingTimeout();
-    numEntryProcessed = 0; // reset the number data entry processed to 0
+    // numEntryProcessed = 0; // reset the number data entry processed to 0
     // plot the map
     // this.getZoneLocation();  // Syringa only
     this.getSectorLocation();
@@ -193,7 +188,6 @@ var SectorDetailScreen = React.createClass({
     }
   },
   fetchData: function(query, queryString) {
-    console.log("queryString = " + queryString);
     fetch(queryString, {
       headers: {
         'networkid': 'thumb',
@@ -210,11 +204,19 @@ var SectorDetailScreen = React.createClass({
 
             // this gets the right data from the results
             this.refreshData(query, sectors);
+
+            // get the data in the kpi query
+            if (query.indexOf('kpi') > -1) {
+              this.setState({
+                dataSource: this.getDataSource(sectors),
+              });
+            }
             // don't set isLoading to false unless all data are loaded
-            // console.log("queryNumber = " + this.state.queryNumber);
             // this.state.queryNumber won't be updated until later when the view is shown
-            //   so an static number is shown
-            if (numEntryProcessed >= NUM_CACHE_ENTRY) {
+            //   so a static number is shown
+            // if (numEntryProcessed >= NUM_CACHE_ENTRY) {
+            // we don't have to worry about hasOwnProperty check on this so this method will work
+            if (Object.keys(resultsCache.dataForQuery).length >= NUM_CACHE_ENTRY) {
               this.setState({
                 isLoading: false,
               });
@@ -240,6 +242,12 @@ var SectorDetailScreen = React.createClass({
         );
         this.setState({isLoading: false});
       })
+  },
+  getDataSource: function(sectors: Array<any>): ListView.DataSource {
+    // Sort by red then yellow then green backgroundImage
+    var getSortedSectorDataArray = require('./components/getSortedSectorDataArray');
+    var sortedSectors = getSortedSectorDataArray(sectors);
+    return this.state.dataSource.cloneWithRows(sortedSectors);
   },
   findZoneLocation: function(result) {
     var overlays = [];
@@ -407,7 +415,7 @@ var SectorDetailScreen = React.createClass({
     */
   },
   getData: function(query: string) {
-    numEntryProcessed = numEntryProcessed + 1;
+    // numEntryProcessed = numEntryProcessed + 1;
     this.timeoutID = null;
 
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
@@ -415,8 +423,12 @@ var SectorDetailScreen = React.createClass({
       if (!LOADING[query]) {
         this.refreshData(query, cachedResultsForQuery);
         // if (resultsCache.totalForQuery.length >= NUM_CACHE_ENTRY && this.state.isLoading === true) {
-
-        if (numEntryProcessed >= NUM_CACHE_ENTRY) {
+        if (query.indexOf('kpi') > -1) {
+          this.setState({
+            dataSource: this.getDataSource(cachedResultsForQuery),
+          });
+        }
+        if (Object.keys(resultsCache.dataForQuery).length >= NUM_CACHE_ENTRY) {
           this.setState({
             isLoading: false
           });
@@ -435,7 +447,6 @@ var SectorDetailScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    console.log("SectorDetails queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
@@ -581,7 +592,12 @@ var SectorDetailScreen = React.createClass({
             </TouchableElement>
           </View>
           <View style={styles.kpiListContainer}>
-            <SectorDetails animating={this.state.animating} tabNumber={this.state.tabNumber} sectorKpiData={this.state.sectorKpiData}/>
+            <SectorDetails
+              animating={this.state.animating}
+              tabNumber={this.state.tabNumber}
+              dataSource={this.state.dataSource}
+              isLoading={this.state.isLoading}
+              />
           </View>
         </View>
       );
@@ -620,6 +636,23 @@ var SectorDetailScreen = React.createClass({
 });
 
 var SectorDetails = React.createClass({
+  renderRow: function(
+    sector: Object,
+    sectionID: number | string,
+    rowID: number | string,
+    highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
+  ) {
+    var SectorDetailKpiCell = require('./SectorDetailKpiCell');
+    return (
+      <SectorDetailKpiCell
+        key={sector.id}
+        onHighlight={() => highlightRowFunc(sectionID, rowID)}
+        onUnhighlight={() => highlightRowFunc(null, null)}
+        geoArea={sector}
+        geoEntity="sector"
+      />
+    );
+  },
   render: function() {
     if (this.props.animating) {
       return (
@@ -633,27 +666,27 @@ var SectorDetails = React.createClass({
     }
     switch (this.props.tabNumber) {
       case 0:
-        var data = this.props.sectorKpiData;
-        /*
-            <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"cs-fallback"} data={data["cs-fallback"]}/>
-            </View>
-        */
+        // var data = this.props.sectorKpiData;
+        var content = this.props.dataSource.getRowCount() === 0 ?
+          <NoSectors
+            isLoading={this.props.isLoading}
+          />
+          :
+          <ListView
+            style={styles.listView}
+            ref="sectorListview"
+            dataSource={this.props.dataSource}
+            renderRow={this.renderRow}
+            automaticallyAdjustContentInsets={false}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps={true}
+            showsVerticalScrollIndicator={true}
+            renderSeparator={(sectionID, rowID) => <View key={`${sectionID}-${rowID}`} style={styles.separator} />}
+          />
         return (
-          <ScrollView contentContainerStyle={styles.contentContainer}>
-            <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"data-accessibility"} data={data["data-accessibility"]}/>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"data-retainability"} data={data["data-retainability"]}/>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"downlink-throughput"} data={data["downlink-throughput"]}/>
-            </View>
-            <View style={styles.kpiRowContainer}>
-              <KpiDetails kpiKey={"uplink-throughput"} data={data["uplink-throughput"]}/>
-            </View>
-          </ScrollView>
+          <View style={styles.container}>
+            {content}
+          </View>
         );
         break;
       case 1:
@@ -749,11 +782,13 @@ var KpiDetails = React.createClass({
         fontFamily: 'Helvetica Neue',
       },
     });
-    return (
-      <View style={styles.kpiEntryContainer}>
+    /* removed icon display
         <View style={styles.kpiIconContainer}>
           {this.getIconView(icon)}
         </View>
+        */
+    return (
+      <View style={styles.kpiEntryContainer}>
         <View style={styles.kpiTextContainer}>
           <Text style={[styleText.text, styles.kpiCatText]}>{category}</Text>
           <Text style={[styleText.text, styles.kpiNameText]}>{kpi}</Text>
@@ -769,7 +804,7 @@ var KpiDetails = React.createClass({
     if(icon.indexOf("Red") > -1) {
       switch(icon) {
         case "Icon_DA_Red":
-          rGrey (
+          return (
             <Image style={styles.kpiIcon} source={require("./assets/icons/Icon_DA_Red.png")}/>
           );
           break;
@@ -955,6 +990,21 @@ var SectorRemedy = React.createClass({
   },
 });
 */
+var NoSectors = React.createClass({
+  render: function() {
+    var text = '';
+    if (!this.props.isLoading) {
+      // If we're looking at the latest sectors, aren't currently loading, and
+      // still have no results, show a message
+      text = 'No sectors found';
+    }
+    return (
+      <View style={[styles.container, styles.centerText]}>
+        <Text style={styles.noResultText}>{text}</Text>
+      </View>
+    );
+  }
+});
 
 var styles = StyleSheet.create({
   container: {
@@ -1156,10 +1206,24 @@ var styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
+  listView: {
+    paddingTop: 5,
+    marginLeft: 15,
+    marginRight: 15,
+    // borderColor: "violet",
+    // borderWidth: 2,
+  },
+  /*
+  separator: {
+    height: 1,
+    backgroundColor: '#CCCCCC',
+  },
+  */
   separator: {
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    height: 1 / PixelRatio.get(),
-    marginVertical: 10,
+    // height: 1 / PixelRatio.get(),
+    height: 1,
+    marginVertical: 8,
   },
   sectorViewWrapper: {
     backgroundColor: 'transparent',
@@ -1172,7 +1236,14 @@ var styles = StyleSheet.create({
     // backgroundColor: 'transparent',
     // borderColor: "red",
     // borderWidth: 1,
-  }
+  },
+  noResultText: {
+    marginTop: 80,
+    fontSize: 20,
+    fontWeight: '700',
+    fontFamily: 'Helvetica Neue',
+    color: '#00BBF0',
+  },
 });
 
 module.exports = SectorDetailScreen;

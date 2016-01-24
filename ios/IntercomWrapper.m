@@ -55,7 +55,7 @@ RCT_EXPORT_METHOD(reset:(RCTResponseSenderBlock)callback) {
 
 // Available as NativeModules.IntercomWrapper.updateUser
 RCT_EXPORT_METHOD(updateUser:(NSDictionary*)options callback:(RCTResponseSenderBlock)callback) {
-  NSLog(@"updateUser with %@", options);
+  // NSLog(@"updateUser with %@", options);
   NSDictionary* attributes = options;
   [Intercom updateUserWithAttributes:attributes];
   callback(@[[NSNull null]]);

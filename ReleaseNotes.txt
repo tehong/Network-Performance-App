@@ -53,14 +53,14 @@ Release 0.2.3 is on TestFlight:
 
 - Beeper iOS 0.2.5 Release Note
 (1) Allows all sectors to be displayed on the map by removing the search for neighboring sectors and just show all sectors.
-(9) Changed the default map diameter to 50 miles to show less crowded sectors on the map.
-(2) Modified the map annotations to only show "Network - SectorName" when user clicks on focused sector on the map.
-(3) Reduced the several letter fonts to fit better for iPhone 6.
-(4) Replaced "Alpha Release" image the Launch image.
-(5) Added additional Mixpanel tracking events and properties for "Beeper - Thumb" iOS app.
-(6) Mixpanel Token is changed from hardcoded to obtain automatically from the new master control DB in Parse.
-(7) Changed the KPI items with "No Data" to grey background color.
-(8) Changed the Sector Details KPI items with "No Data" to grey color.
+(2) Changed the default map diameter to 50 miles to show less crowded sectors on the map.
+(3) Modified the map annotations to only show "Network - SectorName" when user clicks on focused sector on the map.
+(4) Reduced the several letter fonts to fit better for iPhone 6.
+(5) Replaced "Alpha Release" image the Launch image.
+(6) Added additional Mixpanel tracking events and properties for "Beeper - Thumb" iOS app.
+(7) Mixpanel Token is changed from hardcoded to obtain automatically from the new master control DB in Parse.
+(8) Changed the KPI items with "No Data" to grey background color.
+(9) Changed the Sector Details KPI items with "No Data" to grey color.
 (10) Added a new App ID and Key control system with these new set of Application ID and Key:
 
   - "Beeper - Thumb"
@@ -73,5 +73,32 @@ Release 0.2.3 is on TestFlight:
 
 - Beeper iOS 0.2.6 Release Note
   (1) Put in the Alpha release login screen.
-  (2) Fixed the chart plot problem.
+  (2) Fixed the chart problem.
   (3) Added App Version" in Mixpanel stats (AppLauch, AppActive, AppInactive, AppLogin).
+
+- Beeper iOS 0.2.7 Release Note
+  (1) Fixed a software typo that caused program to exit when the Data Accessibility is showing red in the Sector Details.
+  (2) Decreased cached results, now the app always retrieves new data when a page is entered.
+
+- Beeper iOS 0.2.8 Release Note
+  (1) Added real-time validation for Application ID and Key.
+  (2) Added a prompt to ask user's name for a the 'Forgotten Username or Password' so they can create a new Intercom conversation.
+  (3) Added detection of connection problem when logging in and show connection problem message for user.
+  (4) Removed the DA/DR/UT/DT icons in the app and changed the ordering of the thresholds to Red => Yellow => Green.
+  (5) Rearranged the thresholds display in KPI table cells so the red is on the left side and green is on the right side.
+  (6) Fixed problem in boundary conditions when comparing threshold color.
+  (7) TODO - Put in the sector count touch navigating to the single color only sector screen. (grey ones may still in each color)
+  (8) TODO - New set of KPIs are displayed.
+  (9) Revised the the Sector Detail KPI list to ListView from the ScrollView to allow displaying of additional KPIs.
+
+    - "Beeper - Thumb"
+     Application ID: yj1PYQftAo
+     Application Key: dj35AnncE1
+
+   - "Beeper - Thumb Support"
+     Application ID: F3OkLKbbkC
+     Application Key: uqs6WloAZA
+
+   - "Beeper - Development"
+     Application ID: Df3vSYw5LP
+     Application Key: 8TX1uMCvgz

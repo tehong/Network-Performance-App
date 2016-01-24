@@ -35,6 +35,7 @@ var mixpanelTrack = require('./components/mixpanelTrack');
  // var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
  /* with Thumb without the zone, just site */
  var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sectors/site/';
+ var SECTOR_DEV_URL = 'http://54.165.24.76:3010/kpis/v1/sector/all/';
  /*
 var API_KEYS = [
   '7waqfqbprs7pajbz28mqf6vz',
@@ -73,6 +74,10 @@ var SectorScreen = React.createClass({
   },
 
   componentWillMount: function() {
+    // now every time the page is visited a new result is retrieved so basically the cache is usless
+    // TODO  => we might have to take the cache out unless it is for paging
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
   },
 
   componentDidMount: function() {
@@ -120,16 +125,28 @@ var SectorScreen = React.createClass({
 
     // inlcude query name with zoneName
     // query = this.props.zoneName + "/category/" + category + "/kpi/" + kpi + "/";
-    query = this.props.zoneName + "/category/" + category + "/kpi/" + kpi + "/";
+    if (this.props.color) {
+      query = "color/" + this.props.color+ "/category/" + category + "/kpi/" + kpi + "/";
+    } else {
+      query = this.props.zoneName + "/category/" + category + "/kpi/" + kpi + "/";
+    }
     this.getSectors(query);
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
-      var queryString = SECTOR_URL + query;
+      if (this.props.color) {
+        var queryString = SECTOR_DEV_URL + query;
+      } else {
+        var queryString = SECTOR_URL + query;
+      }
     } else {
-      var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
+      if (this.props.color) {
+        var queryString = SECTOR_DEV_URL + 'color/' + this.props.color + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
+      } else {
+        var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
+      }
     }
     return queryString;
   },
@@ -233,7 +250,7 @@ var SectorScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    // console.log("SectorScreen queryString = " + queryString);
+    console.log("SectorScreen queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
@@ -336,6 +353,7 @@ var SectorScreen = React.createClass({
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={sector}
+        color={this.props.color}
         geoEntity="sector"
       />
     );
@@ -352,7 +370,7 @@ var SectorScreen = React.createClass({
       />;
     } else {
       var content = this.state.dataSource.getRowCount() === 0 ?
-        <NoMarkets
+        <NoSectors
           filter={this.state.filter}
           isLoading={this.state.isLoading}
         /> :
@@ -387,11 +405,11 @@ var SectorScreen = React.createClass({
   },
 });
 
-var NoMarkets = React.createClass({
+var NoSectors = React.createClass({
   render: function() {
     var text = '';
     if (this.props.filter) {
-      text = `No results for "${this.props.filter}"`;
+      text = 'No sectors found';
     } else if (!this.props.isLoading) {
       // If we're looking at the latest sectors, aren't currently loading, and
       // still have no results, show a message
@@ -400,7 +418,7 @@ var NoMarkets = React.createClass({
 
     return (
       <View style={[styles.container, styles.centerText]}>
-        <Text style={styles.noMoviesText}>{text}</Text>
+        <Text style={styles.noResultText}>{text}</Text>
       </View>
     );
   }

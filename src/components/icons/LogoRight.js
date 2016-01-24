@@ -18,9 +18,8 @@ var styles = getRightLogoStyles();
 
 module.exports = React.createClass({
   onPressLogo: function() {
-    var titleComponent = UserProfileTitle;
     this.props.toRoute({
-      titleComponent: titleComponent,
+      titleComponent: UserProfileTitle,
       backButtonComponent: BackButton,
       rightCorner: UserProfileLogoRight,
       component: UserProfileScreen,

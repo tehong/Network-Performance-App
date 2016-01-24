@@ -67,6 +67,10 @@ var ZoneScreen = React.createClass({
   },
 
   componentWillMount: function() {
+    // now every time the page is visited a new result is retrieved so basically the cache is usless
+    // TODO  => we might have to take the cache out unless it is for paging
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
   },
 
   componentDidMount: function() {
@@ -389,7 +393,7 @@ var NoZones = React.createClass({
   render: function() {
     var text = '';
     if (this.props.filter) {
-      text = `No results for "${this.props.filter}"`;
+      text = `No zones found`;
     } else if (!this.props.isLoading) {
       // If we're looking at the latest zones, aren't currently loading, and
       // still have no results, show a message
@@ -398,7 +402,7 @@ var NoZones = React.createClass({
 
     return (
       <View style={[styles.container, styles.centerText]}>
-        <Text style={styles.noMoviesText}>{text}</Text>
+        <Text style={styles.noResultText}>{text}</Text>
       </View>
     );
   }

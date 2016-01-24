@@ -43,8 +43,11 @@ function getAreaScreenStyles(): StyleSheet {
     centerText: {
       alignItems: 'center',
     },
-    noMoviesText: {
+    noResultText: {
       marginTop: 80,
+      fontSize: 20,
+      fontWeight: '700',
+      fontFamily: 'Helvetica Neue',
       color: '#00BBF0',
     },
     separator: {

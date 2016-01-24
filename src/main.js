@@ -3,8 +3,11 @@
 */
 'use strict';
 // Program version number and customer visible release notes
-var BeeperVersion = "0.2.6";
-var CustomerReleaseNotes = "Release notes:\n Initial Alpha Release"
+var BeeperVersion = "0.2.8";
+var CustomerReleaseNotes = "\
+Release notes:\n\
+(1) Fixed a software bug that caused program to exit when the Data Accessibility is showing red in the Sector Details.\
+"
 
 import Storage from 'react-native-storage';
 
@@ -46,14 +49,20 @@ var firstRoute = {
   hideNavigationBar: true,
   trans: true,
   passProps: {
-    appVersion: BeeperVersion,
-    releaseNotes: CustomerReleaseNotes,
   }
 };
 
 module.exports = React.createClass({
+
+  componentDidMount: function() {
+  },
   componentWillMount: function() {
     global.storage = storage;
+    global.CONTROL_KEYS_STORAGE_TOKEN = 'controlKeys';
+    global.LOGIN_STORAGE_TOKEN = 'loginInfo';
+    global.CONTROL_KEY_LENGTH = 10;
+    global.BeeperVersion = BeeperVersion;
+    global.CustomerReleaseNotes = CustomerReleaseNotes;
   },
   render: function() {
     /*
@@ -75,6 +84,7 @@ module.exports = React.createClass({
         'plain-text',
       );
       */
+        // backButtonComponent={BackButton}
     return (
       <Router
         firstRoute={firstRoute}

@@ -15,6 +15,9 @@
 #import "RCTBridge.h"
 #import "RCTJavaScriptLoader.h"
 #import "RCTRootView.h"
+#import "RCTPushNotificationManager.h"
+// #import <Parse/Parse.h>
+
 
 @interface AppDelegate() <RCTBridgeDelegate, UIAlertViewDelegate>
 
@@ -23,6 +26,7 @@
 @implementation AppDelegate {
   RCTBridge *_bridge;
 }
+
 
 - (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -55,8 +59,44 @@
                                                name:AHBuildManagerDidMakeBuildAvailableNotification
                                              object:nil];
   
+  // iOS push notification registration
+  UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
+                                                  UIUserNotificationTypeBadge |
+                                                  UIUserNotificationTypeSound);
+  UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes
+                                                                           categories:nil];
+  [application registerUserNotificationSettings:settings];
+  [application registerForRemoteNotifications];
+  
+  
+  
   return YES;
 }
+
+/* push notification */
+
+// Required to register for notifications
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+{
+  [RCTPushNotificationManager didRegisterUserNotificationSettings:notificationSettings];
+}
+// Required for the register event.
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+  [RCTPushNotificationManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+  /*
+  PFInstallation *installation = [PFInstallation currentInstallation];
+  [installation setDeviceTokenFromData:deviceToken];
+  installation.channels = @[ @"global" ];
+  [installation saveInBackground];
+   */
+}
+// Required for the notification event.
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification
+{
+  [RCTPushNotificationManager didReceiveRemoteNotification:notification];
+}
+
 
 #pragma mark - RCTBridgeDelegate
 
@@ -78,7 +118,7 @@
    * on the same Wi-Fi network.
    */
   
-  // sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
+  sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
   
   /**
    * OPTION 2
@@ -106,10 +146,11 @@
    */
   
   AHBuild *build = [[AppHub buildManager] currentBuild];
-  sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
+  // sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
   
   return sourceURL;
 }
+
 
 - (void)loadSourceForBridge:(RCTBridge *)bridge
                   withBlock:(RCTSourceLoadBlock)loadCallback

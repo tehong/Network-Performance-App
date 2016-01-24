@@ -1,6 +1,6 @@
 {
   "name": "Beeper",
-  "version": "0.0.8",
+  "version": "0.2.8",
   "private": true,
   "scripts": {
     "start": "node_modules/react-native/packager/packager.sh"
@@ -12,7 +12,8 @@
     "moment": "^2.10.6",
     "parse": "^1.6.13",
     "parse-react": "^0.5.0",
-    "react-native": "facebook/react-native#97fe0ea",
+    "react-dom": "^0.14.6",
+    "react-native": "^0.18.1",
     "react-native-intercom": "0.0.4",
     "react-native-orientation": "^1.9.0",
     "react-native-storage": "0.0.10",

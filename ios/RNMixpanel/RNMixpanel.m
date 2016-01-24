@@ -19,7 +19,7 @@ RCT_EXPORT_MODULE(RNMixpanel)
 // sharedInstanceWithToken
 RCT_EXPORT_METHOD(sharedInstanceWithToken:(NSString *)apiToken) {
   
-  NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
+  // NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
   
   [Mixpanel sharedInstanceWithToken:apiToken];
   mixpanel = [Mixpanel sharedInstance];
@@ -43,7 +43,7 @@ RCT_EXPORT_METHOD(track:(NSString *)event) {
 
 RCT_EXPORT_METHOD(track:(NSString *)event properties:(NSDictionary *)properties) {
   
-  NSLog(@"%@ %@ event: %@, properties: %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd), event, properties);
+  // NSLog(@"%@ %@ event: %@, properties: %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd), event, properties);
   [mixpanel track:event properties:properties];
   [mixpanel flush];
   

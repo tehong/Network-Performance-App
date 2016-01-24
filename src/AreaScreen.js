@@ -33,6 +33,8 @@ var UltNavTitle = require('./components/icons/zones/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/zones/TNOLNavTitle');
 */
 /* sites */
+var SiteNavTitle = require('./components/icons/sites/SiteNavTitle');
+/*
 var AccNavTitle = require('./components/icons/sites/AccNavTitle');
 var CSFBNavTitle = require('./components/icons/sites/CSFBNavTitle');
 var VOLTEAccNavTitle = require('./components/icons/sites/VOLTEAccNavTitle');
@@ -41,6 +43,7 @@ var VOLTERetNavTitle = require('./components/icons/sites/VOLTERetNavTitle');
 var DltNavTitle = require('./components/icons/sites/DltNavTitle');
 var UltNavTitle = require('./components/icons/sites/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/sites/TNOLNavTitle');
+*/
 
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedAreaDataArray');
@@ -86,6 +89,10 @@ var AreaScreen = React.createClass({
   },
 
   componentWillMount: function() {
+    // now every time the page is visited a new result is retrieved so basically the cache is usless
+    // TODO  => we might have to take the cache out unless it is for paging
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
   },
 
   componentDidMount: function() {
@@ -274,6 +281,8 @@ var AreaScreen = React.createClass({
 
   selectKpi: function(area: Object) {
     this.mpSelectKpi(area.category + " " + area.kpi);
+    var titleComponent = SiteNavTitle;
+    /*  no more special title for each KPI, changed to general title
     var cat = area.category.toLowerCase();
     var kpi = area.kpi;
     switch(kpi.toLowerCase()) {
@@ -305,6 +314,7 @@ var AreaScreen = React.createClass({
         var titleComponent = CSFBNavTitle;
         break;
     }
+    */
     // var newTitleComponent = React.render(<titleComponent area={"Zone"}/>);
 
     if (Platform.OS === 'ios') {
@@ -332,7 +342,46 @@ var AreaScreen = React.createClass({
       });
     }
   },
-
+  selectKpiRed: function(area: Object) {
+    this.selectSectorKpi(area, "red");
+  },
+  selectKpiYellow: function(area: Object) {
+    this.selectSectorKpi(area, "yellow");
+  },
+  selectKpiGreen: function(area: Object) {
+    this.selectSectorKpi(area, "green");
+  },
+  selectSectorKpi(area: Object, color: string) {
+    // this.mpSelectKpi(area.category + " " + area.kpi);
+    // use lazy loading, this prevent possible loop require collision
+    var SectorScreen = require('./SectorScreen');
+    var SectorNavTitle = require('./components/icons/sectors/SectorNavTitle');
+    var titleComponent = SectorNavTitle;
+    if (Platform.OS === 'ios') {
+      this.props.toRoute({
+        titleComponent: titleComponent,
+        backButtonComponent: BackButton,
+        rightCorner: LogoRight,
+        // component: ZoneScreen,
+        component: SectorScreen,
+        headerStyle: styles.header,
+        passProps: {
+          category: area.category,
+          kpi: area.kpi,
+          areaName: area.name,
+          currentUser: this.props.currentUser,
+          color: color,
+        }
+      });
+    } else {
+      dismissKeyboard();
+      this.props.navigator.push({
+        title: area.title,
+        name: 'area',
+        area: area,
+      });
+    }
+  },
   onSearchChange: function(event: Object) {
     var filter = event.nativeEvent.text.toLowerCase();
 
@@ -383,6 +432,9 @@ var AreaScreen = React.createClass({
       <PerformanceCell
         key={area.id}
         onSelect={() => this.selectKpi(area)}
+        onSelectRed={() => this.selectKpiRed(area)}
+        onSelectYellow={() => this.selectKpiYellow(area)}
+        onSelectGreen={() => this.selectKpiGreen(area)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={area}
@@ -402,7 +454,7 @@ var AreaScreen = React.createClass({
       />;
     } else {
       var content = this.state.dataSource.getRowCount() === 0 ?
-        <NoMarkets
+        <NoAreas
           filter={this.state.filter}
           isLoading={this.state.isLoading}
         />
@@ -428,20 +480,20 @@ var AreaScreen = React.createClass({
   },
 });
 
-var NoMarkets = React.createClass({
+var NoAreas = React.createClass({
   render: function() {
     var text = '';
     if (this.props.filter) {
-      text = `No results for "${this.props.filter}"`;
+      text = 'No network found';
     } else if (!this.props.isLoading) {
       // If we're looking at the latest areas, aren't currently loading, and
       // still have no results, show a message
-      text = 'No area found';
+      text = 'No network found';
     }
 
     return (
       <View style={[styles.container, styles.centerText]}>
-        <Text style={styles.noMoviesText}>{text}</Text>
+        <Text style={styles.noResultText}>{text}</Text>
       </View>
     );
   }

@@ -30,14 +30,16 @@ var getImageSource = require('./components/getImageSource');
 var getTextFromScore = require('./components/getTextFromScore');
 var getImageFromAverage = require('./components/getImageFromAverage');
 var getImageViewFromParentKPI = require('./components/getImageViewFromParentKPI');
+var getThreshold = require('./components/getThreshold');
 var SparklineView= require('./SparklineView');
 var isDataEmpty = require('./components/isDataEmpty');
 
 var PerformanceCell = React.createClass({
   render: function() {
+    var kpi = this.props.geoArea.kpi;
     var dailyAverage = this.getDailyAverage(false);
-    var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
-    var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
+    var redThreshold = getThreshold(this.props.geoArea.thresholds, "red", kpi);
+    var greenThreshold = getThreshold(this.props.geoArea.thresholds, "green", kpi);
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     // backgroundImage = require("./assets/images/" + backgroundImage + ".png");  // can't use vairables
     // default to yellow
@@ -67,6 +69,7 @@ var PerformanceCell = React.createClass({
     */
     return dailyAverage;
   },
+  /*
   getThreshold(thresholds: string, thresholdName: string) {
   //  if (this.props.geoArea.geoEntity === "area") {
       switch(thresholdName) {
@@ -118,8 +121,8 @@ var PerformanceCell = React.createClass({
         }
         break;
     }
-    */
   },
+  */
   innerContentView: function() {
     return (
       <View style={styles.row}>
@@ -269,12 +272,14 @@ var PerformanceCell = React.createClass({
     if (dailyAverage === "No Data") {
       unit = "";
     }
-    return(
-      <View style={styles.kpiContainer}>
+      /* KPI icons - deativated
         <View style={styles.iconContainer}>
           {kpiImage}
           <View style={styles.kpiSpace}></View>
         </View>
+        */
+    return(
+      <View style={styles.kpiContainer}>
         <View style={styles.textContainer}>
           <View style={styles.geoAreaContainer}>
             <Text style={styles.geoAreaTitle}>
@@ -303,9 +308,8 @@ var PerformanceCell = React.createClass({
   },
   chartView: function() {
     var kpi = this.props.geoArea.kpi;
-
-    var redThreshold = this.getThreshold(this.props.geoArea.thresholds, "red");
-    var greenThreshold = this.getThreshold(this.props.geoArea.thresholds, "green");
+    var redThreshold = getThreshold(this.props.geoArea.thresholds, "red", kpi);
+    var greenThreshold = getThreshold(this.props.geoArea.thresholds, "green", kpi);
     var dailyAverage = this.getDailyAverage(true);
     // var redDir =  redThreshold > greenThreshold?"\u2265":"\u2264";
     // var greenDir =  redThreshold > greenThreshold?"\u2264":"\u2265";
@@ -362,16 +366,16 @@ var PerformanceCell = React.createClass({
         <View style={styles.thresholdContainer}>
           <View style={styles.thresholdValue}>
             <View style={styles.ttContainer}>
-              <Text style={styles.tt}>GREEN</Text>
-              <Text style={styles.tv}>{greenDir}{greenThreshold}{unit}</Text>
+              <Text style={styles.tt}>RED</Text>
+              <Text style={styles.tv}>{redDir}{redThreshold}{unit}</Text>
             </View>
             <View style={styles.tyContainer}>
               <Text style={styles.tt}>YELLOW</Text>
               <Text style={styles.tv}>{yellowLowThreshold}-{yellowHighThreshold}{unit}</Text>
             </View>
             <View style={styles.ttContainer}>
-              <Text style={styles.tt}>RED</Text>
-              <Text style={styles.tv}>{redDir}{redThreshold}{unit}</Text>
+              <Text style={styles.tt}>GREEN</Text>
+              <Text style={styles.tv}>{greenDir}{greenThreshold}{unit}</Text>
             </View>
           </View>
           <View style={styles.thresholdSpace}>
@@ -404,21 +408,40 @@ var PerformanceCell = React.createClass({
         greenCount = 0;
       }
     }
+    var TouchableElement = TouchableOpacity;
+    if (Platform.OS === 'android') {
+      TouchableElement = TouchableNativeFeedback;
+    }
     return(
         <View style={styles.sectorContainer}>
           <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Red.png")}>
-            <Text style={styles.sectorCountText}>{redCount}</Text>
-            <Text style={styles.sectors}>Sectors</Text>
+            <TouchableElement style={styles.countContainer}
+              onPress={this.props.onSelectRed}
+              activeOpacity={0.5}
+              >
+              <Text style={styles.sectorCountText}>{redCount}</Text>
+              <Text style={styles.sectors}>Sectors</Text>
+            </TouchableElement>
           </Image>
           <View style={styles.lineVertical}></View>
           <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Yellow.png")}>
-            <Text style={styles.sectorCountText}>{yellowCount}</Text>
-            <Text style={styles.sectors}>Sectors</Text>
+            <TouchableElement style={styles.countContainer}
+              onPress={this.props.onSelectYellow}
+              activeOpacity={0.5}
+              >
+              <Text style={styles.sectorCountText}>{yellowCount}</Text>
+              <Text style={styles.sectors}>Sectors</Text>
+            </TouchableElement>
           </Image>
           <View style={styles.lineVertical}></View>
           <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Green.png")}>
-            <Text style={styles.sectorCountText}>{greenCount}</Text>
-            <Text style={styles.sectors}>Sectors</Text>
+            <TouchableElement style={styles.countContainer}
+              onPress={this.props.onSelectGreen}
+              activeOpacity={0.5}
+              >
+              <Text style={styles.sectorCountText}>{greenCount}</Text>
+              <Text style={styles.sectors}>Sectors</Text>
+            </TouchableElement>
           </Image>
         </View>
     );
@@ -431,6 +454,7 @@ var styles = StyleSheet.create({
   },
   sectorContainer: {
     flexDirection: "row",
+    alignSelf: 'stretch',
     alignItems: "stretch",
     justifyContent: "space-between",
     // borderColor: "yellow",
@@ -443,13 +467,20 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   sectorBackgroundImage: {
+    justifyContent: "center",
+    alignItems: "stretch",
+    flex: 95,
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
+  countContainer: {
+    flex: 1,  // this stretches the height with single element
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    flex: 95,
-    height: 100,
-    // borderColor: "blue",
-    // borderWidth: 1,
+    // height: null,  // enable full height stretch in "column" order
+    // borderColor: "white",
+    // borderWidth: 2,
   },
   sectorCountText: {
     fontSize: 39,
@@ -484,9 +515,10 @@ var styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems:'stretch',
+    paddingTop: 13,
+    paddingLeft: 13,
     // borderColor: "blue",
     // borderWidth: 2,
-    marginTop: 13,
   },
   dataContainer: {
     flex: 3,
@@ -503,7 +535,7 @@ var styles = StyleSheet.create({
   textContainer: {
     flex: 5,
     flexDirection: "column",
-    paddingLeft: 4,
+    paddingLeft: 10,
     // borderColor: "blue",
     // borderWidth: 2,
   },
@@ -550,20 +582,26 @@ var styles = StyleSheet.create({
   dailyAverage: {
     flexDirection: "row",
     justifyContent: "flex-start",
-    alignItems: "center",
+    alignItems: "flex-end",
   },
   dailyValue: {
+    textAlign: "right",
     color: 'white',
-    fontSize: 31,
+    fontSize: 43,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
+    // borderColor: 'white',
+    // borderWidth: 1,
   },
   unit: {
     color: 'white',
     fontSize: 16,
-    paddingTop: 5,
     fontWeight: '500',
     fontFamily: 'Helvetica Neue',
+    paddingLeft: 2,
+    paddingBottom: 7,
+    // borderColor: 'pink',
+    // borderWidth: 1,
   },
   chartContainer: {
     flex: 34,

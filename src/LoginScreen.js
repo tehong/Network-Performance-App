@@ -12,11 +12,8 @@ var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var DEFAULT_LOGIN_BUTTON_TEXT= "LOGIN";
 var DEFAULT_USERNAME= "USERNAME";
 var DEFAULT_PASSWORD= "PASSWORD";
-var CONTROL_KEYS_STORAGE_TOKEN = 'controlKeys';
-var LOGIN_STORAGE_TOKEN = 'loginInfo';
 var APP_ID_TITLE = 'Application ID';
 var APP_KEY_TITLE = 'Application Key';
-var CONTROL_KEY_LENGTH = 10;
 
 
 var {
@@ -39,7 +36,7 @@ var AreaScreen = require('./AreaScreen');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var Login = require('./components/icons/Login');
 var LogoRight = require('./components/icons/LogoRight');
-var BackButton = require('./components/icons/BackButton');
+// var BackButton = require('./components/icons/BackButton');
 var Orientation = require('react-native-orientation');
 var mixpanelTrack = require('./components/mixpanelTrack');
 var PARSE_MASTER_APP_ID = 'B9NTwqpe0pua2VK3uKRleQvztdVXbpiQNvPyOJej';
@@ -70,13 +67,6 @@ var LoginScreen = React.createClass({
     AppStateIOS.addEventListener('change', this._handleAppStateChange);
     AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
     Intercom.reset();
-    Intercom.registerIdentifiedUser({ userId: "Forgotten username/password"})
-    .then(() => {
-      return Intercom.updateUser({
-        name: "Unknown",
-        email: "Unknown",
-      });
-    })
   },
   componentWillUnmount: function() {
     // remove state change handlers
@@ -109,50 +99,52 @@ var LoginScreen = React.createClass({
   },
   saveAppKeys: function() {
     var valid = true;
-    if (this.state.username.length !== CONTROL_KEY_LENGTH) {
+    if (this.state.username.length !== global.CONTROL_KEY_LENGTH) {
       Alert.alert(
         'Incorrect Application ID Entry!',
-        'It should be ' + CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.username.length,
+        'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.username.length,
       );
       valid = false;
     }
-    if (this.state.password.length !== CONTROL_KEY_LENGTH) {
+    if (this.state.password.length !== global.CONTROL_KEY_LENGTH) {
       Alert.alert(
         'Incorrect Applicaiton Key Entry!',
-        'It should be ' + CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.password.length,
+        'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.password.length,
       );
       valid = false;
     }
     if (valid) {
-      this.setState({
-        controlUsername: this.state.username,
-        controlPassword: this.state.password,
-      });
-      // now get into the master control Parse App to get the actual Parse App ID and Key
-      // somehow that username and password running on the device couldn't be blanked
-      //  so we prempted set it to blank
       var masterUsername = this.state.username;
       var masterPassword = this.state.password;
-      this.state.username = '';
-      this.state.password = '';
-      this.saveControlKeysToStorage();
-      AlertIOS.alert(
-        'App Details',
-        'Application ID and Application Key are saved.',
-        [
-          {text: 'OK', onPress: (text) => this.resetLoginPrompt()},
-        ],
-      );
-      this.initParseApp(masterUsername, masterPassword, false);
+      this.initParseApp(masterUsername, masterPassword, false, true);
     }
   },
   // this function log in to the Beeper - Master Control and get the actual Parse AppId and JsKey
-  initParseApp: function(controlUsername, controlPassword, isLoadLoginFromStorage) {
+  initParseApp: function(controlUsername, controlPassword, isLoadLoginFromStorage, isEnteringAppKeys) {
       // hook into the parse master control App
       Parse.initialize(PARSE_MASTER_APP_ID, PARSE_MASTER_JS_KEY);
       // login with the control Username and Password entered by the user
       Parse.User.logIn(controlUsername, controlPassword, {
         success: (user) => {
+          if (isEnteringAppKeys) {
+            this.setState({
+              controlUsername: this.state.username,
+              controlPassword: this.state.password,
+            });
+            // now get into the master control Parse App to get the actual Parse App ID and Key
+            // somehow that username and password running on the device couldn't be blanked
+            //  so we prempted set it to blank
+            this.state.username = '';
+            this.state.password = '';
+            this.saveControlKeysToStorage();
+            Alert.alert(
+              'App Details',
+              'Application ID and Application Key are saved.',
+              [
+                {text: 'OK', onPress: (text) => this.resetLoginPrompt()},
+              ],
+            );
+          }
           var mixpanelToken = user.get("MixpanelToken");
           Mixpanel.sharedInstanceWithToken(mixpanelToken);
           this.mpAppActive();
@@ -169,17 +161,41 @@ var LoginScreen = React.createClass({
           }
         },
         error: (user, error) => {
-          Alert.alert(
-            'Error!',
-            'App ID and App Key verification failure, please re-enter them.',
-          );
-          this.setState({
-            username: '',
-            password: '',
-            usernameDefault: APP_ID_TITLE,
-            passwordDefault: APP_KEY_TITLE,
-            loginButtonLabel: 'Save APP ID & Key',
-          });
+          if (error.code === 100) {
+            Alert.alert(
+              'Error!',
+              'Unable to connect to server, please check your Internet connection.',
+            );
+            if (isEnteringAppKeys) {
+              this.setState({
+                username: controlUsername,
+                password: controlPassword,
+                usernameDefault: APP_ID_TITLE,
+                passwordDefault: APP_KEY_TITLE,
+                loginButtonLabel: 'Save APP ID & Key',
+              });
+            } else {
+              this.setState({
+                username: global.appID,
+                password: global.appKey,
+                usernameDefault: APP_ID_TITLE,
+                passwordDefault: APP_KEY_TITLE,
+                loginButtonLabel: 'Save APP ID & Key',
+              });
+            }
+          } else {
+            Alert.alert(
+              'Error!',
+              'App ID and App Key verification failure, please re-enter them.',
+            );
+            this.setState({
+              username: controlUsername,
+              password: controlPassword,
+              usernameDefault: APP_ID_TITLE,
+              passwordDefault: APP_KEY_TITLE,
+              loginButtonLabel: 'Save APP ID & Key',
+            });
+          }
         }
       });
   },
@@ -187,7 +203,7 @@ var LoginScreen = React.createClass({
     // only load login if not in update password or entering appKeys
     if (!this.state.isUpdatePassword && this.state.appID && this.state.appKey) {
       global.storage.load({
-        key: LOGIN_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
+        key: global.LOGIN_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
         // autoSync(default true) means if data not found or expired,
         // then invoke the corresponding sync method
         autoSync: true,
@@ -197,13 +213,21 @@ var LoginScreen = React.createClass({
         syncInBackground: true
       }).then( ret => {
         // found data goes to then()
-        // sanity check
-        this.setState({
-            username: ret.username,
-            password: ret.password,
-            usernameStored: ret.username,
-            passwordStored: ret.password,
-        });
+        if (this.props.clearLogin) {
+          this.setState({
+              username: "",
+              password: "",
+              usernameStored: ret.username,
+              passwordStored: ret.password,
+          });
+        } else {
+          this.setState({
+              username: ret.username,
+              password: ret.password,
+              usernameStored: ret.username,
+              passwordStored: ret.password,
+          });
+        }
       }).catch( err => {
         // any exception including data not found
         // goes to catch()
@@ -212,7 +236,7 @@ var LoginScreen = React.createClass({
   },
   saveLoginToStorage: function() {
     global.storage.save({
-      key: LOGIN_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
+      key: global.LOGIN_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
       rawData: {
         username: this.state.username,
         password: this.state.password
@@ -230,7 +254,7 @@ var LoginScreen = React.createClass({
   },
   saveControlKeysToStorage: function() {
     global.storage.save({
-      key: CONTROL_KEYS_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
+      key: global.CONTROL_KEYS_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
       rawData: {
           controlUsername: this.state.controlUsername,
           controlPassword: this.state.controlPassword
@@ -244,7 +268,7 @@ var LoginScreen = React.createClass({
   },
   loadControlKeysFromStorage: function() {
     global.storage.load({
-      key: CONTROL_KEYS_STORAGE_TOKEN,
+      key: global.CONTROL_KEYS_STORAGE_TOKEN,
       // autoSync(default true) means if data not found or expired,
       // then invoke the corresponding sync method
       autoSync: true,
@@ -255,14 +279,14 @@ var LoginScreen = React.createClass({
     }).then( ret => {
       // found data goes to then()
       // sanity check
-      if (ret.controlUsername.length === CONTROL_KEY_LENGTH && ret.controlPassword.length === CONTROL_KEY_LENGTH) {
+      if (ret.controlUsername.length === global.CONTROL_KEY_LENGTH && ret.controlPassword.length === global.CONTROL_KEY_LENGTH) {
         this.setState({
           controlUsername: ret.controlUsername,
           controlPassword: ret.controlPassword,
         });
         global.appID = this.state.controlUsername;
         global.appKey = this.state.controlPassword;
-        this.initParseApp(ret.controlUsername, ret.controlPassword, true);
+        this.initParseApp(ret.controlUsername, ret.controlPassword, true, false);
       }
     }).catch( err => {
       // any exception including data not found
@@ -345,15 +369,38 @@ var LoginScreen = React.createClass({
   onPressLogo: function() {
     Alert.alert(
       'App Info',
-      'Version: ' + this.props.appVersion + '\n\n' + this.props.releaseNotes,
+      'Version: ' + global.BeeperVersion + '\n\n' + global.CustomerReleaseNotes,
     );
   },
-  onPressForgotten: function() {
-    this.mpForgotten();
+  forgotten: function(name) {
+    Intercom.reset();
+    Intercom.registerIdentifiedUser({userId: name})
+    .then(() => {
+      return Intercom.updateUser({
+        name: name,
+      });
+    })
+    .catch((err) => {
+      console.log('registerIdentifiedUser ERROR - ' + name, err);
+    });
+    // this.mpForgotten(name);
     Intercom.displayMessageComposer();
   },
+  onPressForgotten: function() {
+    if (this.state.usernameStored && this.state.passwordStored) {
+      this.forgotten(this.state.usernameStored);
+    } else {
+      AlertIOS.prompt(
+        'Enter Your Full Name',
+        'Please enter your full name to get support',
+        [
+          {'text': 'Enter', onPress: (name) => this.forgotten(name)},
+          'text'
+        ]
+      );
+    }
+  },
   toDataScreen: function() {
-
     var username = this.state.usernameStored;
     var password = this.state.passwordStored?this.state.passwordStored:'';
     this.setState({
@@ -365,9 +412,8 @@ var LoginScreen = React.createClass({
     });
     if (Platform.OS === 'ios') {
       this.mpAppLogin();
-      this.props.toRoute({
+      this.props.resetToRoute({
         titleComponent: PerfNavTitle,
-        backButtonComponent: BackButton,
         rightCorner: LogoRight,
         component: AreaScreen,
         headerStyle: styles.header,
@@ -497,11 +543,20 @@ var LoginScreen = React.createClass({
         this.loginUser(user);
       },
       error: (user, error) => {
-        this.setState({isLoading: false});
-        Alert.alert(
-          'Login Error',
-          error.message,
-        );
+        if (error.code === 100) {
+          this.setState({isLoading: false});
+          Alert.alert(
+            'Error!',
+            'Unable to connect to server, please check your Internet connection.',
+          );
+        } else {
+          this.setState({isLoading: false});
+          debugger;
+          Alert.alert(
+            'Login Error',
+            error.message,
+          );
+        }
       }
     });
 
@@ -520,8 +575,8 @@ var LoginScreen = React.createClass({
       mixpanelTrack("App Launch", {"App Version": this.props.appVersion}, null);
     }
   },
-  mpForgotten: function() {
-    mixpanelTrack("Forgotten username/password", {"App Version": this.props.appVersion}, this.state.currentUser);
+  mpForgotten: function(name) {
+    mixpanelTrack("Forgotten username/password", {"App Version": this.props.appVersion}, name);
   },
   mpAppLogin: function() {
     mixpanelTrack("App Login", {"App Version": this.props.appVersion}, this.state.currentUser);

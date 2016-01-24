@@ -1,5 +1,4 @@
 var React = require('react-native');
-var CONTROL_KEYS_STORAGE_TOKEN = 'controlKeys';
 
 var {
   Alert,
@@ -16,6 +15,12 @@ var {
 var Parse = require('parse/react-native');
 var Intercom = require('react-native-intercom');
 var mixpanelTrack = require('./components/mixpanelTrack');
+var SectorScreen = require('./SectorScreen');
+var BackButton = require('./components/icons/BackButton');
+var main = require('./main');
+var LogoRight = require('./components/icons/LogoRight');
+var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
+
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -34,7 +39,7 @@ module.exports = React.createClass({
   },
   saveAppKeysToStorage: function() {
     global.storage.save({
-      key: CONTROL_KEYS_STORAGE_TOKEN,
+      key: global.CONTROL_KEYS_STORAGE_TOKEN,
       rawData: {
           controlUsername: this.state.appID,
           controlPassword: this.state.appKey
@@ -80,6 +85,45 @@ module.exports = React.createClass({
   onPressAppDetails: function() {
     this.saveAppKeys();
   },
+  removeLoginStorage: function() {
+    global.storage.remove({
+      key: global.LOGIN_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
+    });
+  },
+  logout: function() {
+    Parse.User.logOut();
+    // IMPORTANT:  Need to load the LoginScreen on a lazy loading,
+    //   can't load the LoginScreen in the beginning since LoginScreen loads other first
+    this.removeLoginStorage()  // remove the login storage so no login info is saved
+    var LoginScreen = require('./LoginScreen')
+    this.props.resetToRoute({
+      component: LoginScreen,
+      hideNavigationBar: true,
+    });
+/*
+    this.props.toRoute({
+      titleComponent: PerfNavTitle,
+      backButtonComponent: BackButton,
+      rightCorner: LogoRight,
+      component: LoginScreen,
+      headerStyle: styles.header,
+      hideNavigationBar: true,
+      passProps: {
+        clearLogin: true,
+      }
+    });
+    */
+  },
+  onPressLogout: function() {
+    AlertIOS.alert(
+      'Sign Out of Beeper',
+      'Press \"OK\" to confirm signing out of this app.',
+      [
+        {text: 'Cancel'},
+        {text: 'OK', onPress: (text) => this.logout()},
+      ],
+    );
+  },
   mpUserProfile: function() {
     mixpanelTrack("User Profile", null, this.state.currentUser);
   },
@@ -110,6 +154,12 @@ module.exports = React.createClass({
                   <Text style={styles.text1}>Password</Text>
                   <Text style={styles.text2}>**********</Text>
                 </View>
+                <TouchableElement
+                  style={styles.button}
+                  onPress={this.onPressLogout}
+                  underlayColor={"#105D95"}>
+                  <Text style={styles.appButtonText}>Sign Out of Beeper</Text>
+                </TouchableElement>
               </View>
             </View>
             <View style={styles.personalDetailsContainer}>
@@ -254,7 +304,7 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
 	},
 	loginDetailsContainer: {
-    height: 143,
+    height: 169,
     flexDirection: "column",
 		justifyContent: 'flex-start',
 		alignItems: 'stretch',
@@ -436,5 +486,9 @@ var styles = StyleSheet.create({
     fontFamily: 'Helvetica Neue',
     backgroundColor: '#1faae1',
     color: 'white',
+  },
+  header: {
+    // backgroundColor: "#1C75BC",
+    backgroundColor: "#066D7E",
   },
 });
