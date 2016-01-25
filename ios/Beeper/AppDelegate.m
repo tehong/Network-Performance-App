@@ -16,7 +16,7 @@
 #import "RCTJavaScriptLoader.h"
 #import "RCTRootView.h"
 #import "RCTPushNotificationManager.h"
-// #import <Parse/Parse.h>
+#import <Parse/Parse.h>
 
 
 @interface AppDelegate() <RCTBridgeDelegate, UIAlertViewDelegate>
@@ -27,9 +27,15 @@
   RCTBridge *_bridge;
 }
 
+UIApplication *beeperApp = nil;
 
 - (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  /*
+  [Parse setApplicationId:@"Df3vSYw5LPzc8ETCwflAdhkq9NFplAmuApK600Go"
+                clientKey:@"uyeciS2jk4x5qlCTsveCdhezGA6UwI8XFl2A2tc4"];
+  */
+  
   // Initialize Intercom
   [Intercom setApiKey:@"ios_sdk-7ae58685589f103d3d3f713d1321839ae6c1cdd8" forAppId:@"vhbvbnbs"];
   
@@ -60,6 +66,10 @@
                                              object:nil];
   
   // iOS push notification registration
+  
+  beeperApp = application;
+  
+  /*
   UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
                                                   UIUserNotificationTypeBadge |
                                                   UIUserNotificationTypeSound);
@@ -67,34 +77,48 @@
                                                                            categories:nil];
   [application registerUserNotificationSettings:settings];
   [application registerForRemoteNotifications];
+  */
   
+  // PARSE: Subscribe to Beeper channel.
+  /*
+  PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+  [currentInstallation addUniqueObject:@"Beeper" forKey:@"channels"];
+  [currentInstallation saveInBackground];
+   */
   
   
   return YES;
 }
+
 
 /* push notification */
 
 // Required to register for notifications
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
+
   [RCTPushNotificationManager didRegisterUserNotificationSettings:notificationSettings];
 }
 // Required for the register event.
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
-  [RCTPushNotificationManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-  /*
+  // Store the deviceToken in the current installation and save it to Parse.
   PFInstallation *installation = [PFInstallation currentInstallation];
   [installation setDeviceTokenFromData:deviceToken];
   installation.channels = @[ @"global" ];
   [installation saveInBackground];
-   */
+  
+  [RCTPushNotificationManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+
 }
 // Required for the notification event.
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
-  [RCTPushNotificationManager didReceiveRemoteNotification:notification];
+  [PFPush handlePush:userInfo];
+
+  // Not sure if we need this one since this is for iOS.
+  // [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoteNotificationReceived" object:self userInfo:userInfo];
+  [RCTPushNotificationManager didReceiveRemoteNotification:userInfo];
 }
 
 
@@ -118,7 +142,7 @@
    * on the same Wi-Fi network.
    */
   
-  sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
+  // sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
   
   /**
    * OPTION 2
@@ -146,7 +170,7 @@
    */
   
   AHBuild *build = [[AppHub buildManager] currentBuild];
-  // sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
+  sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
   
   return sourceURL;
 }

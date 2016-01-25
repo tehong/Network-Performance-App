@@ -39,6 +39,7 @@ var LogoRight = require('./components/icons/LogoRight');
 // var BackButton = require('./components/icons/BackButton');
 var Orientation = require('react-native-orientation');
 var mixpanelTrack = require('./components/mixpanelTrack');
+var parseInitIOS = require('./components/parseInitIOS');
 var PARSE_MASTER_APP_ID = 'B9NTwqpe0pua2VK3uKRleQvztdVXbpiQNvPyOJej';
 var PARSE_MASTER_JS_KEY = 'qj6CwwnGTQzSchNuaSUOaGQLNYpNZHkkhypo6hnq';
 
@@ -151,10 +152,14 @@ var LoginScreen = React.createClass({
           // get the Parse App ID and JS Key
           this.setState({
             appID: user.get('ParseAppId'),
-            appKey: user.get('ParseJsKey')
+            appKey: user.get('ParseJsKey'),
+            mobileKey: user.get('ParseMobileKey')
           });
           Parse.User.logOut();
+          // register on the JS side for parse login
           Parse.initialize(this.state.appID, this.state.appKey);
+          // Need to register on the iOS side for push notification
+          parseInitIOS(this.state.appID, this.state.mobileKey);
           if (isLoadLoginFromStorage) {
             // get login from storate
             this.loadLoginFromStorage();

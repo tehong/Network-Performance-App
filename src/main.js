@@ -16,11 +16,13 @@ var Parse = require('parse/react-native');
 // var Router = require('./Router');
 var Router = require('gb-native-router');
 var BackButton = require('./components/icons/BackButton');
+var RemotePushIOS = require("react-native-remote-push");
 
 var {
   StyleSheet,
   AlertIOS,
   Alert,
+  PushNotificationIOS,
 } = React;
 
 var storage = new Storage({
@@ -55,6 +57,7 @@ var firstRoute = {
 module.exports = React.createClass({
 
   componentDidMount: function() {
+
   },
   componentWillMount: function() {
     global.storage = storage;
@@ -63,6 +66,20 @@ module.exports = React.createClass({
     global.CONTROL_KEY_LENGTH = 10;
     global.BeeperVersion = BeeperVersion;
     global.CustomerReleaseNotes = CustomerReleaseNotes;
+    PushNotificationIOS.addEventListener('notification', this._onNotification);
+  },
+  componentWillUnmount: function() {
+    PushNotificationIOS.removeEventListener('notification', this._onNotification);
+  },
+  _onNotification(notification) {
+    AlertIOS.alert(
+      'Notification Received',
+      'Alert message: ' + notification.getMessage(),
+      [{
+        text: 'Dismiss',
+        onPress: null,
+      }]
+    );
   },
   render: function() {
     /*

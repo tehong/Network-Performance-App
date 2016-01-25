@@ -16,6 +16,7 @@
     "react-native": "^0.18.1",
     "react-native-intercom": "0.0.4",
     "react-native-orientation": "^1.9.0",
+    "react-native-remote-push": "^1.0.3",
     "react-native-storage": "0.0.10",
     "react-timer-mixin": "^0.13.3",
     "react-tween-state": "^0.1.3"

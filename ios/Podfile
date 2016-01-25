@@ -4,3 +4,4 @@ use_frameworks!
 pod 'CorePlot', :git => 'https://github.com/core-plot/core-plot.git', :branch => 'release-2.1'
 pod 'Mixpanel'
 pod 'Intercom'
+pod 'Parse'

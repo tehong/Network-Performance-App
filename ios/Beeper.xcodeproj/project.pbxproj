@@ -15,6 +15,7 @@
 		0708EA791C228C1200CEA10B /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 0708EA781C228C1200CEA10B /* main.jsbundle */; };
 		071A60F81BDC811F00F339E9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 071A60F71BDC811F00F339E9 /* LaunchScreen.xib */; };
 		071C3E401C55603A000DD7E3 /* libRCTPushNotification.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 071C3E3F1C555FDB000DD7E3 /* libRCTPushNotification.a */; };
+		071C3E761C56A398000DD7E3 /* ParseInit.m in Sources */ = {isa = PBXBuildFile; fileRef = 071C3E751C56A398000DD7E3 /* ParseInit.m */; };
 		075A711E1C3B92AD008298B8 /* IntercomWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 075A711C1C3B92AD008298B8 /* IntercomWrapper.m */; };
 		07B7094C1C1264E0009F6288 /* Orientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094A1C1264E0009F6288 /* Orientation.m */; };
 		07B709501C126535009F6288 /* RNMixpanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094F1C126535009F6288 /* RNMixpanel.m */; };
@@ -127,6 +128,8 @@
 		0708EA781C228C1200CEA10B /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		071A60F71BDC811F00F339E9 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 		071C3E3A1C555FDA000DD7E3 /* RCTPushNotification.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTPushNotification.xcodeproj; path = "../node_modules/react-native/Libraries/PushNotificationIOS/RCTPushNotification.xcodeproj"; sourceTree = "<group>"; };
+		071C3E741C56A337000DD7E3 /* ParseInit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParseInit.h; sourceTree = "<group>"; };
+		071C3E751C56A398000DD7E3 /* ParseInit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParseInit.m; sourceTree = "<group>"; };
 		075A711C1C3B92AD008298B8 /* IntercomWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntercomWrapper.m; sourceTree = "<group>"; };
 		075A711D1C3B92AD008298B8 /* IntercomWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntercomWrapper.h; sourceTree = "<group>"; };
 		076ADF401BE308C300C5C29F /* Beeper-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Beeper-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -248,6 +251,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		071C3E681C56A2F2000DD7E3 /* ParseInit */ = {
+			isa = PBXGroup;
+			children = (
+				071C3E741C56A337000DD7E3 /* ParseInit.h */,
+				071C3E751C56A398000DD7E3 /* ParseInit.m */,
+			);
+			name = ParseInit;
+			sourceTree = "<group>";
+		};
 		07B709491C11E9A7009F6288 /* RCTOrientation */ = {
 			isa = PBXGroup;
 			children = (
@@ -366,6 +378,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07FAE1A68108700A75B9A /* Beeper */,
+				071C3E681C56A2F2000DD7E3 /* ParseInit */,
 				07B709521C126598009F6288 /* RCTSparkline */,
 				07B7094D1C1264F2009F6288 /* RNMixpanel */,
 				07B709491C11E9A7009F6288 /* RCTOrientation */,
@@ -673,6 +686,7 @@
 				07B7096D1C126635009F6288 /* SparklineViewController.swift in Sources */,
 				07B7096E1C126635009F6288 /* SparklineView.swift in Sources */,
 				07B709501C126535009F6288 /* RNMixpanel.m in Sources */,
+				071C3E761C56A398000DD7E3 /* ParseInit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

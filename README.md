@@ -56,3 +56,23 @@
   2. In the Xcode Info.plist => change the "Bundle version string, short" to the same version string.
 
   3. After the version string are changed, the app is ready to be released vis TestFlight or AppHub (if only had JS changes).
+
+- Parse:
+
+  1. Push Notification setup:
+    See JWindey's answer here: http://stackoverflow.com/questions/29683720/react-native-push-notifications-parse
+
+  2. Recurring push:
+    (1) See here to set up some cloud code:  https://www.parse.com/docs/cloudcode/guide#jobs
+       # parse new
+       # parse deploy or >parse deploy target  (i.e. >parse deploy "Beeper - Thumb")
+       - account key: We9kpiwfr4K9gHhQDEo4a1PptNIHTUSQSj4kPYJi
+
+    (2) Test the cloud code for beeper morning reminder using Dev App ID and Keys:
+
+      curl -X POST \
+       -H "X-Parse-Application-Id: Df3vSYw5LPzc8ETCwflAdhkq9NFplAmuApK600Go" \
+       -H "X-Parse-Master-Key: mwImOQZ5y5ItO15hlzEGllliYdY3xFYYh2tUtw2v" \
+       -H "Content-Type: application/json;charset=utf-8" \
+      -d '{"action":"send"}' \
+      https://api.parse.com/1/jobs/morningReminder
