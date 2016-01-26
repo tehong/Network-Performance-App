@@ -9,7 +9,7 @@
 
 #import <UIKit/UIKit.h>
 
-extern UIApplication *beeperApp;
+// extern UIApplication *beeperApp;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

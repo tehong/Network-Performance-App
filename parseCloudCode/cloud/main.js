@@ -14,7 +14,10 @@ Parse.Cloud.job("morningReminder", function(request, status) {
   Parse.Push.send({
       where: query,
       data: {
-        alert: "Great news, yesterday's Beeper performance data is ready!"
+        alert: "Great news, yesterday's Beeper performance data is ready!",
+        badge: "Increment",
+        // sound: "Bell.caf",
+        sound: "default",   // "" doesn't work, use "default"
       }
     }, { success: function() {
       status.success("Beeper morning reminder sent!");

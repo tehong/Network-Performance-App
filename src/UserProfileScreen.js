@@ -98,6 +98,7 @@ module.exports = React.createClass({
     var LoginScreen = require('./LoginScreen')
     this.props.resetToRoute({
       component: LoginScreen,
+      trans: true,
       hideNavigationBar: true,
     });
 /*

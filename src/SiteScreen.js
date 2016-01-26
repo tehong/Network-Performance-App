@@ -33,6 +33,7 @@ var SectorNavTitle = require('./components/icons/sectors/SectorNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedDataArray');
 var mixpanelTrack = require('./components/mixpanelTrack');
+var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 
 
 /**
@@ -277,6 +278,7 @@ var SiteScreen = React.createClass({
     }
     */
     if (Platform.OS === 'ios') {
+      ParseInitIOS.clearBadge();  // clear badge number on the app icon
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,

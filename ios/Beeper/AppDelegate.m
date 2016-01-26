@@ -27,14 +27,10 @@
   RCTBridge *_bridge;
 }
 
-UIApplication *beeperApp = nil;
+// UIApplication *beeperApp = nil;
 
 - (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  /*
-  [Parse setApplicationId:@"Df3vSYw5LPzc8ETCwflAdhkq9NFplAmuApK600Go"
-                clientKey:@"uyeciS2jk4x5qlCTsveCdhezGA6UwI8XFl2A2tc4"];
-  */
   
   // Initialize Intercom
   [Intercom setApiKey:@"ios_sdk-7ae58685589f103d3d3f713d1321839ae6c1cdd8" forAppId:@"vhbvbnbs"];
@@ -65,26 +61,7 @@ UIApplication *beeperApp = nil;
                                                name:AHBuildManagerDidMakeBuildAvailableNotification
                                              object:nil];
   
-  // iOS push notification registration
-  
-  beeperApp = application;
-  
-  /*
-  UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
-                                                  UIUserNotificationTypeBadge |
-                                                  UIUserNotificationTypeSound);
-  UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes
-                                                                           categories:nil];
-  [application registerUserNotificationSettings:settings];
-  [application registerForRemoteNotifications];
-  */
-  
-  // PARSE: Subscribe to Beeper channel.
-  /*
-  PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-  [currentInstallation addUniqueObject:@"Beeper" forKey:@"channels"];
-  [currentInstallation saveInBackground];
-   */
+  // iOS push notification registration - see ParseInit!!!
   
   
   return YES;

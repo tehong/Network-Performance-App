@@ -22,6 +22,7 @@ RCT_EXPORT_METHOD(init:(NSString *)appId key: (NSString *)appKey) {
   
   // NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
   
+  UIApplication *app = [UIApplication sharedApplication];
   [Parse setApplicationId:appId clientKey:appKey];
   
   
@@ -30,15 +31,26 @@ RCT_EXPORT_METHOD(init:(NSString *)appId key: (NSString *)appKey) {
                                                   UIUserNotificationTypeSound);
   UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes
                                                                            categories:nil];
-  [beeperApp registerUserNotificationSettings:settings];
-  [beeperApp registerForRemoteNotifications];
+  [app registerUserNotificationSettings:settings];
+  [app registerForRemoteNotifications];
 
   // PARSE: Subscribe to Beeper channel.
   /*
   PFInstallation *currentInstallation = [PFInstallation currentInstallation];
   [currentInstallation addUniqueObject:@"Beeper" forKey:@"channels"];
   [currentInstallation saveInBackground];
+   
   */
+  
+}
+
+// init the parse with the right app ID and Key, also start the
+RCT_EXPORT_METHOD(clearBadge) {
+  PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+  if (currentInstallation.badge != 0) {
+    currentInstallation.badge = 0;
+    [currentInstallation saveEventually];
+  }
 }
 
 @end

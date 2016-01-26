@@ -20,6 +20,8 @@ var SiteScreen = require('./SiteScreen');
 var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
+var ParseInitIOS = require('react-native').NativeModules.ParseInit;
+
 // title for the next scene
 /* zone */
 /*
@@ -318,7 +320,7 @@ var AreaScreen = React.createClass({
     // var newTitleComponent = React.render(<titleComponent area={"Zone"}/>);
 
     if (Platform.OS === 'ios') {
-
+      ParseInitIOS.clearBadge();  // clear badge number on the app icon
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,

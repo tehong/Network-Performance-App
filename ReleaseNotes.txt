@@ -87,10 +87,13 @@ Release 0.2.3 is on TestFlight:
   (4) Removed the DA/DR/UT/DT icons in the app and changed the ordering of the thresholds to Red => Yellow => Green.
   (5) Rearranged the thresholds display in KPI table cells so the red is on the left side and green is on the right side.
   (6) Fixed problem in boundary conditions when comparing threshold color.
-  (7) TODO - Put in the sector count touch navigating to the single color only sector screen. (grey ones may still in each color)
-  (8) TODO - New set of KPIs are displayed.
-  (9) Revised the the Sector Detail KPI list to ListView from the ScrollView to allow displaying of additional KPIs.
+  (7) Added iOS push notification and an morning reminder via server code.
+  (8) Revised the the Sector Detail KPI list to ListView from the ScrollView to allow displaying of additional KPIs.
+  (9) TODO - Put in the sector count touch navigating to the single color only sector screen. (grey ones may still in each color)
+  (10) TODO - New set of KPIs are displayed.
 
+  Application ID and Key list:
+  
     - "Beeper - Thumb"
      Application ID: yj1PYQftAo
      Application Key: dj35AnncE1
