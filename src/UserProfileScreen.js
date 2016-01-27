@@ -9,7 +9,8 @@ var {
   ScrollView,
   Image,
   TouchableOpacity,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicatorIOS,
 } = React;
 
 var Parse = require('parse/react-native');
@@ -20,6 +21,7 @@ var BackButton = require('./components/icons/BackButton');
 var main = require('./main');
 var LogoRight = require('./components/icons/LogoRight');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
+var UIImagePickerManager = require('NativeModules').UIImagePickerManager;
 
 
 module.exports = React.createClass({
@@ -27,12 +29,14 @@ module.exports = React.createClass({
     return {
       appID: global.appID,
       appKey: global.appKey,
-      currentUser: null,
+      avatarSource: global.DEFAULT_PROFILE_IMAGE,
+      isLoading: false,
     }
   },
   componentWillMount: function() {
-    Parse.User.currentAsync()
-    .then((user) => {this.setState({currentUser: user});});
+    //Parse.User.currentAsync()
+    // .then((user) => {this.setState({currentUser: user});});
+    this.loadProfilePhoto();
   },
   componentDidMount: function() {
     this.mpUserProfile();
@@ -85,6 +89,126 @@ module.exports = React.createClass({
   onPressAppDetails: function() {
     this.saveAppKeys();
   },
+  onPressImagePick: function() {
+    var options = {
+      title: 'Select Profile Image', // specify null or empty string to remove the title
+      cancelButtonTitle: 'Cancel',
+      takePhotoButtonTitle: 'Take Photo...', // specify null or empty string to remove this button
+      chooseFromLibraryButtonTitle: 'Choose from Library...', // specify null or empty string to remove this button
+      /*
+      customButtons: {
+        'Choose Photo from Facebook': 'fb', // [Button Text] : [String returned upon selection]
+      },
+      */
+      cameraType: 'front', // 'front' or 'back'
+      mediaType: 'photo', // 'photo' or 'video'
+      videoQuality: 'low', // 'low', 'medium', or 'high'
+      maxWidth: 100, // photos only
+      maxHeight: 100, // photos only
+      quality: 1.0, // photos only
+      allowsEditing: true, // Built in iOS functionality to resize/reposition the image
+      noData: false, // photos only - disables the base64 `data` field from being generated (greatly improves performance on large photos)
+      storageOptions: { // if this key is provided, the image will get saved in the documents directory (rather than a temporary directory)
+        skipBackup: true, // image will NOT be backed up to icloud
+        path: 'images' // will save image at /Documents/images rather than the root
+      }
+    };
+    /**
+    * The first arg will be the options object for customization, the second is
+    * your callback which sends bool: didCancel, object: response.
+    *
+    * response.didCancel will inform you if the user cancelled the process
+    * response.error will contain an error message, if there is one
+    * response.data is the base64 encoded image data (photos only)
+    * response.uri is the uri to the local file asset on the device (photo or video)
+    * response.isVertical will be true if the image is vertically oriented
+    * response.width & response.height give you the image dimensions
+    */
+
+    UIImagePickerManager.showImagePicker(options, (response) => {
+      console.log('Response = ', response);
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      }
+      else if (response.error) {
+        console.log('UIImagePickerManager Error: ', response.error);
+      }
+      else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      }
+      else {
+        this.uploadImageToParse(response.data);
+      }
+    });
+  },
+  loadProfilePhoto: function() {
+    this.setState({
+      avatarSource: global.DEFAULT_PROFILE_IMAGE,
+      isLoading: true,
+    });
+    if (global.currentUser) {
+      var parseFile = global.currentUser.get('profilePhoto');
+      if (parseFile) {
+        var imageUrl = parseFile.url();
+        if (imageUrl) {
+          this.setState({
+            avatarSource: {uri: imageUrl},
+            isLoading: false,
+          });
+        }
+      }
+    } else {
+      this.setState({
+        isLoading: false,
+      });
+    }
+  },
+  uploadImageToParse: function(imageData) {
+    var file = {
+        base64: imageData.toString('base64'),
+    };
+    this.setState({
+      isLoading: true,
+    });
+    var name = "profileImage.jpg";
+    var parseFile = new Parse.File(name, file);
+    var thisView = this;
+    parseFile.save().then(function() {
+      // The file has been saved to Parse.
+      var user = global.currentUser;
+      user.set('profilePhoto', parseFile);
+      user.save(null, {
+        success: (user) => {
+          // var file = sourceImage;
+          // You can display the image using either data:
+          const source = {uri: 'data:image/jpeg;base64,' + imageData, isStatic: true};
+          // uri (on iOS)
+          //   const source = {uri: response.uri.replace('file://', ''), isStatic: true};
+          // uri (on android)
+          //   const source = {uri: response.uri, isStatic: true};
+          thisView.setState({
+            avatarSource: source,
+            isLoading: false,
+          });
+        },
+        error: (user, error) => {
+          // The save failed.
+          // error is a Parse.Error with an error "code" and error "message".
+          thisView.setState({
+            isLoading: false,
+          });
+          Alert.alert(
+            'Photo Cloud Save Error!',
+            error.message,
+          );
+        },
+      });
+    },
+    function(error) {
+      debugger;
+      // The file either could not be read, or could not be saved to Parse.
+    });
+  },
   removeLoginStorage: function() {
     global.storage.remove({
       key: global.LOGIN_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
@@ -126,18 +250,38 @@ module.exports = React.createClass({
     );
   },
   mpUserProfile: function() {
-    mixpanelTrack("User Profile", null, this.state.currentUser);
+    mixpanelTrack("User Profile", null, global.currentUser);
   },
   render: function() {
-    var user = this.state.currentUser;
+    var user = global.currentUser;
     var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     var name = user.get('firstName') + " " + user.get('lastName');
         <View style={styles.detailContainer}>
         </View>
+
+    var content = this.state.isLoading ?
+    <Image style={styles.profileImage} source={this.state.avatarSource}>
+      <ActivityIndicatorIOS
+        animating={true}
+        style={[styles.logo, {height: 200}]}
+        color={"#105D95"}
+        size="large"
+      />
+    </Image>
+    :
+    <Image style={styles.profileImage} source={this.state.avatarSource}/>;
     return (
       <View style={styles.container}>
         <View style={styles.headingContainer}>
-          <Image style={styles.profileImage} source={require('./assets/images/Profile_Icon_Large.png')}/>
+          <View style={styles.profileImageBackground}>
+            <TouchableElement
+              style={styles.iconTouch}
+              onPress={this.onPressImagePick}
+              underlayColor={"#105D95"}>
+              <Image style={styles.editIcon} source={require('./assets/icons/Icon_Edit.png')}/>
+            </TouchableElement>
+          </View>
+          {content}
           <Text style={styles.nameHeading}>{name}</Text>
           <Text style={styles.emailHeading}>{user.get("email")}</Text>
         </View>
@@ -242,22 +386,54 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
 	},
 	headingContainer: {
-    height: 125,
+    height: 140,
     flexDirection: "column",
 		justifyContent: 'center',
-    alignSelf: 'center',
-    marginTop: -3,
+    alignSelf: 'stretch',
+    marginTop: 0,
     marginBottom: 5,
 		alignItems: 'center',
-    // borderColor: "blue",
+    // borderColor: "green",
     // borderWidth: 2,
 	},
-	profileImage: {
-    flex: 11,
-    height: 80,
-    width: 85,
+	profileImageBackground: {
+    flex: 6,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    // resizeMode: 'stretch',
+    alignSelf: 'stretch',
+    height: null,
+    backgroundColor: '#066D7E',
+    // borderColor: "red",
+    // borderWidth: 2,
+	},
+	iconTouch: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginLeft: 100,
+    marginBottom: 20,
+    height: 20,
+    width: 40,
+    backgroundColor: 'transparent',
     // borderColor: "red",
     // borderWidth: 1,
+  },
+	editIcon: {
+    flex: 2,
+    height: 20,
+    width: 20,
+    backgroundColor: "transparent",
+  },
+	profileImage: {
+    height: 90,
+    width: 90,
+    marginTop: -43,
+    backgroundColor: 'transparent',
+    borderColor: "white",
+    borderWidth: 2,
+    borderRadius: 45,
   },
 	nameHeading: {
     flex: 3,

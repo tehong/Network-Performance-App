@@ -35,7 +35,6 @@ import Storage from 'react-native-storage';
 var AreaScreen = require('./AreaScreen');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var Login = require('./components/icons/Login');
-var LogoRight = require('./components/icons/LogoRight');
 // var BackButton = require('./components/icons/BackButton');
 var Orientation = require('react-native-orientation');
 var mixpanelTrack = require('./components/mixpanelTrack');
@@ -417,6 +416,8 @@ var LoginScreen = React.createClass({
     });
     if (Platform.OS === 'ios') {
       this.mpAppLogin();
+      // need lazy loading to get the global.currentUser
+      var LogoRight = require('./components/icons/LogoRight');
       this.props.resetToRoute({
         titleComponent: PerfNavTitle,
         rightCorner: LogoRight,
@@ -433,6 +434,7 @@ var LoginScreen = React.createClass({
   },
   loginUser: function(user) {
     // check if password needs to be updated
+    global.currentUser = user;
     if (this.state.loginButtonLabel === DEFAULT_LOGIN_BUTTON_TEXT && user.get("isUpdatePassword")) {
       this.setState({
         isLoading: false,

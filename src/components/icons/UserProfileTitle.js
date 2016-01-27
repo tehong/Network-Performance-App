@@ -16,7 +16,7 @@ module.exports = React.createClass({
     return (
         // <Image style={styles.profileImage} source={require('../../assets/images/Profile_Icon_Large.png')}/>
         <View style={styles.container}>
-          <Text style={styles.title}>User Profile</Text>
+          <Text style={styles.title}></Text>
         </View>
     );
   },

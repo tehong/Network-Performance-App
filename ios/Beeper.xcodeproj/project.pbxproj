@@ -16,6 +16,7 @@
 		071A60F81BDC811F00F339E9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 071A60F71BDC811F00F339E9 /* LaunchScreen.xib */; };
 		071C3E401C55603A000DD7E3 /* libRCTPushNotification.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 071C3E3F1C555FDB000DD7E3 /* libRCTPushNotification.a */; };
 		071C3E761C56A398000DD7E3 /* ParseInit.m in Sources */ = {isa = PBXBuildFile; fileRef = 071C3E751C56A398000DD7E3 /* ParseInit.m */; };
+		071C3EA61C56F690000DD7E3 /* UIImagePickerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 071C3EA41C56F690000DD7E3 /* UIImagePickerManager.m */; };
 		075A711E1C3B92AD008298B8 /* IntercomWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 075A711C1C3B92AD008298B8 /* IntercomWrapper.m */; };
 		07B7094C1C1264E0009F6288 /* Orientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094A1C1264E0009F6288 /* Orientation.m */; };
 		07B709501C126535009F6288 /* RNMixpanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094F1C126535009F6288 /* RNMixpanel.m */; };
@@ -130,6 +131,8 @@
 		071C3E3A1C555FDA000DD7E3 /* RCTPushNotification.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTPushNotification.xcodeproj; path = "../node_modules/react-native/Libraries/PushNotificationIOS/RCTPushNotification.xcodeproj"; sourceTree = "<group>"; };
 		071C3E741C56A337000DD7E3 /* ParseInit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParseInit.h; sourceTree = "<group>"; };
 		071C3E751C56A398000DD7E3 /* ParseInit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParseInit.m; sourceTree = "<group>"; };
+		071C3EA41C56F690000DD7E3 /* UIImagePickerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UIImagePickerManager.m; path = "../node_modules/react-native-image-picker/ios/UIImagePickerManager.m"; sourceTree = "<group>"; };
+		071C3EA51C56F690000DD7E3 /* UIImagePickerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIImagePickerManager.h; path = "../node_modules/react-native-image-picker/ios/UIImagePickerManager.h"; sourceTree = "<group>"; };
 		075A711C1C3B92AD008298B8 /* IntercomWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntercomWrapper.m; sourceTree = "<group>"; };
 		075A711D1C3B92AD008298B8 /* IntercomWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntercomWrapper.h; sourceTree = "<group>"; };
 		076ADF401BE308C300C5C29F /* Beeper-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Beeper-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -260,6 +263,15 @@
 			name = ParseInit;
 			sourceTree = "<group>";
 		};
+		071C3EA31C56F669000DD7E3 /* ImagePicker */ = {
+			isa = PBXGroup;
+			children = (
+				071C3EA41C56F690000DD7E3 /* UIImagePickerManager.m */,
+				071C3EA51C56F690000DD7E3 /* UIImagePickerManager.h */,
+			);
+			name = ImagePicker;
+			sourceTree = "<group>";
+		};
 		07B709491C11E9A7009F6288 /* RCTOrientation */ = {
 			isa = PBXGroup;
 			children = (
@@ -377,6 +389,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				071C3EA31C56F669000DD7E3 /* ImagePicker */,
 				13B07FAE1A68108700A75B9A /* Beeper */,
 				071C3E681C56A2F2000DD7E3 /* ParseInit */,
 				07B709521C126598009F6288 /* RCTSparkline */,
@@ -681,6 +694,7 @@
 				07B7096F1C126635009F6288 /* RN_SparklineViewManager.m in Sources */,
 				075A711E1C3B92AD008298B8 /* IntercomWrapper.m in Sources */,
 				07B7098B1C1638E4009F6288 /* AppDelegate.m in Sources */,
+				071C3EA61C56F690000DD7E3 /* UIImagePickerManager.m in Sources */,
 				07B7094C1C1264E0009F6288 /* Orientation.m in Sources */,
 				07B709701C126635009F6288 /* SparklineViewManager.swift in Sources */,
 				07B7096D1C126635009F6288 /* SparklineViewController.swift in Sources */,
@@ -700,8 +714,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Eric Hong (ZNEAA6G754)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Eric Hong (ZNEAA6G754)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEAD_CODE_STRIPPING = NO;
 				ENABLE_TESTABILITY = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -737,8 +751,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Eric Hong (ZNEAA6G754)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Eric Hong (ZNEAA6G754)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_TESTABILITY = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -782,7 +796,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Eric Hong (ZNEAA6G754)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Eric Hong (ZNEAA6G754)";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -836,8 +850,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Eric Hong (ZNEAA6G754)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Eric Hong (ZNEAA6G754)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: 3TEN8, INC. (ECJ48DSUN7)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Push Services: com.3ten8.beeper";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;

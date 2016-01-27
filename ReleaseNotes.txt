@@ -81,19 +81,18 @@ Release 0.2.3 is on TestFlight:
   (2) Decreased cached results, now the app always retrieves new data when a page is entered.
 
 - Beeper iOS 0.2.8 Release Note
-  (1) Added real-time validation for Application ID and Key.
+  (1) Added real-time validation for Application ID and Key when entering them.
   (2) Added a prompt to ask user's name for a the 'Forgotten Username or Password' so they can create a new Intercom conversation.
   (3) Added detection of connection problem when logging in and show connection problem message for user.
   (4) Removed the DA/DR/UT/DT icons in the app and changed the ordering of the thresholds to Red => Yellow => Green.
-  (5) Rearranged the thresholds display in KPI table cells so the red is on the left side and green is on the right side.
-  (6) Fixed problem in boundary conditions when comparing threshold color.
-  (7) Added iOS push notification and an morning reminder via server code.
-  (8) Revised the the Sector Detail KPI list to ListView from the ScrollView to allow displaying of additional KPIs.
-  (9) TODO - Put in the sector count touch navigating to the single color only sector screen. (grey ones may still in each color)
-  (10) TODO - New set of KPIs are displayed.
+  (5) Fixed problem in boundary conditions when comparing threshold color.
+  (6) Added iOS push notification in the app and an morning reminder via server code.
+  (7) Revised the the Sector Detail KPI list to ListView from the ScrollView to allow displaying of additional KPIs.
+  (8) Added the ability to change and download/upload the profile photo from and to the server.
+  (9) Added the ability to logout.
 
   Application ID and Key list:
-  
+
     - "Beeper - Thumb"
      Application ID: yj1PYQftAo
      Application Key: dj35AnncE1
@@ -105,3 +104,7 @@ Release 0.2.3 is on TestFlight:
    - "Beeper - Development"
      Application ID: Df3vSYw5LP
      Application Key: 8TX1uMCvgz
+
+- Beeper iOS 0.2.9 Release Note
+  (1) TODO - Put in the sector count touch navigating to the single color only sector screen. (grey ones may still in each color)
+  (2) TODO - New set of KPIs are displayed.

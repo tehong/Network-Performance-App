@@ -3,10 +3,13 @@
 */
 'use strict';
 // Program version number and customer visible release notes
-var BeeperVersion = "0.2.8";
-var CustomerReleaseNotes = "\
+var BeeperVersion = "0.2.9";
+var CustomerReleaseNotes = "\n\
 Release notes:\n\
-(1) Fixed a software bug that caused program to exit when the Data Accessibility is showing red in the Sector Details.\
+(1) Removed the DA/DR/UT/DT icons in the app and changed the ordering of the thresholds to Red => Yellow => Green.\n\
+(2) Added iOS push notification in the app and an morning reminder via server code.\n\
+(3) Added the ability to change and download/upload the profile photo from and to the server.\n\
+(4) Added the ability to logout.\n\
 "
 
 import Storage from 'react-native-storage';
@@ -67,6 +70,7 @@ module.exports = React.createClass({
     global.BeeperVersion = BeeperVersion;
     global.CustomerReleaseNotes = CustomerReleaseNotes;
     PushNotificationIOS.addEventListener('notification', this._onNotification);
+    global.DEFAULT_PROFILE_IMAGE =  require('./assets/images/Profile_Icon_Large.png');
   },
   componentWillUnmount: function() {
     PushNotificationIOS.removeEventListener('notification', this._onNotification);

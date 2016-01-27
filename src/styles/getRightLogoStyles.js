@@ -34,8 +34,9 @@ function getRightLogoStyles(): StyleSheet {
       height: 28,
       marginTop: 5,
       marginRight: 5,
-      // borderColor: "yellow",
+      // borderColor: "white",
       // borderWidth: 1,
+      // borderRadius: 14,
     },
     header: {
       // backgroundColor: "#1C75BC",
