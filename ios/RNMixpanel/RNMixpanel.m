@@ -26,6 +26,20 @@ RCT_EXPORT_METHOD(sharedInstanceWithToken:(NSString *)apiToken) {
 
 }
 
+// identify
+RCT_EXPORT_METHOD(identify:(NSString *)distinctId) {
+  
+  // NSLog(@"%@ %@ event: %@, properties: %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd), event, properties);
+  [mixpanel identify:distinctId];
+  [mixpanel flush];
+  
+}
+
+// people set  <- call the identity first!
+RCT_EXPORT_METHOD(peopleSet:(NSDictionary *)properties) {
+  [mixpanel.people set:properties];
+  [mixpanel flush];
+}
 
 // track
 

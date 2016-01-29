@@ -15,7 +15,6 @@ var DEFAULT_PASSWORD= "PASSWORD";
 var APP_ID_TITLE = 'Application ID';
 var APP_KEY_TITLE = 'Application Key';
 
-
 var {
   AppStateIOS,
   StyleSheet,
@@ -158,7 +157,7 @@ var LoginScreen = React.createClass({
           // register on the JS side for parse login
           Parse.initialize(this.state.appID, this.state.appKey);
           // Need to register on the iOS side for push notification
-          ParseInitIOS.init(this.state.appID, this.state.mobileKey);
+          // ParseInitIOS.init(this.state.appID, this.state.mobileKey);
           if (isLoadLoginFromStorage) {
             // get login from storate
             this.loadLoginFromStorage();
@@ -231,6 +230,8 @@ var LoginScreen = React.createClass({
               usernameStored: ret.username,
               passwordStored: ret.password,
           });
+          // log in the user directly by pressing the login button for the user
+          this.onPressLogin();
         }
       }).catch( err => {
         // any exception including data not found
@@ -271,6 +272,8 @@ var LoginScreen = React.createClass({
     global.appKey = this.state.controlPassword;
   },
   loadControlKeysFromStorage: function() {
+    // start the activity indicator
+    this.setState({isLoading: true});
     global.storage.load({
       key: global.CONTROL_KEYS_STORAGE_TOKEN,
       // autoSync(default true) means if data not found or expired,
@@ -292,6 +295,8 @@ var LoginScreen = React.createClass({
         global.appKey = this.state.controlPassword;
         this.initParseApp(ret.controlUsername, ret.controlPassword, true, false);
       }
+      // stop the activity indicator
+      this.setState({isLoading: false});
     }).catch( err => {
       // any exception including data not found
       // goes to catch()
@@ -301,6 +306,7 @@ var LoginScreen = React.createClass({
         usernameDefault: APP_ID_TITLE,
         passwordDefault: APP_KEY_TITLE,
         loginButtonLabel: 'Save APP ID & Key',
+        isLoading: false,
       });
     });
   },
@@ -373,22 +379,29 @@ var LoginScreen = React.createClass({
   onPressLogo: function() {
     Alert.alert(
       'App Info',
-      'Version: ' + global.BeeperVersion + '\n\n' + global.CustomerReleaseNotes,
+      'Version: ' + global.BeeperVersion,
     );
   },
   forgotten: function(name) {
-    Intercom.reset();
-    Intercom.registerIdentifiedUser({userId: name})
-    .then(() => {
-      return Intercom.updateUser({
-        name: name,
+    if (name !== "") {
+      Intercom.reset();
+      Intercom.registerIdentifiedUser({userId: name})
+      .then(() => {
+        return Intercom.updateUser({
+          name: name,
+        });
+      })
+      .catch((err) => {
+        console.log('registerIdentifiedUser ERROR - ' + name, err);
       });
-    })
-    .catch((err) => {
-      console.log('registerIdentifiedUser ERROR - ' + name, err);
-    });
-    // this.mpForgotten(name);
-    Intercom.displayMessageComposer();
+      // this.mpForgotten(name);
+      Intercom.displayMessageComposer();
+    } else {
+      Alert.alert(
+        'Error!',
+        'No name entered!',
+      );
+    }
   },
   onPressForgotten: function() {
     if (this.state.usernameStored && this.state.passwordStored) {
@@ -447,6 +460,29 @@ var LoginScreen = React.createClass({
         currentUser: user,
       });
     } else {
+      // TODO:  remove the currentUser, now in global.currentUser
+      // query the user info using current user.get
+      var email=user.get("email");
+      var name=user.get('firstName') + ' ' + user.get('lastName');
+      var username = this.state.username.replace('@', '-');
+      // var username = this.state.username;
+      Intercom.registerIdentifiedUser({ userId: username })
+      .then(() => {
+        // IMPORTANT: need to identify mixpanel user before letting Parse register for push notification!
+        this.mpUserIdentify(user);
+        // Need to register Parse on the iOS side for push notification
+        ParseInitIOS.init(this.state.appID, this.state.mobileKey);
+        // No need to register for push again from Intercom since Parse register the device already above
+        //   or else there will be duplicated notifications if register twice
+        // Intercom.registerForPush();
+        return Intercom.updateUser({
+          name: name,
+          email: email,
+        });
+      })
+      .catch((err) => {
+        console.log('registerIdentifiedUser ERROR', err);
+      });
       this.setState({currentUser: user});
       this.saveLoginToStorage();
       this.toDataScreen();
@@ -532,21 +568,6 @@ var LoginScreen = React.createClass({
     this.setState({isLoading: true});
     Parse.User.logIn(this.state.username, this.state.password, {
       success: (user) => {
-        // query the user info using current user.get
-        var email=user.get("email");
-        var name=user.get('firstName') + ' ' + user.get('lastName');
-        var username = this.state.username.replace('@', '-');
-        // var username = this.state.username;
-        Intercom.registerIdentifiedUser({ userId: username })
-        .then(() => {
-          return Intercom.updateUser({
-            name: name,
-            email: email,
-          });
-        })
-        .catch((err) => {
-          console.log('registerIdentifiedUser ERROR', err);
-        });
         this.loginUser(user);
       },
       error: (user, error) => {
@@ -574,6 +595,18 @@ var LoginScreen = React.createClass({
     } else {
       LinkingIOS.openURL('http://www.3ten8.com');
     }
+  },
+  mpUserIdentify: function(user) {
+    Mixpanel.identify(user.get('username'));
+    Mixpanel.peopleSet(
+      {
+        "$first_name": user.get('firstName'),
+        "$last_name": user.get('lastName'),
+        "$email": user.get('email'),
+        "$phone": user.get('phone'),
+        "$created": user.get('createdAt')
+      }
+    );
   },
   mpAppActive: function() {
     if (this.state.currentUser) {

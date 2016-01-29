@@ -21,13 +21,10 @@ var SectorDetailKpiCell = React.createClass({
       </View>
     );
   },
-  getDailyAverage(zeroFill) {
-    var dailyAverage = parseFloat(this.props.geoArea.dailyAverage);
-    return dailyAverage;
-  },
   kpiView: function() {
     var sector = this.props.geoArea;
-    var dailyAverage = this.getDailyAverage(false)
+    var getDailyAverage = require('./components/getDailyAverage');
+    var dailyAverage = getDailyAverage(sector.dailyAverage);
     var unit = sector.unit;
     var category = sector.category;
     var kpi = sector.kpi;

@@ -14,7 +14,7 @@ Parse.Cloud.job("morningReminder", function(request, status) {
   Parse.Push.send({
       where: query,
       data: {
-        alert: "Great news, yesterday's Beeper performance data is ready!",
+        alert: "Hey, don't forget to check your KPIs today!",
         badge: "Increment",
         // sound: "Bell.caf",
         sound: "default",   // "" doesn't work, use "default"
@@ -24,6 +24,27 @@ Parse.Cloud.job("morningReminder", function(request, status) {
     // Push was successful
     }, error: function(error) {
       status.error("Beeper monring reminder send failure");
+    // Handle error
+    }
+  });
+});
+
+// Parse test background job
+Parse.Cloud.job("pushTest", function(request, status) {
+  var query = new Parse.Query(Parse.Installation);
+  Parse.Push.send({
+      where: query,
+      data: {
+        alert: "This is a test of Parse iOS push notificaton!",
+        badge: "Increment",
+        // sound: "Bell.caf",
+        sound: "default",   // "" doesn't work, use "default"
+      }
+    }, { success: function() {
+      status.success("Beeper test push sent!");
+    // Push was successful
+    }, error: function(error) {
+      status.error("Beeper test push send failure");
     // Handle error
     }
   });

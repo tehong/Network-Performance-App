@@ -3,14 +3,18 @@
 */
 'use strict';
 // Program version number and customer visible release notes
-var BeeperVersion = "0.2.9";
-var CustomerReleaseNotes = "\n\
+var CustomerReleaseNotes = "\
 Release notes:\n\
 (1) Removed the DA/DR/UT/DT icons in the app and changed the ordering of the thresholds to Red => Yellow => Green.\n\
-(2) Added iOS push notification in the app and an morning reminder via server code.\n\
-(3) Added the ability to change and download/upload the profile photo from and to the server.\n\
-(4) Added the ability to logout.\n\
-"
+(2) Added iOS push notification in the app and a morning reminder via server code.\n\
+(3) Added the ability to change profile photo and auto-sync the profile photo from and to the server.\n\
+(4) Added the ability to logout by the user in the user profile.\n\
+(5) Added auto-login within 24 hours window of activity.\n\
+(6) Added the ability to drill down from the network page to specific sector color (red/green/yellow only for now) via the sector count.\n\
+(7) Revised the forgotten username/password to ask for a full name to get instant chat support.\n\
+(8) Added software version and release notes in the user profile.\n\
+(9) Added auto-logout when app ID and Key are changed in the user profile\
+";
 
 import Storage from 'react-native-storage';
 
@@ -20,6 +24,7 @@ var Parse = require('parse/react-native');
 var Router = require('gb-native-router');
 var BackButton = require('./components/icons/BackButton');
 var RemotePushIOS = require("react-native-remote-push");
+var InfoPlist = require('react-native').NativeModules.InfoPlist;
 
 var {
   StyleSheet,
@@ -60,20 +65,26 @@ var firstRoute = {
 module.exports = React.createClass({
 
   componentDidMount: function() {
-
   },
   componentWillMount: function() {
     global.storage = storage;
     global.CONTROL_KEYS_STORAGE_TOKEN = 'controlKeys';
     global.LOGIN_STORAGE_TOKEN = 'loginInfo';
     global.CONTROL_KEY_LENGTH = 10;
-    global.BeeperVersion = BeeperVersion;
     global.CustomerReleaseNotes = CustomerReleaseNotes;
     PushNotificationIOS.addEventListener('notification', this._onNotification);
     global.DEFAULT_PROFILE_IMAGE =  require('./assets/images/Profile_Icon_Large.png');
+    this._getAppVersion();
   },
   componentWillUnmount: function() {
     PushNotificationIOS.removeEventListener('notification', this._onNotification);
+  },
+  _getAppVersion: async function() {
+    try {
+      global.BeeperVersion = await InfoPlist.bundleShortVersion();
+    } catch(e) {
+      console.error(e);
+    }
   },
   _onNotification(notification) {
     AlertIOS.alert(

@@ -346,15 +346,15 @@ var AreaScreen = React.createClass({
   },
   selectKpiRed: function(area: Object) {
     // TODO - enable this when the backend is ready
-    // this.selectSectorKpi(area, "red");
+    this.selectSectorKpi(area, "red");
   },
   selectKpiYellow: function(area: Object) {
     // TODO - enable this when the backend is ready
-    // this.selectSectorKpi(area, "yellow");
+    this.selectSectorKpi(area, "yellow");
   },
   selectKpiGreen: function(area: Object) {
     // TODO - enable this when the backend is ready
-    // this.selectSectorKpi(area, "green");
+    this.selectSectorKpi(area, "green");
   },
   selectSectorKpi(area: Object, color: string) {
     // this.mpSelectKpi(area.category + " " + area.kpi);

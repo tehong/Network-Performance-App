@@ -17,6 +17,8 @@
 #import "RCTRootView.h"
 #import "RCTPushNotificationManager.h"
 #import <Parse/Parse.h>
+#import "Mixpanel.h"
+
 
 
 @interface AppDelegate() <RCTBridgeDelegate, UIAlertViewDelegate>
@@ -63,10 +65,10 @@
   
   // iOS push notification registration - see ParseInit!!!
   
-  
-  return YES;
+    return YES;
 }
 
+// register push (from Intercom) - no need with Parse register the device already - see ParseInit
 
 /* push notification */
 
@@ -79,11 +81,18 @@
 // Required for the register event.
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
+  // Intercom push
+  [Intercom setDeviceToken:deviceToken];
+
   // Store the deviceToken in the current installation and save it to Parse.
   PFInstallation *installation = [PFInstallation currentInstallation];
   [installation setDeviceTokenFromData:deviceToken];
   installation.channels = @[ @"global" ];
   [installation saveInBackground];
+  
+  // Mixpanel token
+  Mixpanel *mixpanel = [Mixpanel sharedInstance];
+  [mixpanel.people addPushDeviceToken:deviceToken];
   
   [RCTPushNotificationManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 
@@ -93,7 +102,7 @@
 {
   [PFPush handlePush:userInfo];
 
-  // Not sure if we need this one since this is for iOS.
+  // We don't need this one since this is for iOS and we have React Native already below
   // [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoteNotificationReceived" object:self userInfo:userInfo];
   [RCTPushNotificationManager didReceiveRemoteNotification:userInfo];
 }

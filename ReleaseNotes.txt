@@ -80,7 +80,7 @@ Release 0.2.3 is on TestFlight:
   (1) Fixed a software typo that caused program to exit when the Data Accessibility is showing red in the Sector Details.
   (2) Decreased cached results, now the app always retrieves new data when a page is entered.
 
-- Beeper iOS 0.2.8 Release Note
+- Beeper iOS 0.2.9 Release Note
   (1) Added real-time validation for Application ID and Key when entering them.
   (2) Added a prompt to ask user's name for a the 'Forgotten Username or Password' so they can create a new Intercom conversation.
   (3) Added detection of connection problem when logging in and show connection problem message for user.
@@ -105,6 +105,15 @@ Release 0.2.3 is on TestFlight:
      Application ID: Df3vSYw5LP
      Application Key: 8TX1uMCvgz
 
-- Beeper iOS 0.2.9 Release Note
-  (1) TODO - Put in the sector count touch navigating to the single color only sector screen. (grey ones may still in each color)
-  (2) TODO - New set of KPIs are displayed.
+- Beeper iOS 0.3.0 Release Note
+  (1) Put in the sector count touch navigating to the single color only sector screen. (red/yellow/green only, grey ones may still appear in other colors)
+  (2) Removed the extra spinner bug on the profile picture.
+  (3) Added software version and release notes in the user profile.
+  (4) Automatically log user out when App ID and Key are changed in the user profile.
+  (5) Added Mixpanel user profile logging.
+  (6) Added Mixpanel push notifications.
+  (7) Added Intercom push notifications.
+
+- TODO:
+  (1) Improve the UI to make the App ID/Key edit more obvious
+  (1) New set of KPIs are displayed.

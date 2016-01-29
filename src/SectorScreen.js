@@ -35,7 +35,8 @@ var mixpanelTrack = require('./components/mixpanelTrack');
  // var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
  /* with Thumb without the zone, just site */
  var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sectors/site/';
- var SECTOR_DEV_URL = 'http://54.165.24.76:3010/kpis/v1/sector/all/';
+ // var SECTOR_COLOR_URL = 'http://54.165.24.76:3010/kpis/v1/sector/all/';
+ var SECTOR_COLOR_URL = 'http://52.20.201.145:3010/kpis/v1/sector/all/';
  /*
 var API_KEYS = [
   '7waqfqbprs7pajbz28mqf6vz',
@@ -137,13 +138,13 @@ var SectorScreen = React.createClass({
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
       if (this.props.color) {
-        var queryString = SECTOR_DEV_URL + query;
+        var queryString = SECTOR_COLOR_URL + query;
       } else {
         var queryString = SECTOR_URL + query;
       }
     } else {
       if (this.props.color) {
-        var queryString = SECTOR_DEV_URL + 'color/' + this.props.color + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
+        var queryString = SECTOR_COLOR_URL + 'color/' + this.props.color + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
       } else {
         var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
       }

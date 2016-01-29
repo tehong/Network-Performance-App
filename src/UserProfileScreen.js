@@ -54,10 +54,12 @@ module.exports = React.createClass({
     });
     Alert.alert(
       'Change App Details',
-      'Application ID and Application Key have been changed.',
+      'Application ID and Application Key have been changed.  You are logged out.',
     );
     global.appID = this.state.appID;
     global.appKey = this.state.appKey;
+    // log the person out
+    this.logout();
   },
   saveAppKeys: function() {
     var valid = true;
@@ -256,120 +258,132 @@ module.exports = React.createClass({
     var user = global.currentUser;
     var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     var name = user.get('firstName') + " " + user.get('lastName');
-        <View style={styles.detailContainer}>
-        </View>
+    var boxStyle = {borderColor: '#bcbec0', borderWidth: StyleSheet.hairlineWidth};
+    // var boxStyle = {borderColor: '#bcbec0', borderWidth: 1};
 
-    var content = this.state.isLoading ?
-    <Image style={styles.profileImage} source={this.state.avatarSource}>
-      <ActivityIndicatorIOS
-        animating={true}
-        style={[styles.logo, {height: 200}]}
-        color={"#105D95"}
-        size="large"
-      />
-    </Image>
-    :
-    <Image style={styles.profileImage} source={this.state.avatarSource}/>;
+    var title =
+      <View style={styles.headingContainer}>
+        <View style={styles.profileImageBackground}>
+          <TouchableElement
+            style={styles.iconTouch}
+            onPress={this.onPressImagePick}
+            underlayColor={"#105D95"}>
+            <Image style={styles.editIcon} source={require('./assets/icons/Icon_Edit.png')}/>
+          </TouchableElement>
+        </View>
+        <Image style={styles.profileImage} source={this.state.avatarSource}/>
+        <Text style={styles.nameHeading}>{name}</Text>
+        <Text style={styles.emailHeading}>{user.get("email")}</Text>
+      </View>;
+
+    var loginDetails =
+      <View style={styles.loginDetailsContainer}>
+        <Text style={styles.textDetailsHeader}>Login Details</Text>
+        <View style={[styles.loginDetailsTextContainer, boxStyle]}>
+          <View style={styles.textBox1}>
+            <Text style={styles.text1}>Username</Text>
+            <Text style={styles.text2}>{user.get("username")}</Text>
+          </View>
+          <View style={styles.textBox2}>
+            <Text style={styles.text1}>Password</Text>
+            <Text style={styles.text2}>**********</Text>
+          </View>
+          <TouchableElement
+            style={styles.button}
+            onPress={this.onPressLogout}
+            underlayColor={"#105D95"}>
+            <Text style={styles.appButtonText}>Sign Out of Beeper</Text>
+          </TouchableElement>
+        </View>
+      </View>;
+
+    var personalDetails =
+      <View style={styles.personalDetailsContainer}>
+        <Text style={styles.textDetailsHeader}>Personal Details</Text>
+        <View style={[styles.personalDetailsTextContainer, boxStyle]}>
+          <View style={styles.textBox1}>
+            <Text style={styles.text1}>First Name</Text>
+            <Text style={styles.text2}>{user.get('firstName')}</Text>
+          </View>
+          <View style={styles.textBox2}>
+            <Text style={styles.text1}>Last Name</Text>
+            <Text style={styles.text2}>{user.get('lastName')}</Text>
+          </View>
+          <View style={styles.textBox2}>
+            <Text style={styles.text1}>Job Title</Text>
+            <Text style={styles.text2}>{user.get("title")}</Text>
+          </View>
+          <View style={styles.textBox2}>
+            <Text style={styles.text1}>Phone Number</Text>
+            <Text style={styles.text2}>{user.get("phone")}</Text>
+          </View>
+          <View style={styles.textBox2}>
+            <Text style={styles.text1}>Email Address</Text>
+            <Text style={styles.text2}>{user.get("email")}</Text>
+          </View>
+        </View>
+      </View>;
+
+    var officeDetails =
+      <View style={styles.officeDetailsContainer}>
+        <Text style={styles.textDetailsHeader}>Office Details</Text>
+        <View style={[styles.officeDetailsTextContainer, boxStyle]}>
+          <View style={styles.textBox1}>
+            <Text style={styles.text1}>Address</Text>
+            <Text style={styles.text3}>{user.get("officeAddress")}</Text>
+          </View>
+        </View>
+      </View>;
+
+    var appDetails =
+      <View style={styles.appDetailsContainer}>
+        <Text style={styles.textDetailsHeader}>App Details</Text>
+        <View style={[styles.appDetailsTextContainer, boxStyle]}>
+          <View style={styles.textBox1}>
+            <Text style={styles.text1}>Software Version</Text>
+            <Text style={styles.text3}>{global.BeeperVersion}</Text>
+          </View>
+          <View style={styles.textBox1}>
+            <Text style={styles.text1}>Application ID (edit directly)</Text>
+            <TextInput style={styles.textInput}
+              onChangeText={(text) => this.setState({appID: text})}
+              value={this.state.appID}
+              autoCorrect={false}
+              autoCapitalize={'none'}
+            />
+          </View>
+          <View style={styles.textBox2}>
+            <Text style={styles.text1}>Application Key (edit directly)</Text>
+            <TextInput style={styles.textInput}
+              onChangeText={(text) => this.setState({appKey: text})}
+              value={this.state.appKey}
+              autoCorrect={false}
+              autoCapitalize={'none'}
+            />
+          </View>
+          <TouchableElement
+            style={styles.button}
+            onPress={this.onPressAppDetails}
+            underlayColor={"#105D95"}>
+            <Text style={styles.appButtonText}>Save New App ID and Key</Text>
+          </TouchableElement>
+          <View style={styles.textBox1}>
+            <Text style={styles.text1}>Release Notes</Text>
+            <Text style={styles.text3}>{global.CustomerReleaseNotes}</Text>
+          </View>
+        </View>
+      </View>;
+
     return (
       <View style={styles.container}>
-        <View style={styles.headingContainer}>
-          <View style={styles.profileImageBackground}>
-            <TouchableElement
-              style={styles.iconTouch}
-              onPress={this.onPressImagePick}
-              underlayColor={"#105D95"}>
-              <Image style={styles.editIcon} source={require('./assets/icons/Icon_Edit.png')}/>
-            </TouchableElement>
-          </View>
-          {content}
-          <Text style={styles.nameHeading}>{name}</Text>
-          <Text style={styles.emailHeading}>{user.get("email")}</Text>
-        </View>
+        {title}
         <View style={styles.spacer}/>
         <ScrollView style={styles.scrollViewContainer}>
           <View style={styles.contentContainer}>
-            <View style={styles.loginDetailsContainer}>
-              <Text style={styles.textDetailsHeader}>Login Details</Text>
-              <View style={styles.loginDetailsTextContainer}>
-                <View style={styles.textBox1}>
-                  <Text style={styles.text1}>Username</Text>
-                  <Text style={styles.text2}>{user.get("username")}</Text>
-                </View>
-                <View style={styles.textBox2}>
-                  <Text style={styles.text1}>Password</Text>
-                  <Text style={styles.text2}>**********</Text>
-                </View>
-                <TouchableElement
-                  style={styles.button}
-                  onPress={this.onPressLogout}
-                  underlayColor={"#105D95"}>
-                  <Text style={styles.appButtonText}>Sign Out of Beeper</Text>
-                </TouchableElement>
-              </View>
-            </View>
-            <View style={styles.personalDetailsContainer}>
-              <Text style={styles.textDetailsHeader}>Personal Details</Text>
-              <View style={styles.personalDetailsTextContainer}>
-                <View style={styles.textBox1}>
-                  <Text style={styles.text1}>First Name</Text>
-                  <Text style={styles.text2}>{user.get('firstName')}</Text>
-                </View>
-                <View style={styles.textBox2}>
-                  <Text style={styles.text1}>Last Name</Text>
-                  <Text style={styles.text2}>{user.get('lastName')}</Text>
-                </View>
-                <View style={styles.textBox2}>
-                  <Text style={styles.text1}>Job Title</Text>
-                  <Text style={styles.text2}>{user.get("title")}</Text>
-                </View>
-                <View style={styles.textBox2}>
-                  <Text style={styles.text1}>Phone Number</Text>
-                  <Text style={styles.text2}>{user.get("phone")}</Text>
-                </View>
-                <View style={styles.textBox2}>
-                  <Text style={styles.text1}>Email Address</Text>
-                  <Text style={styles.text2}>{user.get("email")}</Text>
-                </View>
-              </View>
-            </View>
-            <View style={styles.officeDetailsContainer}>
-              <Text style={styles.textDetailsHeader}>Office Details</Text>
-              <View style={styles.officeDetailsTextContainer}>
-                <View style={styles.textBox1}>
-                  <Text style={styles.text1}>Address</Text>
-                  <Text style={styles.text3}>{user.get("officeAddress")}</Text>
-                </View>
-              </View>
-            </View>
-            <View style={styles.appDetailsContainer}>
-              <Text style={styles.textDetailsHeader}>App Details</Text>
-              <View style={styles.appDetailsTextContainer}>
-                <View style={styles.textBox1}>
-                  <Text style={styles.text1}>Application ID</Text>
-                  <TextInput style={styles.textInput}
-                    onChangeText={(text) => this.setState({appID: text})}
-                    value={this.state.appID}
-                    autoCorrect={false}
-                    autoCapitalize={'none'}
-                  />
-                </View>
-                <View style={styles.textBox2}>
-                  <Text style={styles.text1}>Application Key</Text>
-                  <TextInput style={styles.textInput}
-                    onChangeText={(text) => this.setState({appKey: text})}
-                    value={this.state.appKey}
-                    autoCorrect={false}
-                    autoCapitalize={'none'}
-                  />
-                </View>
-                <TouchableElement
-                  style={styles.button}
-                  onPress={this.onPressAppDetails}
-                  underlayColor={"#105D95"}>
-                  <Text style={styles.appButtonText}>Change App ID and App Key</Text>
-                </TouchableElement>
-              </View>
-            </View>
+            {loginDetails}
+            {personalDetails}
+            {officeDetails}
+            {appDetails}
           </View>
         </ScrollView>
       </View>
@@ -485,7 +499,7 @@ var styles = StyleSheet.create({
     flexDirection: "column",
 		justifyContent: 'flex-start',
 		alignItems: 'stretch',
-    marginBottom: 15,
+    marginBottom: 20,
     // borderColor: "pink",
     // whiteborderWidth: 2,
 	},
@@ -495,8 +509,8 @@ var styles = StyleSheet.create({
     height: 32,
     width: 165,
     color: 'white',
-    backgroundColor: '#1faae1',
-    // backgroundColor: '#9e9fa2',
+    // backgroundColor: '#1faae1',
+    backgroundColor: '#bcbec0',
     fontSize: 13,
     fontFamily: 'Helvetica Neue',
     fontWeight: "400",
@@ -512,8 +526,6 @@ var styles = StyleSheet.create({
     marginTop: -9,
     marginBottom: 10,
     paddingBottom: 5,
-    borderColor: "#1faae1",
-    borderWidth: 1,
     backgroundColor: 'transparent',
   },
   textBox1: {
@@ -586,7 +598,7 @@ var styles = StyleSheet.create({
     flexDirection: "column",
 		justifyContent: 'flex-start',
 		alignItems: 'stretch',
-    marginBottom: 15,
+    marginBottom: 7,
     // borderColor: "violet",
     // borderWidth: 2,
 	},
@@ -598,8 +610,6 @@ var styles = StyleSheet.create({
     marginTop: -9,
     marginBottom: 10,
     paddingBottom: 5,
-    borderColor: "#1faae1",
-    borderWidth: 1,
     backgroundColor: 'transparent',
   },
 	officeDetailsContainer: {
@@ -607,7 +617,7 @@ var styles = StyleSheet.create({
     flexDirection: "column",
 		justifyContent: 'flex-start',
 		alignItems: 'stretch',
-    marginBottom: 15,
+    marginBottom: 7,
     // borderColor: "red",
     // borderWidth: 2,
 	},
@@ -619,12 +629,9 @@ var styles = StyleSheet.create({
     marginTop: -9,
     marginBottom: 10,
     paddingBottom: 5,
-    borderColor: "#1faae1",
-    borderWidth: 1,
     backgroundColor: 'transparent',
   },
   appDetailsContainer: {
-    height: 400,
     flexDirection: "column",
 		justifyContent: 'flex-start',
 		alignItems: 'stretch',
@@ -639,8 +646,6 @@ var styles = StyleSheet.create({
     marginTop: -9,
     marginBottom: 10,
     paddingBottom: 7,
-    borderColor: "#1faae1",
-    borderWidth: 1,
     backgroundColor: 'transparent',
   },
   button: {

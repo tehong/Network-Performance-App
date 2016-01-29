@@ -19,6 +19,7 @@ var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 
 function mixpanelTrack(trackPoint: string, trackProperties: object, user: object) {
   var properties = trackProperties;
+  /*  No need since we now have Mixpanel.identify and Mixpanel.peopleSet
   if (user) {
     var username = user.get("username");
     var name = user.get('firstName') + ' ' + user.get('lastName');
@@ -28,6 +29,7 @@ function mixpanelTrack(trackPoint: string, trackProperties: object, user: object
     properties["name"] = name;
     properties["username"] = username;
   }
+  */
   Mixpanel.track(trackPoint, properties);
 }
 
