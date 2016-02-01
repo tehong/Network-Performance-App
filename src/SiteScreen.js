@@ -11,6 +11,9 @@ var {
   View,
 } = React;
 
+// memory releasing list view
+var SGListView = require('react-native-sglistview');
+
 var TimerMixin = require('react-timer-mixin');
 
 var PerformanceCell = require('./PerformanceCell');
@@ -375,8 +378,9 @@ var SiteScreen = React.createClass({
           filter={this.state.filter}
           isLoading={this.state.isLoading}
         /> :
-        <ListView
+        <SGListView
           ref="listview"
+          style={styles.listView}
           dataSource={this.state.dataSource}
           renderFooter={this.renderFooter}
           renderRow={this.renderRow}

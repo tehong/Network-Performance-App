@@ -466,6 +466,7 @@ var AreaScreen = React.createClass({
         :
         <ListView
           ref="listview"
+          style={styles.listView}
           dataSource={this.state.dataSource}
           renderFooter={this.renderFooter}
           renderRow={this.renderRow}

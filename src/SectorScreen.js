@@ -11,6 +11,9 @@ var {
   View,
 } = React;
 
+// list view with less memory usage
+var SGListView = require('react-native-sglistview');
+
 var TimerMixin = require('react-timer-mixin');
 
 var PerformanceCell = require('./PerformanceCell');
@@ -375,8 +378,11 @@ var SectorScreen = React.createClass({
           filter={this.state.filter}
           isLoading={this.state.isLoading}
         /> :
-        <ListView
+        <SGListView
+          style={styles.listView}
           ref="listview"
+          removeClippedSubviews={true}
+          scrollRenderAheadDistance={500}
           dataSource={this.state.dataSource}
           renderFooter={this.renderFooter}
           renderRow={this.renderRow}

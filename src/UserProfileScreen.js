@@ -242,6 +242,7 @@ module.exports = React.createClass({
     */
   },
   onPressLogout: function() {
+    /*
     AlertIOS.alert(
       'Sign Out of Beeper',
       'Press \"OK\" to confirm signing out of this app.',
@@ -250,6 +251,8 @@ module.exports = React.createClass({
         {text: 'OK', onPress: (text) => this.logout()},
       ],
     );
+    */
+    this.logout();
   },
   mpUserProfile: function() {
     mixpanelTrack("User Profile", null, global.currentUser);
@@ -271,7 +274,12 @@ module.exports = React.createClass({
             <Image style={styles.editIcon} source={require('./assets/icons/Icon_Edit.png')}/>
           </TouchableElement>
         </View>
-        <Image style={styles.profileImage} source={this.state.avatarSource}/>
+          <TouchableElement
+            style={styles.profileImageContainer}
+            onPress={this.onPressImagePick}
+            >
+            <Image style={styles.profileImage} source={this.state.avatarSource}/>
+          </TouchableElement>
         <Text style={styles.nameHeading}>{name}</Text>
         <Text style={styles.emailHeading}>{user.get("email")}</Text>
       </View>;
@@ -343,33 +351,17 @@ module.exports = React.createClass({
             <Text style={styles.text1}>Software Version</Text>
             <Text style={styles.text3}>{global.BeeperVersion}</Text>
           </View>
-          <View style={styles.textBox1}>
-            <Text style={styles.text1}>Application ID (edit directly)</Text>
-            <TextInput style={styles.textInput}
-              onChangeText={(text) => this.setState({appID: text})}
-              value={this.state.appID}
-              autoCorrect={false}
-              autoCapitalize={'none'}
-            />
+          <View style={styles.textBox2}>
+            <Text style={styles.text1}>Application ID</Text>
+            <Text style={styles.text3}>{global.appID}</Text>
           </View>
           <View style={styles.textBox2}>
-            <Text style={styles.text1}>Application Key (edit directly)</Text>
-            <TextInput style={styles.textInput}
-              onChangeText={(text) => this.setState({appKey: text})}
-              value={this.state.appKey}
-              autoCorrect={false}
-              autoCapitalize={'none'}
-            />
+            <Text style={styles.text1}>Application Key</Text>
+            <Text style={styles.text3}>{global.appKey}</Text>
           </View>
-          <TouchableElement
-            style={styles.button}
-            onPress={this.onPressAppDetails}
-            underlayColor={"#105D95"}>
-            <Text style={styles.appButtonText}>Save New App ID and Key</Text>
-          </TouchableElement>
-          <View style={styles.textBox1}>
+          <View style={styles.textBox2}>
             <Text style={styles.text1}>Release Notes</Text>
-            <Text style={styles.text3}>{global.CustomerReleaseNotes}</Text>
+            <Text style={styles.text4}>{global.CustomerReleaseNotes}</Text>
           </View>
         </View>
       </View>;
@@ -393,6 +385,7 @@ module.exports = React.createClass({
 
 var styles = StyleSheet.create({
 	container: {
+    flex: 1,
     flexDirection: 'column',
 		justifyContent: 'flex-start',
 		alignItems: 'stretch',
@@ -440,10 +433,13 @@ var styles = StyleSheet.create({
     width: 20,
     backgroundColor: "transparent",
   },
+	profileImageContainer: {
+    marginTop: -43,
+    backgroundColor: 'transparent',
+  },
 	profileImage: {
     height: 90,
     width: 90,
-    marginTop: -43,
     backgroundColor: 'transparent',
     borderColor: "white",
     borderWidth: 2,
@@ -477,12 +473,7 @@ var styles = StyleSheet.create({
     borderWidth: 1,
   },
 	scrollViewContainer: {
-    height: 542,  // NOTE: scrollview needs height restriction but not over the size of the device
-    // flexDirection: "column",
-		// justifyContent: 'flex-start',
-		//alignItems: 'stretch',
-    // borderColor: "red",
-    // borderWidth: 2,
+    flex: 1,
 	},
 	contentContainer: {
     flexDirection: "column",
@@ -561,7 +552,7 @@ var styles = StyleSheet.create({
     // height: 40,
     backgroundColor: "#f1f1f2",
     color: "#616264",
-    paddingTop: 6,
+    paddingTop: 5,
     paddingLeft: 10,
     fontSize: 15,
     fontFamily: 'Helvetica Neue',
@@ -585,11 +576,22 @@ var styles = StyleSheet.create({
     // height: 40,
     backgroundColor: "#f1f1f2",
     color: "#616264",
-    paddingTop: 6,
+    paddingTop: 4,
     paddingLeft: 10,
     fontSize: 15,
     fontFamily: 'Helvetica Neue',
     fontWeight: "400",
+    borderColor: "#f0f0f0",
+    borderWidth: 1,
+  },
+  text4: {
+    backgroundColor: "#f1f1f2",
+    color: "#616264",
+    paddingTop: 6,
+    paddingLeft: 10,
+    fontSize: 12,
+    fontFamily: 'Helvetica Neue',
+    fontWeight: "500",
     borderColor: "#f0f0f0",
     borderWidth: 1,
   },

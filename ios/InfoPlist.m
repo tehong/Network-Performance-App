@@ -55,9 +55,9 @@ RCT_REMAP_METHOD(bundleShortVersion, resolver1: (RCTPromiseResolveBlock)resolve
     resolve((__bridge id)(bundleShortVersion));
   } else {
     // React Native 0.19.0-RC:
-    // reject(@"error", @"No version number", [NSError errorWithDomain:(__bridge NSString * _Nonnull)(bundleIdentifier) code:0 userInfo:@{ @"text": @"No version number" }]);
+    reject(@"error", @"No version number", [NSError errorWithDomain:(__bridge NSString * _Nonnull)(bundleIdentifier) code:0 userInfo:@{ @"text": @"No version number" }]);
     
-    reject([NSError errorWithDomain:(__bridge NSString * _Nonnull)(bundleIdentifier) code:0 userInfo:@{ @"text": @"No version number" }]);
+    // reject([NSError errorWithDomain:(__bridge NSString * _Nonnull)(bundleIdentifier) code:0 userInfo:@{ @"text": @"No version number" }]);
 
   }
 }
@@ -93,9 +93,9 @@ RCT_REMAP_METHOD(bundleIdentifier, resolver2: (RCTPromiseResolveBlock)resolve
     resolve((__bridge id)(bundleIdentifier));
   } else {
     // React Native 0.19.0-RC:
-    // reject(@"error", @"No dunble identifier", [NSError errorWithDomain:(__bridge NSString * _Nonnull)(bundleIdentifier) code:0 userInfo:@{ @"text": @"No bundle identifier" }]);
+    reject(@"error", @"No dunble identifier", [NSError errorWithDomain:(__bridge NSString * _Nonnull)(bundleIdentifier) code:0 userInfo:@{ @"text": @"No bundle identifier" }]);
     
-    reject([NSError errorWithDomain:(__bridge NSString * _Nonnull)(bundleIdentifier) code:0 userInfo:@{ @"text": @"No bundle identifier" }]);
+    // reject([NSError errorWithDomain:(__bridge NSString * _Nonnull)(bundleIdentifier) code:0 userInfo:@{ @"text": @"No bundle identifier" }]);
 
   }
 }

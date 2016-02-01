@@ -114,6 +114,16 @@ Release 0.2.3 is on TestFlight:
   (6) Added Mixpanel push notifications.
   (7) Added Intercom push notifications.
 
+- Beeper iOS 0.3.1 Release Note
+  (1) Fixed app crash by changing out the ListView to a new one that releases memory when a cell is moved out of view.
+  (2) Reduced the table cell background Green/Yellow/Red/Grey image resolution by 1/3 to reduce frame drops due to more dynamic memory allocation.
+  (3) Changed the background color of newtork/site/sector screens to light grey.
+  (4) Enabled user to take/pick profile picture by touching the profile photo.
+  (5) Revised the profile section tab to grey and the line to hairline grey.
+  (6) Removed sign-out confirmation and allow user to sign out right away.
+  (7) Removed the ability to change Application ID and Key in the app due to the problem with multiple push registration with OS.
+  (8) Fixed a problem where Front-end is showing zeros when the data points have no data.
+
 - TODO:
-  (1) Improve the UI to make the App ID/Key edit more obvious
   (1) New set of KPIs are displayed.
+  (1) KPI sector colors are displayed on the map's sectors' leaves.

@@ -21,11 +21,14 @@ var {
 
 function getAreaScreenStyles(): StyleSheet {
   var styles = StyleSheet.create({
+    listView: {
+      backgroundColor: '#f3f3f3',
+    },
     container: {
       flex: 1,
       alignItems: 'stretch',
-      backgroundColor: 'gray',
-      backgroundColor: 'rgba(10,10,10,0.8)',
+      // backgroundColor: 'rgba(10,10,10,0.8)',
+      backgroundColor: 'white',
     },
     /*
     imageContainer: {
@@ -70,11 +73,9 @@ function getAreaScreenStyles(): StyleSheet {
       backgroundColor: "#066D7E",
     },
     centering: {
-      flexDirection: "row",
-      justifyContent: 'center',
-      alignItems: 'center',
+      flex: 1,
       width: null,
-      marginTop: 200,
+      backgroundColor: '#f3f3f3',
     },
   });
   return styles;

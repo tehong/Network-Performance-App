@@ -51,11 +51,6 @@ var PerformanceCell = React.createClass({
     );
   },
   getDailyAverage(zeroFill) {
-    /*
-    if (this.props.geoArea.geoEntity === "area") {
-      var dailyAverage = this.props.geoArea.dailyAverage;
-    } else {
-    */
       var dataArray = this.props.geoArea.data;
       var dailyAverage = parseFloat(this.props.geoArea.dailyAverage);
       // might be invalid data when length < 2, i.e. 1
@@ -63,72 +58,12 @@ var PerformanceCell = React.createClass({
       if (isDataEmpty(dataArray) && zeroFill === false) {
         var dailyAverage = "No Data";
       }
-
-      /*
-    }
-    */
     return dailyAverage;
   },
-  /*
-  getThreshold(thresholds: string, thresholdName: string) {
-  //  if (this.props.geoArea.geoEntity === "area") {
-      switch(thresholdName) {
-        case "red":
-          return this.props.geoArea.thresholds.red;
-          break;
-        case "green":
-          return this.props.geoArea.thresholds.green;
-          break;
-      }
-    /*
-    }
-    var redDirection = ">";
-    var redIndex = thresholds.red.indexOf(redDirection);
-    var greenIndex = thresholds.green.indexOf(">") + 1;
-    if (redIndex === -1) {
-      redDirection = "<";
-      redIndex = thresholds.red.indexOf(redDirection) + 1;
-    } else {
-      redIndex = redIndex + 1;
-      // data > or < could be wrong, here is to saftgurad it.
-      if (thresholds.green.indexOf("<") !== -1) {
-        greenIndex = thresholds.green.indexOf("<") + 1;
-      }
-    }
-    var redThreshold = parseFloat(thresholds.red.substring(redIndex, thresholds.red.length));
-    var greenThreshold = parseFloat(thresholds.green.substring(greenIndex, thresholds.green.length));
-    switch(thresholdName) {
 
-      case "red":
-        // adjust red and green to >= or <= numbers
-        if (this.props.geoArea.kpi.indexOf("Throughput") !== -1) {
-          return redThreshold;
-        }
-        if (redDirection == ">") {
-          return redThreshold + 1;
-        } else {
-          return redThreshold === 0?0:redThreshold-1;
-        }
-        break;
-      case "green":
-        if (this.props.geoArea.kpi.indexOf("Throughput") !== -1) {
-          return greenThreshold;
-        }
-        if (redDirection == ">") {
-          return greenThreshold === 0?0:greenThreshold-1;
-        } else {
-          return greenThreshold + 1;
-        }
-        break;
-    }
-  },
-  */
   innerContentView: function() {
     return (
       <View style={styles.row}>
-        {/* $FlowIssue #7363964 - There's a bug in Flow where you cannot
-          * omit a property or set it to undefined if it's inside a shape,
-          * even if it isn't required */}
         {this.kpiView()}
         {this.chartView()}
       </View>
@@ -182,10 +117,13 @@ var PerformanceCell = React.createClass({
       // the second element in the dataArray[i] could be empty due to no data, check it
       if (dataArray[i].length > 1) {
         var array = [dataArray[i][0].toString(), parseFloat(dataArray[i][1])];
-      } else {
-        var array = [dataArray[i][0].toString(), 0.0];
+        newDataArray.push(array);
       }
-      newDataArray.push(array);
+      /* Skip the array element if no data on the second element!
+      else {
+        var array = [dataArray[i][0].toString(), null];
+      }
+      */
     }
     return newDataArray;
   },
@@ -221,25 +159,6 @@ var PerformanceCell = React.createClass({
     if (minY < 0) {
       minY = 0;
     }
-
-    // This algorithm centers the redThreshold line horizontally on the chart by finding the right display location and length of y-axis
-
-    /*``
-    var greenThreshold = this.props.geoArea.thresholds.green;
-    if (greenThreshold >= maxY) {
-      yScale[0] = minY
-      yScale[1] = (greenThreshold - minY) * 2
-    } else if (greenThreshold <= minY) {
-      yScale[0] = greenThreshold - (maxY - greenThreshold)
-      yScale[1] = (maxY - greenThreshold) * 2
-    } else if (greenThreshold - minY >= maxY - greenThreshold) {
-      yScale[0] = minY
-      yScale[1] = (greenThreshold - minY) * 2
-    } else {
-      yScale[0] = greenThreshold - (maxY - greenThreshold)
-      yScale[1] = (maxY - greenThreshold) * 2
-    }
-    */
     // show at least scale of 10
     if (minY === maxY) {
       if (maxY === 0.0) {
@@ -338,13 +257,6 @@ var PerformanceCell = React.createClass({
     else {
       unit = ""
     }
-            // removed the text and arrow on the left plane
-            /*
-            <View style={styles.threshArrowContainer}>
-              <Image style={styles.threshImage} source={{uri: "Icon_Chart_Indicator", isStatic: true}}/>
-              <Text style={styles.chartThresh}>{dailyAverage}{yUnit}</Text>
-            </View>
-            */
     return(
       <View style={styles.dataContainer}>
         <View style={styles.chartContainer}>
@@ -487,6 +399,7 @@ var styles = StyleSheet.create({
     fontWeight: '700',
     color: 'white',
     fontFamily: 'Helvetica Neue',
+    backgroundColor: 'transparent',
     // borderColor: "white",
     // borderWidth: 1,
   },
@@ -495,6 +408,7 @@ var styles = StyleSheet.create({
     fontWeight: '400',
     color: 'rgba(30,30,30,0.7)',
     fontFamily: 'Helvetica Neue',
+    backgroundColor: 'transparent',
     // borderColor: "blue",
     // borderWidth: 1,
   },
@@ -567,22 +481,26 @@ var styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     fontFamily: 'Helvetica Neue',
+    backgroundColor: 'transparent',
   },
   category: {
     color: 'rgba(0,0,0,0.7)',
     fontSize: 13,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
+    backgroundColor: 'transparent',
   },
   kpi: {
     color: 'rgba(30,30,30,0.7)',
     fontSize: 15,
     fontFamily: 'Helvetica Neue',
+    backgroundColor: 'transparent',
   },
   dailyAverage: {
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "flex-end",
+    backgroundColor: 'transparent',
   },
   dailyValue: {
     textAlign: "right",
@@ -590,6 +508,7 @@ var styles = StyleSheet.create({
     fontSize: 43,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
+    backgroundColor: 'transparent',
     // borderColor: 'white',
     // borderWidth: 1,
   },
@@ -600,6 +519,7 @@ var styles = StyleSheet.create({
     fontFamily: 'Helvetica Neue',
     paddingLeft: 2,
     paddingBottom: 7,
+    backgroundColor: 'transparent',
     // borderColor: 'pink',
     // borderWidth: 1,
   },
@@ -645,6 +565,7 @@ var styles = StyleSheet.create({
     paddingTop: 2,
     paddingLeft: 2,
     color: "rgba(60,60,60,1.0)",
+    backgroundColor: 'transparent',
   },
   yMinValueContainer: {
     flex: 4,
@@ -658,6 +579,7 @@ var styles = StyleSheet.create({
     paddingLeft: 2,
     paddingBottom: 2,
     color: "rgba(60,60,60,1.0)",
+    backgroundColor: 'transparent',
   },
   threshArrowContainer: {
     flex: 1,
@@ -679,6 +601,7 @@ var styles = StyleSheet.create({
     fontWeight: "900",
     fontFamily: 'Helvetica Neue',
     color: "rgba(60,60,60,1.0)",
+    backgroundColor: 'transparent',
     // height: 15,
     // borderColor: "blue",
     // borderWidth: 1,
@@ -689,6 +612,7 @@ var styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "flex-start",
     paddingTop: 4,
+    backgroundColor: 'transparent',
     // borderColor: "yellow",
     // borderWidth: 2,
   },

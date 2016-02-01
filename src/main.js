@@ -4,7 +4,6 @@
 'use strict';
 // Program version number and customer visible release notes
 var CustomerReleaseNotes = "\
-Release notes:\n\
 (1) Removed the DA/DR/UT/DT icons in the app and changed the ordering of the thresholds to Red => Yellow => Green.\n\
 (2) Added iOS push notification in the app and a morning reminder via server code.\n\
 (3) Added the ability to change profile photo and auto-sync the profile photo from and to the server.\n\
@@ -13,7 +12,8 @@ Release notes:\n\
 (6) Added the ability to drill down from the network page to specific sector color (red/green/yellow only for now) via the sector count.\n\
 (7) Revised the forgotten username/password to ask for a full name to get instant chat support.\n\
 (8) Added software version and release notes in the user profile.\n\
-(9) Added auto-logout when app ID and Key are changed in the user profile\
+(9) Added auto-logout when app ID and Key are changed in the user profile\n\
+(10) Miscellanous UI tweaks.\
 ";
 
 import Storage from 'react-native-storage';

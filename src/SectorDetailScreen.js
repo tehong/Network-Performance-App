@@ -59,7 +59,7 @@ var SectorDetailScreen = React.createClass({
 
   getInitialState: function() {
     return {
-      animating: true,
+      animating: false,
       tabNumber: 0,
       isLoading: false,
       sectorKpiData: {},
@@ -123,8 +123,8 @@ var SectorDetailScreen = React.createClass({
     // register the oritnation listener
     Orientation.addOrientationListener(this._orientationDidChange);
 
-    // var query = this.props.markets.entityId;
-    this.setAnimatingTimeout();
+    // This is a fake animation, now disabled
+    // this.setAnimatingTimeout();
     // numEntryProcessed = 0; // reset the number data entry processed to 0
     // plot the map
     // this.getZoneLocation();  // Syringa only
@@ -673,7 +673,6 @@ var SectorDetails = React.createClass({
           />
           :
           <ListView
-            style={styles.listView}
             ref="sectorListview"
             dataSource={this.props.dataSource}
             renderRow={this.renderRow}
@@ -1021,6 +1020,8 @@ var styles = StyleSheet.create({
   },
   kpiContainer: {
     flex: 8,
+    // backgroundColor: '#f3f3f3',
+    backgroundColor: 'white',
     // borderColor: "violet",
     // borderWidth: 2,
   },
@@ -1210,6 +1211,7 @@ var styles = StyleSheet.create({
     paddingTop: 5,
     marginLeft: 15,
     marginRight: 15,
+    backgroundColor: 'transparent',
     // borderColor: "violet",
     // borderWidth: 2,
   },

@@ -18,7 +18,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   let kAverageLine = "AverageLine"
 
   // var annotation = CPTPlotSpaceAnnotation?()
-  var histogramOption = CPTScatterPlotHistogramOption.SkipSecond
+  var histogramOption = CPTScatterPlotHistogramOption.Normal   // not needed
   var graph:CPTXYGraph?
   var plotSpace:CPTXYPlotSpace?
   var dataSourceLinePlot:CPTScatterPlot?
@@ -27,6 +27,9 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   let cptPrimeColor = CPTColor(componentRed: 43/255, green: 136/255, blue: 184/255, alpha: 1)
   var _average:Double = 0.0
   
+  deinit {
+    reset()
+  }
   
   func reset() {
     if graph != nil {
@@ -257,7 +260,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     // Extend the ranges by 30% for neatness
     //  NOTE: this adds some margin of display beyond the displayed data range
     
-    plotSpace!.scaleToFitPlots([dataSourceLinePlot!])
+    // plotSpace!.scaleToFitPlots([dataSourceLinePlot!])   Generate xRange and yRange myself!
 
     /*
     let xRange: CPTMutablePlotRange = plotSpace!.xRange.mutableCopy() as! CPTMutablePlotRange
@@ -271,7 +274,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     // Restrict x,y range to a global range  (NOTE: maximum y value range!)
     
     // locations => start value of x and y
-    let locationX = 0.0
+    let locationX = -0.1  // need to start -0.1 to make sure to show first data point
     /*
     let yMax = findMaxY(dataArray)
     if yMax == 0 {
@@ -287,7 +290,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     
     // var yLocLen:Dictionary<String, Double> = findYLocationAndLength()
 
-    let xRange: CPTPlotRange = CPTPlotRange(location: locationX, length: Double(maxX) + (-locationX))
+    let xRange: CPTPlotRange = CPTPlotRange(location: locationX, length: Double(maxX) + (-locationX) + 0.1)
     let yRange: CPTPlotRange = CPTPlotRange(location: yScale[0], length: yScale[1])
     // plotSpace!.globalXRange = globalXRange
     // plotSpace!.globalYRange = globalYRange
@@ -295,7 +298,18 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     plotSpace!.xRange = xRange
     plotSpace!.yRange = yRange
     
+    // Add plot symbols  (markers)
     
+    let symbolLineStyle: CPTMutableLineStyle = CPTMutableLineStyle()
+    symbolLineStyle.lineColor = CPTColor.whiteColor()
+    symbolLineStyle.lineWidth = 1.0
+    let plotSymbol: CPTPlotSymbol = CPTPlotSymbol.dashPlotSymbol()
+    plotSymbol.fill = CPTFill(color: CPTColor.clearColor())
+    // plotSymbol.fill = CPTFill(color: cptPrimeColor)
+    plotSymbol.lineStyle = symbolLineStyle
+    plotSymbol.size = CGSizeMake(0.8, 0.8)
+    dataSourceLinePlot!.plotSymbol = plotSymbol
+
     // Add plot symbols  (markers)
     
     /*
@@ -333,7 +347,13 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     // return the number of record for a plot
     let identifier:String = plot.identifier as! String
     if (identifier == kDataLine ) {
-      return UInt(plotData.count)
+      var maxX:Double = 0
+      for item in plotData {
+        if item["x"] > maxX {
+          maxX = item["x"]!
+        }
+      }
+      return UInt(maxX) + 1
     } else {
       return 2
     }
@@ -349,11 +369,19 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
       // let dataOut = index as (UnsafeMutablePointer<Int8>,Int32) // cast the C pointer to Swift pointer
       // let original:Int = idx as Int
       let i:Double = Double(idx)
+      var found = false
       for item in plotData {
         // make sure we get the correct x value
         if item["x"] == i {
           num = Double(item[key]!)
+          found = true
+          break
         }
+      }
+      if (found || key == "x") {
+        return num
+      } else {
+        return nil
       }
       // let num: Int = Int(plotData[i][key]!)
     } else {
