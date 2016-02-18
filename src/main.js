@@ -13,7 +13,9 @@ var CustomerReleaseNotes = "\
 (7) Revised the forgotten username/password to ask for a full name to get instant chat support.\n\
 (8) Added software version and release notes in the user profile.\n\
 (9) Added auto-logout when app ID and Key are changed in the user profile\n\
-(10) Miscellanous UI tweaks.\
+(10) Miscellanous UI tweaks.\n\
+(11) Added pull-to-refresh for all the views of KPI list.\n\
+(12) Replaced dailay average dotted chart on KPI chart with green threshold on chart.\
 ";
 
 import Storage from 'react-native-storage';
@@ -75,6 +77,8 @@ module.exports = React.createClass({
     PushNotificationIOS.addEventListener('notification', this._onNotification);
     global.DEFAULT_PROFILE_IMAGE =  require('./assets/images/Profile_Icon_Large.png');
     this._getAppVersion();
+    var mixpanelTrack = require('./components/mixpanelTrack');
+    mixpanelTrack("App Launch", {"App Version": global.BeeperVersion}, null);
   },
   componentWillUnmount: function() {
     PushNotificationIOS.removeEventListener('notification', this._onNotification);

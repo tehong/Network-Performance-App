@@ -51,13 +51,32 @@ var PerformanceCell = React.createClass({
     );
   },
   getDailyAverage(zeroFill) {
-      var dataArray = this.props.geoArea.data;
-      var dailyAverage = parseFloat(this.props.geoArea.dailyAverage);
-      // might be invalid data when length < 2, i.e. 1
+    var dataArray = this.props.geoArea.data;
+    // might be invalid data when length < 2, i.e. 1
 
-      if (isDataEmpty(dataArray) && zeroFill === false) {
-        var dailyAverage = "No Data";
+    var dailyAverage = this.props.geoArea.dailyAverage.toString();
+    if (isDataEmpty(dataArray) && zeroFill === false) {
+      dailyAverage = "No Data";
+    } else {
+      // Limit the number of total digits to 3 non-leading-zero digits
+      var indexDecimal = dailyAverage.indexOf('.');
+      if (indexDecimal >= 0) {
+        var decimal_digits = dailyAverage.length - indexDecimal - 1;
+        var integer_digits = dailyAverage.length - decimal_digits - 1;
+        // default the numDecimalDigit to 1 unless decimal_digits is 0;
+        var numDecimalDigit = 1 < decimal_digits ? 1 : decimal_digits;
+        // show max three non-zero digits or at least one decimal if more than three digits
+        if (integer_digits === 1) {
+          if (dailyAverage.charAt(0) === "0") {
+            numDecimalDigit = 3 < decimal_digits?3:decimal_digits;
+          } else {
+            numDecimalDigit = 2 < decimal_digits?2:decimal_digits;
+          }
+        }
+        dailyAverage = dailyAverage.substring(0, indexDecimal + numDecimalDigit + 1)
       }
+      dailyAverage = parseFloat(dailyAverage);
+    }
     return dailyAverage;
   },
 
@@ -130,7 +149,7 @@ var PerformanceCell = React.createClass({
   // find the Y location and Y length
   //   [0] => Y Location
   //   [1] => Y Length
-  findYScale: function() {
+  findYScale: function(target) {
     var yScale = [];
     var data = this.getData();
     var maxY = 0.0;
@@ -172,6 +191,11 @@ var PerformanceCell = React.createClass({
           minY = 90.0
         }
       }
+    }
+    if (target > maxY) {
+      maxY = Math.ceil(Math.round(target * 10) / 10) ;
+    } else if (target < minY) {
+      minY = Math.floor(Math.round(target * 10) / 10);
     }
     yScale[0] = minY;
     yScale[1] = maxY - minY;
@@ -233,15 +257,17 @@ var PerformanceCell = React.createClass({
     // var redDir =  redThreshold > greenThreshold?"\u2265":"\u2264";
     // var greenDir =  redThreshold > greenThreshold?"\u2264":"\u2265";
     var redDir =  redThreshold > greenThreshold?">":"<";
-    var greenDir =  redThreshold > greenThreshold?"<":">";
+    var greenDir =  redThreshold > greenThreshold?"\u2264":"\u2265";
     var unit = this.props.geoArea.unit;
     var data = this.getData();
     var yellowLowThreshold = redThreshold;
     var yellowHighThreshold = greenThreshold;
+    /*
     if (kpi.indexOf("Throughput") !== -1 || kpi.toLowerCase() == "throughput" || kpi.toLowerCase() == "fallback") {
       yellowLowThreshold = redThreshold;
     }
-    var yScale = this.findYScale();
+    */
+    var yScale = this.findYScale(greenThreshold);
     var yMinValue = yScale[0]
     var yMaxValue = yMinValue + yScale[1];
     var yUnit = "";
@@ -263,7 +289,7 @@ var PerformanceCell = React.createClass({
           <Image style={styles.chartBands} source={require("./assets/images/BG_Chart_Bands.png")}>
             <SparklineView
               style={styles.hostView}
-              average={dailyAverage}
+              average={greenThreshold}
               yScale={yScale}
               dataArray={data}
             />
@@ -505,7 +531,7 @@ var styles = StyleSheet.create({
   dailyValue: {
     textAlign: "right",
     color: 'white',
-    fontSize: 43,
+    fontSize: 39,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
     backgroundColor: 'transparent',
@@ -546,8 +572,12 @@ var styles = StyleSheet.create({
   },
   hostView: {
     flex: 1,
+    paddingTop: 1,
+    paddingBottom: 1,
+    marginTop: 4,
+    marginBottom: 4,
     // borderColor: "red",
-    // borderWidth: 2,
+    // borderWidth: 1,
   },
   chartSideContainer: {
     flex: 5,
@@ -641,8 +671,8 @@ var styles = StyleSheet.create({
   },
   tv: {
     color: "white",
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 12,
+    fontWeight: "700",
     fontFamily: 'Helvetica Neue',
   },
 });

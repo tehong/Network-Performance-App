@@ -74,3 +74,7 @@
        -H "Content-Type: application/json;charset=utf-8" \
       -d '{"action":"send"}' \
       https://api.parse.com/1/jobs/morningReminder
+
+- NPM package mods:
+
+  (1) "react-native-refreshable-listview" => Need to modify the "ListView" component in the packages to "SGListView" component to reduce memory usage.  see node_modules/react-native-refreshable-listview/lib/ListView.js

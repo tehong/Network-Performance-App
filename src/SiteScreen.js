@@ -6,13 +6,14 @@ var {
   ListView,
   Platform,
   // ProgressBarAndroid,
+  TouchableOpacity,
   StyleSheet,
   Text,
   View,
 } = React;
 
 // memory releasing list view
-var SGListView = require('react-native-sglistview');
+var RefreshableListView = require('react-native-refreshable-listview');
 
 var TimerMixin = require('react-timer-mixin');
 
@@ -37,6 +38,7 @@ var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedDataArray');
 var mixpanelTrack = require('./components/mixpanelTrack');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
+var ShowModalMessage = require('./components/ShowModalMessage');
 
 
 /**
@@ -44,7 +46,10 @@ var ParseInitIOS = require('react-native').NativeModules.ParseInit;
  * In case you want to use the Rotten Tomatoes' API on a real app you should
  * create an account at http://developer.rottentomatoes.com/
  */
- var SITE_URL = 'http://52.20.201.145:3010/kpis/v1/site/all/';
+//  var SITE_URL = 'http://52.20.201.145:3010/kpis/v1/site/all/'; // v1
+var SITE_URL = 'http://52.20.201.145:3010/kpis/v2/site/all/kpi/'; // v2
+// var SITE_URL = 'http://54.165.24.76:3010/kpis/v2/site/all/kpi/'; // v2
+// var SITE_URL = 'http://localhost:3010/kpis/v2/site/all/kpi/';  // localhost
  /*
 var API_KEYS = [
   '7waqfqbprs7pajbz28mqf6vz',
@@ -72,7 +77,10 @@ var SiteScreen = React.createClass({
 
   getInitialState: function() {
     return {
+      statusCode: 200,  // default to OK
+      statusMessage: "",  // show any result status message if present
       isLoading: false,
+      isRefreshing: false,
       isLoadingTail: false,
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
@@ -85,11 +93,11 @@ var SiteScreen = React.createClass({
   componentWillMount: function() {
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
-    resultsCache.totalForQuery = {};
-    resultsCache.dataForQuery = {};
+    // resultsCache.totalForQuery = {};
+    // resultsCache.dataForQuery = {};
   },
-
-  componentDidMount: function() {
+  loadData: function() {
+    /*
     var uncorrectedKpi = this.props.kpi;
     var kpi = uncorrectedKpi.replace("Data ", "");
     kpi = kpi.replace("Uplink ", "");
@@ -131,10 +139,24 @@ var SiteScreen = React.createClass({
       var category = query.substring(0, query.indexOf(" "));
       var kpi = query.substring(query.indexOf(" ") + 1, query.length);
     }
+    */
 
     // inlcude query name with zoneName
-    query = "category/" + category + "/kpi/" + kpi + "/";
+    // query = "category/" + category + "/kpi/" + kpi + "/";
+    var query =  this.props.category + " " + this.props.kpi;
     this.getSites(query);
+  },
+  reloadData: function() {
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
+    this.loadData();
+  },
+  refreshData: function() {
+    this.setState({isRefreshing: true});
+    this.reloadData();
+  },
+  componentDidMount: function() {
+    this.loadData();
   },
 
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
@@ -157,35 +179,49 @@ var SiteScreen = React.createClass({
     // fetch(queryString)
       .then((response) => response.json())
       .then((responseData) => {
-        var sites = responseData;
-        if (sites) {
-            LOADING[query] = false;
-            resultsCache.totalForQuery[query] = sites.length;
-            resultsCache.dataForQuery[query] = sites;
-            // resultsCache.nextPageNumberForQuery[query] = 2;
-
-            if (this.state.filter !== query) {
-              // do not update state if the query is stale
-              return;
-            }
-            this.setState({
-              isLoading: false,
-              // dataSource: this.getDataSource(responseData.movies),
-              dataSource: this.getDataSource(sites),
-            });
+        if(responseData.statusCode && responseData.statusCode !== 200) {
+          this.setState({
+            isLoading: false,
+            isRefreshing: false,
+            statusCode: responseData.statusCode,
+            statusMessage: responseData.statusMessage,
+          });
         } else {
-            LOADING[query] = false;
-            resultsCache.dataForQuery[query] = undefined;
+          var sites = responseData;
+          if (sites) {
+              LOADING[query] = false;
+              resultsCache.totalForQuery[query] = sites.length;
+              resultsCache.dataForQuery[query] = sites;
+              // resultsCache.nextPageNumberForQuery[query] = 2;
 
-            this.setState({
-              dataSource: this.getDataSource([]),
-              isLoading: false,
-            });
+              if (this.state.filter !== query) {
+                // do not update state if the query is stale
+                return;
+              }
+              this.setState({
+                isLoading: false,
+                isRefreshing: false,
+                // dataSource: this.getDataSource(responseData.movies),
+                dataSource: this.getDataSource(sites),
+              });
+          } else {
+              LOADING[query] = false;
+              resultsCache.dataForQuery[query] = undefined;
+
+              this.setState({
+                dataSource: this.getDataSource([]),
+                isLoading: false,
+                isRefreshing: false,
+              });
+          }
         }
       })
       .catch((ex) => {
         console.log('response failed', ex)
-        this.setState({isLoading: false});
+        this.setState({
+          isLoading: false,
+          isRefreshing: false,
+        });
       })
   },
   getSites: function(query: string) {
@@ -292,7 +328,6 @@ var SiteScreen = React.createClass({
           category: site.category,
           kpi: site.kpi,
           areaName: this.props.areaName,
-          currentUser: this.props.currentUser,
           zoneName: site.name,
         }
       });
@@ -312,7 +347,7 @@ var SiteScreen = React.createClass({
     this.timeoutID = this.setTimeout(() => this.getSites(filter), 100);
   },
   mpSelectSite: function(siteName) {
-    mixpanelTrack("Site Selected", {"Site Name": siteName}, this.props.currentUser);
+    mixpanelTrack("Site Selected", {"Site Name": siteName}, global.currentUser);
   },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
@@ -364,7 +399,7 @@ var SiteScreen = React.createClass({
   },
 
   render: function() {
-    if (this.state.isLoading) {
+    if (this.state.isLoading && !this.state.isRefreshing) {
       var content =
       <ActivityIndicatorIOS
         animating={true}
@@ -374,11 +409,15 @@ var SiteScreen = React.createClass({
       />;
     } else {
       var content = this.state.dataSource.getRowCount() === 0 ?
-        <NoSites
+        <ShowModalMessage
           filter={this.state.filter}
+          statusCode={this.state.statusCode}
+          statusMessage={this.state.statusMessage}
           isLoading={this.state.isLoading}
+          onPressRefresh={this.reloadData}
+          buttonText={'Try Again'}
         /> :
-        <SGListView
+        <RefreshableListView
           ref="listview"
           style={styles.listView}
           dataSource={this.state.dataSource}
@@ -389,6 +428,8 @@ var SiteScreen = React.createClass({
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
           showsVerticalScrollIndicator={false}
+          loadData={this.refreshData}
+          refreshDescription="Refreshing Data ..."
         />;
         /*renderSeparator={this.renderSeparator}*/
     }
@@ -412,18 +453,25 @@ var SiteScreen = React.createClass({
 
 var NoSites = React.createClass({
   render: function() {
+    var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     var text = '';
-    if (this.props.filter) {
-      text = 'No sites found';
-    } else if (!this.props.isLoading) {
+    if (this.props.statusMessage && this.props.statusMessage !== "") {
+      text = this.props.statusMessage;
+    } else {
       // If we're looking at the latest sites, aren't currently loading, and
       // still have no results, show a message
       text = 'No sites found';
     }
 
     return (
-      <View style={[styles.container, styles.centerText]}>
+      <View style={styles.noDataContainer}>
         <Text style={styles.noResultText}>{text}</Text>
+        <TouchableElement
+          style={styles.iconTouch}
+          onPress={this.props.onPressRefresh}
+          underlayColor={"#105D95"}>
+          <Text style={[styles.pressRefreshText, {color: "white"}]}>Refresh Data</Text>
+        </TouchableElement>
       </View>
     );
   }

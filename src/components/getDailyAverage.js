@@ -16,8 +16,27 @@
 'use strict';
 
 function getDailyAverage(dailyAverage: string) {
-  if (typeof dailyAverage === "string" && dailyAverage !== 'No Data') {
-    return parseFloat(dailyAverage);
+  if (dailyAverage !== 'No Data') {
+    var newDailyAverage = dailyAverage.toString();
+    // Limit the number of total digits to 3 non-leading-zero digits
+    var indexDecimal = newDailyAverage.indexOf('.');
+    if (indexDecimal >= 0) {
+      var decimal_digits = newDailyAverage.length - indexDecimal - 1;
+      var integer_digits = newDailyAverage.length - decimal_digits - 1;
+      // default the numDecimalDigit to 1 unless decimal_digits is 0;
+      var numDecimalDigit = 1 < decimal_digits ? 1 : decimal_digits;
+      // show max three non-zero digits or at least one decimal if more than three digits
+      if (integer_digits === 1) {
+        if (newDailyAverage.charAt(0) === "0") {
+          numDecimalDigit = 3 < decimal_digits?3:decimal_digits;
+        } else {
+          numDecimalDigit = 2 < decimal_digits?2:decimal_digits;
+        }
+      }
+      newDailyAverage = newDailyAverage.substring(0, indexDecimal + numDecimalDigit + 1)
+    }
+    newDailyAverage = parseFloat(newDailyAverage);
+    return newDailyAverage;
   }
   return dailyAverage;
 }

@@ -21,9 +21,15 @@ var {
 
 var mixpanelTrack = require('./components/mixpanelTrack');
 
-/* Thumb operator */
+// memory releasing and pull to refresh list view
+var RefreshableListView = require('react-native-refreshable-listview');
+
+/* sector query */
 var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sector/';
+// var SECTOR_URL = 'http://54.165.24.76:3010/kpis/v1/sector/';
+// var SECTOR_URL = 'http://localhost:3010/kpis/v1/sector/';
 var SECTOR_LOC_URL = 'http://52.20.201.145:3010/kpis/v1/location/sectors/all';
+// var SECTOR_LOC_URL = 'http://54.165.24.76:3010/kpis/v1/location/sectors/all';
 
 // syringa
 // var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
@@ -48,7 +54,6 @@ var resultsCache = {
 
 var LOADING = {};
 
-
 // Timer mixin (similar to multiple interetance in C++)
 var TimerMixin = require('react-timer-mixin');
 // Obtain device oritentation changes and process them
@@ -62,11 +67,12 @@ var SectorDetailScreen = React.createClass({
       animating: false,
       tabNumber: 0,
       isLoading: false,
+      isRefreshing: false,
       sectorKpiData: {},
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
-      sectorLocation: {},
+      sectorLocations: {},
       overlays: [],
       mapRegion: null,
       mapRegionInput: null,
@@ -79,8 +85,9 @@ var SectorDetailScreen = React.createClass({
   componentWillMount: function() {
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
-    resultsCache.totalForQuery = {};
-    resultsCache.dataForQuery = {};
+    // resultsCache.totalForQuery = {};
+    // resultsCache.dataForQuery = {};
+    this.loadData();
   },
   /**
   * Returns a random number between min (inclusive) and max (exclusive)
@@ -104,7 +111,7 @@ var SectorDetailScreen = React.createClass({
       this.setState({isLandscape: false});
     }
   },
-  componentDidMount: function() {
+  loadData: function() {
     // set default region first to remove warnings
     this.setState({
       tabNumber: 0,
@@ -151,6 +158,18 @@ var SectorDetailScreen = React.createClass({
     // this.getData("volteaccessibility");
     // this.getData("volteretainability");
   },
+  reloadData: function() {
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
+    this.loadData();
+  },
+  refreshData: function() {
+    this.setState({isRefreshing: true});
+    this.reloadData();
+  },
+  componentDidMount: function() {
+    // this.loadData();
+  },
   componentWillUnmount: function() {
     /*
     Orientation.getOrientation((err,orientation)=> {
@@ -178,7 +197,7 @@ var SectorDetailScreen = React.createClass({
       return queryString;
     }
   },
-  refreshData: function(query:string, result:{}) {
+  findData: function(query:string, result:{}) {
     if (query.indexOf("zonelocation") > -1) {
       this.findZoneLocation(result);
     } else if (query.indexOf("sectorlocation") > -1) {
@@ -203,7 +222,7 @@ var SectorDetailScreen = React.createClass({
             // resultsCache.nextPageNumberForQuery[query] = 2;
 
             // this gets the right data from the results
-            this.refreshData(query, sectors);
+            this.findData(query, sectors);
 
             // get the data in the kpi query
             if (query.indexOf('kpi') > -1) {
@@ -219,6 +238,7 @@ var SectorDetailScreen = React.createClass({
             if (Object.keys(resultsCache.dataForQuery).length >= NUM_CACHE_ENTRY) {
               this.setState({
                 isLoading: false,
+                isRefreshing: false,
               });
             }
         } else {
@@ -227,6 +247,7 @@ var SectorDetailScreen = React.createClass({
 
           this.setState({
             dataSource: this.getDataSource([]),
+            isRefreshing: false,
             isLoading: false,
           });
         }
@@ -240,13 +261,16 @@ var SectorDetailScreen = React.createClass({
             {text: 'OK', onPress: () => console.log(alertMessage)},
           ]
         );
-        this.setState({isLoading: false});
+        this.setState({
+          isLoading: false,
+          isRefreshing: false,
+        });
       })
   },
   getDataSource: function(sectors: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
-    var getSortedSectorDataArray = require('./components/getSortedSectorDataArray');
-    var sortedSectors = getSortedSectorDataArray(sectors);
+    var getSortedAreaDataArray = require('./components/getSortedAreaDataArray');
+    var sortedSectors = getSortedAreaDataArray(sectors);
     return this.state.dataSource.cloneWithRows(sortedSectors);
   },
   findZoneLocation: function(result) {
@@ -271,7 +295,7 @@ var SectorDetailScreen = React.createClass({
     }
   },
   findSectorLocation: function(result) {
-    this.state.sectorLocation = {};
+    this.state.sectorLocations = {};
     var centerLat = 0.0;
     var centerLng = 0.0;
     var latitudeDelta = 0.2;
@@ -292,7 +316,7 @@ var SectorDetailScreen = React.createClass({
         }
         var scalingFactor = Math.abs(Math.cos(2 * Math.PI * location.latitude / 360.0))
         var key = item.name;
-        this.state.sectorLocation[key] = location;
+        this.state.sectorLocations[key] = location;
         latitudeDelta = MILE_DIAMETER/69.0;
         longitudeDelta = MILE_DIAMETER/(scalingFactor * 69.0)
         /* TODO: not working, if user started with landscape, it seems that the zoom level is two times!
@@ -326,7 +350,7 @@ var SectorDetailScreen = React.createClass({
           "azimuth": item.azimuth,
         }
         var key = item.name;
-        this.state.sectorLocation[key] = location;
+        this.state.sectorLocations[key] = location;
       // }
     }
     this._onRegionInputChanged(region);
@@ -345,8 +369,11 @@ var SectorDetailScreen = React.createClass({
       return false;
   },
   findSectorKpiData: function(result) {
+    var massageCategoryKpi = require('./utils/massageCategoryKpi');
     for (var i=0; i<result.length; i++) {
       var item = result[i];
+      item = massageCategoryKpi(item);
+
       // if (this.props.sector.name === item.kpi) {
         /* Syringa
         var kpiData = {
@@ -368,6 +395,7 @@ var SectorDetailScreen = React.createClass({
           "unit": unit,
           "thresholds": item.thresholds,
         }
+        /*
         if (item.kpi.indexOf("Downlink") !== -1) {
           item.category = "Downlink";
         }
@@ -377,11 +405,17 @@ var SectorDetailScreen = React.createClass({
         item.kpi = item.kpi.replace("Data ", "");
         item.kpi = item.kpi.replace("Downlink ", "");
         item.kpi = item.kpi.replace("Uplink ", "");
-
+        */
         var kpiKey = item.category.toLowerCase() + "-" + item.kpi.toLowerCase();
         this.state.sectorKpiData[kpiKey] = kpiData;
       // }
     }
+  },
+  getSectorColors: function() {
+    this.getData("/redSector");
+    this.getData("/yellowSector");
+    this.getData("/greenSector");
+    // this.getData("/greySector");
   },
   getZoneLocation: function() {
     // add the zone name in the query
@@ -395,7 +429,7 @@ var SectorDetailScreen = React.createClass({
       resultsCache.dataForQuery[query] = zone.result;
 
       // this gets the right data from the results
-      this.refreshData(query, zone.result);
+      this.findData(query, zone.result);
     }
     */
   },
@@ -410,7 +444,7 @@ var SectorDetailScreen = React.createClass({
       resultsCache.dataForQuery[query] = sectors.result;
 
       // this gets the right data from the results
-      this.refreshData(query, sectors.result);
+      this.findData(query, sectors.result);
     }
     */
   },
@@ -421,7 +455,7 @@ var SectorDetailScreen = React.createClass({
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
     if (cachedResultsForQuery) {
       if (!LOADING[query]) {
-        this.refreshData(query, cachedResultsForQuery);
+        this.findData(query, cachedResultsForQuery);
         // if (resultsCache.totalForQuery.length >= NUM_CACHE_ENTRY && this.state.isLoading === true) {
         if (query.indexOf('kpi') > -1) {
           this.setState({
@@ -444,9 +478,11 @@ var SectorDetailScreen = React.createClass({
     resultsCache.dataForQuery[query] = null;
     this.setState({
       queryNumber: this.state.queryNumber + 1,
+      isLoading: true,
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
+    console.log("SectorDailyScreen queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
@@ -477,9 +513,12 @@ var SectorDetailScreen = React.createClass({
     });
     this.setAnimatingTimeout();
   },
+  _getSectorView(key) {
+
+  },
   _getAnnotations(region) {
     var annotations = [];
-    var sectorLocations = this.state.sectorLocation;
+    var sectorLocations = this.state.sectorLocations;
     // var resolveAssetSource = require('resolveAssetSource');
     for (var key in sectorLocations) {
       // var image = require('./assets/icons/Sector_Icon_03.png');
@@ -597,6 +636,8 @@ var SectorDetailScreen = React.createClass({
               tabNumber={this.state.tabNumber}
               dataSource={this.state.dataSource}
               isLoading={this.state.isLoading}
+              reloadData={this.refreshData}
+              isRefreshing={this.state.isRefreshing}
               />
           </View>
         </View>
@@ -604,10 +645,10 @@ var SectorDetailScreen = React.createClass({
     }
   },
   mpAnnotationPressed: function(siteName) {
-    mixpanelTrack("Map Site Pressed", {siteName: siteName}, this.props.currentUser);
+    mixpanelTrack("Map Site Pressed", {siteName: siteName}, global.currentUser);
   },
   render: function() {
-    if (this.state.isLoading) {
+    if (this.state.isLoading && !this.state.isRefreshing) {
       return(
         <ActivityIndicatorIOS
           animating={true}
@@ -654,7 +695,7 @@ var SectorDetails = React.createClass({
     );
   },
   render: function() {
-    if (this.props.animating) {
+    if (this.props.isLoading) {
       return (
         <ActivityIndicatorIOS
           animating={this.props.animating}
@@ -667,12 +708,13 @@ var SectorDetails = React.createClass({
     switch (this.props.tabNumber) {
       case 0:
         // var data = this.props.sectorKpiData;
-        var content = this.props.dataSource.getRowCount() === 0 ?
+        var content = (this.props.dataSource.getRowCount() === 0 && !this.props.isRefreshing) ?
           <NoSectors
             isLoading={this.props.isLoading}
+            onPressRefresh={this.props.reloadData}
           />
           :
-          <ListView
+          <RefreshableListView
             ref="sectorListview"
             dataSource={this.props.dataSource}
             renderRow={this.renderRow}
@@ -680,6 +722,8 @@ var SectorDetails = React.createClass({
             keyboardDismissMode="on-drag"
             keyboardShouldPersistTaps={true}
             showsVerticalScrollIndicator={true}
+            loadData={this.props.reloadData}
+            refreshDescription="Refreshing Data ..."
             renderSeparator={(sectionID, rowID) => <View key={`${sectionID}-${rowID}`} style={styles.separator} />}
           />
         return (
@@ -760,13 +804,17 @@ var KpiDetails = React.createClass({
   getKpiDetails: function(icon:string, data:{}) {
 
     // treat the throughput differently
+    /*
     if (data.kpi.indexOf("Throughput") > -1) {
       var category = data.kpi.substring(0, data.kpi.indexOf(" "));
       var kpi = data.kpi.substring(data.kpi.indexOf(" ") + 1, data.kpi.length);
     } else {
+    */
       var category = data.category;
       var kpi = data.kpi;
+    /*
     }
+    */
     var styleColor = "#00A9E9";
     if(icon.indexOf("Red") > -1) {
       styleColor = "#DD1F27";
@@ -991,8 +1039,22 @@ var SectorRemedy = React.createClass({
 */
 var NoSectors = React.createClass({
   render: function() {
+    if (this.props.isLoading) {
+      return (
+        <ActivityIndicatorIOS
+          animating={true}
+          style={[styles.centering, {height: 80}]}
+          color={"#00A9E9"}
+          size="large"
+        />
+      );
+    }
     var text = '';
-    if (!this.props.isLoading) {
+    var TouchableElement = TouchableOpacity;  // for iOS or Android variation
+    var text = '';
+    if (this.props.statusMessage && this.props.statusMessage !== "") {
+      text = this.props.statusMessage;
+    } else {
       // If we're looking at the latest sectors, aren't currently loading, and
       // still have no results, show a message
       text = 'No sectors found';
@@ -1000,6 +1062,12 @@ var NoSectors = React.createClass({
     return (
       <View style={[styles.container, styles.centerText]}>
         <Text style={styles.noResultText}>{text}</Text>
+        <TouchableElement
+          style={styles.iconTouch}
+          onPress={this.props.onPressRefresh}
+          underlayColor={"#105D95"}>
+          <Text style={[styles.pressRefreshText, {color: "white"}]}>Refresh Data</Text>
+        </TouchableElement>
       </View>
     );
   }
@@ -1013,8 +1081,28 @@ var styles = StyleSheet.create({
     // borderColor: "yellow",
     // borderWidth: 2,
   },
+  centerText: {
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+	iconTouch: {
+    flex: 2,
+    alignSelf: 'center',
+    // borderColor: "red",
+    // borderWidth: 1,
+  },
+  pressRefreshText: {
+    marginTop: 20,
+    fontSize: 20,
+    height: 25,
+    fontWeight: '700',
+    fontFamily: 'Helvetica Neue',
+    color: 'white',
+    backgroundColor: '#00BBF0',
+  },
   map: {
-    flex: 13,
+    flex: 9,
     // borderColor: "red",
     // borderWidth: 2,
   },

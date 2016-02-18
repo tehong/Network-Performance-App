@@ -2,6 +2,7 @@
 
 var React = require('react-native');
 var {
+  AppStateIOS,
   ActivityIndicatorIOS,
   ListView,
   Platform,
@@ -9,10 +10,12 @@ var {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
   Image,
 } = React;
 
 var TimerMixin = require('react-timer-mixin');
+var RefreshableListView = require('react-native-refreshable-listview');
 
 var PerformanceCell = require('./PerformanceCell');
 var ZoneScreen = require('./ZoneScreen');
@@ -21,6 +24,8 @@ var SearchBar = require('SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
+var Mixpanel = require('react-native').NativeModules.RNMixpanel;
+var ShowModalMessage = require('./components/ShowModalMessage');
 
 // title for the next scene
 /* zone */
@@ -56,9 +61,10 @@ var mixpanelTrack = require('./components/mixpanelTrack');
  * In case you want to use the Rotten Tomatoes' API on a real app you should
  * create an account at http://developer.rottentomatoes.com/
  */
-// var NETWORK_URL = 'http://52.20.201.145:3000/kpis/v1/area/all/kpi/all';
-// Thumb network URL
 var NETWORK_URL = 'http://52.20.201.145:3010/kpis/v1/network/all/kpi/all';
+// var NETWORK_URL = 'http://localhost:3010/kpis/v1/network/all/kpi/all';
+// Dev DB access: 54.165.24.76
+// var NETWORK_URL = 'http://54.165.24.76:3010/kpis/v1/network/all/kpi/all';
 
 // Results should be cached keyed by the query
 // with values of null meaning "being fetched"
@@ -80,8 +86,13 @@ var AreaScreen = React.createClass({
 
   getInitialState: function() {
     return {
-      isLoading: false,
-      isLoadingTail: false,
+      appState: AppStateIOS.currentState,
+      previousAppStates: [],
+      statusCode: 408,  // default to request timeout
+      statusMessage: "",  // show any result status message if present
+      isLoading: false,  // only used for initial load
+      isRefreshing: false,  // used for subsequent refresh
+      // isLoadingTail: false,
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
@@ -91,22 +102,57 @@ var AreaScreen = React.createClass({
   },
 
   componentWillMount: function() {
+  },
+  componentDidMount: function() {
+    // never hit, why?
+    this.mpAppState('active');
+    this.setState({appState: 'active'});
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
-    resultsCache.totalForQuery = {};
-    resultsCache.dataForQuery = {};
+    // resultsCache.totalForQuery = {};
+    // resultsCache.dataForQuery = {};
+    //
+    AppStateIOS.addEventListener('change', this._handleAppStateChange);
+    AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
   },
-
-  componentDidMount: function() {
+  componentWillUnmount: function() {
+    AppStateIOS.removeEventListener('change', this._handleAppStateChange);
+    AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
+  },
+  _handleAppStateChange: function(currentAppState) {
+    // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
+    var previousAppStates = this.state.previousAppStates.slice();
+    previousAppStates.push(this.state.appState);
+    this.setState({
+      appState: currentAppState,
+      previousAppStates: previousAppStates,
+    });
+    this.mpAppState(currentAppState);
+  },
+  _handleMemoryWarning: function() {
+    this.setState({memoryWarnings: this.state.memoryWarnings + 1})
+    this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
+  },
+  componentWillMount: function() {
     this.getAreas('area');
   },
 
+  reloadData: function() {
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
+    this.getAreas('area');
+  },
+  refreshData: function() {
+    this.setState({isRefreshing: true});
+    this.reloadData();
+  },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
       return (
         NETWORK_URL
       );
   },
   fetchData: function(query, queryString) {
+    console.log("queryString = " + queryString);
     fetch(queryString, {
       headers: {
         'networkid': 'thumb',
@@ -114,34 +160,77 @@ var AreaScreen = React.createClass({
     })
       .then((response) => response.json())
       .then((responseData) => {
-        var areas = responseData;
-        if (areas) {
-            LOADING[query] = false;
-            resultsCache.totalForQuery[query] = areas.length;
-            resultsCache.dataForQuery[query] = areas;
-            // resultsCache.nextPageNumberForQuery[query] = 2;
-            if (this.state.filter !== query) {
-              // do not update state if the query is stale
-              return;
-            }
-            this.setState({
-              isLoading: false,
-              // dataSource: this.getDataSource(responseData.movies),
-              dataSource: this.getDataSource(areas),
-            });
+        if(responseData.statusCode && responseData.statusCode !== 200) {
+          this.setState({
+            isLoading: false,
+            isRefreshing: false,
+            statusCode: responseData.statusCode,
+            statusMessage: responseData.statusMessage,
+          });
         } else {
-            LOADING[query] = false;
-            resultsCache.dataForQuery[query] = undefined;
+          var areas = responseData;
+          if (areas) {
+  // Test Data for missing data points
+  /*
+  areas[0].dailyAverage = 98.2;
+  areas[0].data = [
+  [0, "96.0"],
+  [1, "97.5"],
+  [2],
+  [3, "98.0"],
+  [4, "97.9"],
+  [5, "97.0"],
+  [6],
+  [7, "99.8"],
+  [8],
+  [9, "99.7"],
+  [10, "99.7"],
+  [11, "99.7"],
+  [12, "99.0"],
+  [13, "99.7"],
+  [14, "98.6"],
+  [15],
+  [16],
+  [17],
+  [18, "99.7"],
+  [19, "98.9"],
+  [20],
+  [21],
+  [22, "98.9"],
+  [23]];
+  */
+              LOADING[query] = false;
+              resultsCache.totalForQuery[query] = areas.length;
+              resultsCache.dataForQuery[query] = areas;
+              // resultsCache.nextPageNumberForQuery[query] = 2;
+              if (this.state.filter !== query) {
+                // do not update state if the query is stale
+                return;
+              }
+              this.setState({
+                isLoading: false,
+                isRefreshing: false,
+                // dataSource: this.getDataSource(responseData.movies),
+                dataSource: this.getDataSource(areas),
+              });
+          } else {
+              LOADING[query] = false;
+              resultsCache.dataForQuery[query] = undefined;
 
-            this.setState({
-              dataSource: this.getDataSource([]),
-              isLoading: false,
-            });
+              this.setState({
+                dataSource: this.getDataSource([]),
+                isLoading: false,
+                isRefreshing: false,
+              });
+          }
         }
       })
       .catch((ex) => {
         console.log('response failed', ex)
-        this.setState({isLoading: false});
+        this.setState({
+          isLoading: false,
+          isRefreshing: false,
+        });
       })
 
       /*`
@@ -196,7 +285,7 @@ var AreaScreen = React.createClass({
     this.setState({
       isLoading: true,
       queryNumber: this.state.queryNumber + 1,
-      isLoadingTail: false,
+      // isLoadingTail: false,
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
@@ -332,7 +421,6 @@ var AreaScreen = React.createClass({
           category: area.category,
           kpi: area.kpi,
           areaName: area.name,
-          currentUser: this.props.currentUser,
         }
       });
     } else {
@@ -345,15 +433,15 @@ var AreaScreen = React.createClass({
     }
   },
   selectKpiRed: function(area: Object) {
-    // TODO - enable this when the backend is ready
+    this.mpSelectSectorColor(area.kpi, "red");
     this.selectSectorKpi(area, "red");
   },
   selectKpiYellow: function(area: Object) {
-    // TODO - enable this when the backend is ready
+    this.mpSelectSectorColor(area.kpi, "yellow");
     this.selectSectorKpi(area, "yellow");
   },
   selectKpiGreen: function(area: Object) {
-    // TODO - enable this when the backend is ready
+    this.mpSelectSectorColor(area.kpi, "green");
     this.selectSectorKpi(area, "green");
   },
   selectSectorKpi(area: Object, color: string) {
@@ -374,7 +462,6 @@ var AreaScreen = React.createClass({
           category: area.category,
           kpi: area.kpi,
           areaName: area.name,
-          currentUser: this.props.currentUser,
           color: color,
         }
       });
@@ -394,7 +481,22 @@ var AreaScreen = React.createClass({
     this.timeoutID = this.setTimeout(() => this.getAreas(filter), 100);
   },
   mpSelectKpi: function(kpi) {
-    mixpanelTrack("Network KPI", {"KPI": kpi}, this.props.currentUser);
+    mixpanelTrack("Network KPI", {"KPI": kpi}, global.currentUser);
+  },
+  mpSelectSectorColor: function(kpi, color) {
+    mixpanelTrack("Sector Count", {"KPI": kpi, "Color": color}, global.currentUser);
+  },
+  mpAppState: function(currentAppState) {
+    if (currentAppState === 'active') {
+      mixpanelTrack("App Active", {"App Version": global.BeeperVersion}, global.currentUser);
+      ParseInitIOS.clearBadge();  // clear badge number on the app icon
+      Mixpanel.timeEvent("App Inactive");
+      Mixpanel.timeEvent("App Background");
+    } else if (currentAppState === 'background') {
+      mixpanelTrack("App Background", {"App Version": global.BeeperVersion}, global.currentUser);
+    } else if (currentAppState === 'inactive') {
+      mixpanelTrack("App Inactive", {"App Version": global.BeeperVersion}, global.currentUser);
+    }
   },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
@@ -449,7 +551,8 @@ var AreaScreen = React.createClass({
   },
 
   render: function() {
-    if (this.state.isLoading) {
+    // initial loading => show the activity indicator.  Subsequent refreshing of the ListView => do not unload the ListView
+    if (this.state.isLoading && !this.state.isRefreshing) {
       var content =
       <ActivityIndicatorIOS
         animating={true}
@@ -459,12 +562,16 @@ var AreaScreen = React.createClass({
       />;
     } else {
       var content = this.state.dataSource.getRowCount() === 0 ?
-        <NoAreas
+        <ShowModalMessage
           filter={this.state.filter}
+          statusCode={this.state.statusCode}
+          statusMessage={this.state.statusMessage}
           isLoading={this.state.isLoading}
+          onPressRefresh={this.reloadData}
+          buttonText={'Try Again'}
         />
         :
-        <ListView
+        <RefreshableListView
           ref="listview"
           style={styles.listView}
           dataSource={this.state.dataSource}
@@ -475,6 +582,8 @@ var AreaScreen = React.createClass({
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
           showsVerticalScrollIndicator={false}
+          loadData={this.refreshData}
+          refreshDescription="Refreshing Data ..."
         />
     }
     /*renderSeparator={this.renderSeparator}*/
@@ -488,18 +597,32 @@ var AreaScreen = React.createClass({
 
 var NoAreas = React.createClass({
   render: function() {
+    var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     var text = '';
-    if (this.props.filter) {
-      text = 'No network found';
-    } else if (!this.props.isLoading) {
+    if (this.props.statusMessage && this.props.statusMessage !== "") {
+      text = this.props.statusMessage + "\n(Status code: " + this.props.statusCode + ")";
+    } else {
       // If we're looking at the latest areas, aren't currently loading, and
       // still have no results, show a message
-      text = 'No network found';
+      text = 'We have detected a problem with our system, we are working on it so please come back soon.';
     }
-
+    /*
+        <TouchableElement
+          style={styles.iconTouch}
+          onPress={this.props.onPressRefresh}
+          underlayColor={"#105D95"}>
+          <Text style={[styles.noResultText, {color: white}]}>Refresh Data</Text>
+        </TouchableElement>
+        */
     return (
-      <View style={[styles.container, styles.centerText]}>
+      <View style={styles.noDataContainer}>
         <Text style={styles.noResultText}>{text}</Text>
+        <TouchableElement
+          style={styles.iconTouch}
+          onPress={this.props.onPressRefresh}
+          underlayColor={"#105D95"}>
+          <Text style={[styles.pressRefreshText, {color: "white"}]}>Refresh Data</Text>
+        </TouchableElement>
       </View>
     );
   }

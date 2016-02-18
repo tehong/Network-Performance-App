@@ -1,44 +1,49 @@
 /**
- * The examples provided by Facebook are for non-commercial testing and
- * evaluation purposes only.
+ *  sort by color then sort by "Category" + "Data" string within a color
  *
- * Facebook reserves all rights not expressly granted.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL
- * FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
- * AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * @flow
  */
 'use strict';
 
 var getThreshold = require('./getThreshold');
 var getDailyAverage = require('./getDailyAverage');
 var isDataEmpty = require('./isDataEmpty');
+var massageCategoryKpi = require('../utils/massageCategoryKpi');
 
 
 function getSortedDataArray(dataArray: Array<any>): Array<any> {
+  // first check if the arrays are there
+  if (dataArray.constructor !== Array) {
+    // if dataArrays are not there, return an empty array;
+    return [];
+  }
+  // if only on element, sort is not call, still need to massage the category and kpi fields.
+  if (dataArray.length === 1) {
+    dataArray[0] = massageCategoryKpi(dataArray[0]);
+    return dataArray;
+  }
   dataArray.sort(
     function(a,b) {
+      // first separate the category and the kpi field
+      a = massageCategoryKpi(a);
+      b = massageCategoryKpi(b);
       // red = -11, yellow = 0, green = 1 , we need to to put red in lower place i.e. smaller at the front of the array
-      var aEmpty = isDataEmpty(a["data"]);
-      var bEmpty = isDataEmpty(b["data"]);
-      // could be that the data is not there so put that in the back
-      if (aEmpty) {
-        if (bEmpty) {
-          return 0;
-        } else {
-          return 1;
-        }
-      }
-      if (bEmpty) {
+      if (a["data"] && b["data"]) {  // first check if data arrays are there
+        var aEmpty = isDataEmpty(a["data"]);
+        var bEmpty = isDataEmpty(b["data"]);
+        // could be that the data is not there so put that in the back
         if (aEmpty) {
-          return 0;
-        } else {
-          return -1;
+          if (bEmpty) {
+            return 0;
+          } else {
+            return 1;
+          }
+        }
+        if (bEmpty) {
+          if (aEmpty) {
+            return 0;
+          } else {
+            return -1;
+          }
         }
       }
       // start the real sorting

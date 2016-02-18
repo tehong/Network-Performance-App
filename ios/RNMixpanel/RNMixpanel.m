@@ -41,6 +41,12 @@ RCT_EXPORT_METHOD(peopleSet:(NSDictionary *)properties) {
   [mixpanel flush];
 }
 
+// people set  <- call the identity first!
+RCT_EXPORT_METHOD(timeEvent:(NSString *)event) {
+  [mixpanel timeEvent:event];
+  [mixpanel flush];
+}
+
 // track
 
 /* Skip this method, just use the general method

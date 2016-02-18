@@ -47,7 +47,6 @@ var LoginScreen = React.createClass({
   getInitialState: function() {
     Orientation.lockToPortrait(); //this will lock the view to Portrait
     return {
-      currentAppState: AppStateIOS.currentState,
       memoryWarnings: 0,
       isUpdatePassword: false,
       username: '',
@@ -63,30 +62,10 @@ var LoginScreen = React.createClass({
   },
   componentDidMount: function() {
     // set up handlers for state changes
-    AppStateIOS.addEventListener('change', this._handleAppStateChange);
-    AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
+
     Intercom.reset();
   },
-  componentWillUnmount: function() {
-    // remove state change handlers
-    AppStateIOS.removeEventListener('change', this._handleAppStateChange);
-    AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
-    // mark app inactive
-    this.mpAppInactive();
-  },
-  _handleAppStateChange: function(currentAppState) {
-    // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
-    this.setState({ currentAppState, });
-    if (currentAppState == "active") {
-      this.mpAppActive();
-    } else {
-      this.mpAppInactive();
-    }
-  },
-  _handleMemoryWarning: function() {
-    this.setState({memoryWarnings: this.state.memoryWarnings + 1})
-    this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
-  },
+
   resetLoginPrompt: function() {
     this.setState({
       username: '',
@@ -98,19 +77,21 @@ var LoginScreen = React.createClass({
   },
   saveAppKeys: function() {
     var valid = true;
-    if (this.state.username.length !== global.CONTROL_KEY_LENGTH) {
-      Alert.alert(
-        'Incorrect Application ID Entry!',
-        'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.username.length,
-      );
-      valid = false;
-    }
-    if (this.state.password.length !== global.CONTROL_KEY_LENGTH) {
-      Alert.alert(
-        'Incorrect Applicaiton Key Entry!',
-        'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.password.length,
-      );
-      valid = false;
+    if (saveKeys) {
+      if (this.state.username.length !== global.CONTROL_KEY_LENGTH) {
+        Alert.alert(
+          'Incorrect Application ID Entry!',
+          'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.username.length,
+        );
+        valid = false;
+      }
+      if (this.state.password.length !== global.CONTROL_KEY_LENGTH) {
+        Alert.alert(
+          'Incorrect Applicaiton Key Entry!',
+          'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.password.length,
+        );
+        valid = false;
+      }
     }
     if (valid) {
       var masterUsername = this.state.username;
@@ -144,15 +125,15 @@ var LoginScreen = React.createClass({
               ],
             );
           }
-          var mixpanelToken = user.get("MixpanelToken");
-          Mixpanel.sharedInstanceWithToken(mixpanelToken);
-          this.mpAppActive();
-          // get the Parse App ID and JS Key
+          // get the Parse App ID and JS Key and save it right away
           this.setState({
             appID: user.get('ParseAppId'),
             appKey: user.get('ParseJsKey'),
             mobileKey: user.get('ParseMobileKey')
           });
+          // Put mixpanel init last just before logging out since the mixpanel timing might affect appID/appKey saving
+          var mixpanelToken = user.get("MixpanelToken");
+          Mixpanel.sharedInstanceWithToken(mixpanelToken);
           Parse.User.logOut();
           // register on the JS side for parse login
           Parse.initialize(this.state.appID, this.state.appKey);
@@ -448,6 +429,8 @@ var LoginScreen = React.createClass({
   loginUser: function(user) {
     // check if password needs to be updated
     global.currentUser = user;
+    // IMPORTANT: need to identify mixpanel user before letting Parse register for push notification!
+    this.mpUserIdentify(user);
     if (this.state.loginButtonLabel === DEFAULT_LOGIN_BUTTON_TEXT && user.get("isUpdatePassword")) {
       this.setState({
         isLoading: false,
@@ -468,8 +451,6 @@ var LoginScreen = React.createClass({
       // var username = this.state.username;
       Intercom.registerIdentifiedUser({ userId: username })
       .then(() => {
-        // IMPORTANT: need to identify mixpanel user before letting Parse register for push notification!
-        this.mpUserIdentify(user);
         // Need to register Parse on the iOS side for push notification
         ParseInitIOS.init(this.state.appID, this.state.mobileKey);
         // No need to register for push again from Intercom since Parse register the device already above
@@ -488,6 +469,7 @@ var LoginScreen = React.createClass({
       this.toDataScreen();
     }
   },
+  // saveKeys
   onPressLogin: function() {
     if (!this.state.appID || !this.state.appKey) {
       this.saveAppKeys();
@@ -579,7 +561,6 @@ var LoginScreen = React.createClass({
           );
         } else {
           this.setState({isLoading: false});
-          debugger;
           Alert.alert(
             'Login Error',
             error.message,
@@ -608,23 +589,12 @@ var LoginScreen = React.createClass({
       }
     );
   },
-  mpAppActive: function() {
-    if (this.state.currentUser) {
-      mixpanelTrack("App Active", {"App Version": this.props.appVersion}, this.state.currentUser);
-    } else {
-      mixpanelTrack("App Launch", {"App Version": this.props.appVersion}, null);
-    }
-  },
   mpForgotten: function(name) {
     mixpanelTrack("Forgotten username/password", {"App Version": this.props.appVersion}, name);
   },
   mpAppLogin: function() {
     mixpanelTrack("App Login", {"App Version": this.props.appVersion}, this.state.currentUser);
     ParseInitIOS.clearBadge();
-  },
-  mpAppInactive: function() {
-    mixpanelTrack("App Inactive", {"App Version": this.props.appVersion}, this.state.currentUser);
-    this.saveLoginToStorage();
   },
   mpAppMemoryWarning: function() {
     mixpanelTrack("App Memory Warning", {"App Version": this.props.appVersion}, this.state.currentUser);

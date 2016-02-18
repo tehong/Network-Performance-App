@@ -21,12 +21,24 @@ var isDataEmpty = require('./isDataEmpty');
 
 
 function getSortedAreaDataArray(dataArray: Array<any>): Array<any> {
+  // first do a color sort
   var sortedDataArray = getSortedDataArray(dataArray);
+  // now sort them alphbetically
   sortedDataArray.sort(
     function(a,b) {
+      var aEmpty = false;
+      var bEmpty = false;
       // red = -11, yellow = 0, green = 1 , we need to to put red in lower place i.e. smaller at the front of the array
-      var aEmpty = isDataEmpty(a["data"]);
-      var bEmpty = isDataEmpty(b["data"]);      // could be that the data is not there so put that in the back
+      if (a["data"] && b["data"]) {
+        aEmpty = isDataEmpty(a["data"]);
+        bEmpty = isDataEmpty(b["data"]);      // could be that the data is not there so put that in the back
+      }
+      if (a["dailyAverage"] === "No Data") {
+        aEmpty = true;
+      }
+      if (b["dailyAverage"] === "No Data") {
+        bEmpty = true;
+      }
       if (aEmpty) {
         if (bEmpty) {
           return 0;

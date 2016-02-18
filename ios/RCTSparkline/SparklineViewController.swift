@@ -250,7 +250,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     averageLinePlot.identifier = kAverageLine
     lineStyle = averageLinePlot.dataLineStyle!.mutableCopy() as! CPTMutableLineStyle
     lineStyle.lineWidth = 1.0
-    lineStyle.lineColor = CPTColor(componentRed: 60/255, green: 60/255, blue: 60/255, alpha: 0.7)
+    lineStyle.lineColor = CPTColor(componentRed: 0/255, green: 0/255, blue: 0/255, alpha: 1.0)
     lineStyle.dashPattern = [4, 3]
     averageLinePlot.dataLineStyle = lineStyle
     averageLinePlot.dataSource = self
@@ -355,7 +355,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
       }
       return UInt(maxX) + 1
     } else {
-      return 2
+      return 2  // average line with only 2 points
     }
   }
   
@@ -384,7 +384,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
         return nil
       }
       // let num: Int = Int(plotData[i][key]!)
-    } else {
+    } else {  // average plot x,y returns here
       switch(key) {
         case "x":
           switch ( idx % 2 ) {
@@ -392,7 +392,14 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
               num = 0.0
               break
             case 1:
-              num = (Double)(plotData.count - 1)
+              // num = (Double)(plotData.count - 1)
+              var maxX:Double = 0
+              for item in plotData {
+                if item["x"] > maxX {
+                  maxX = item["x"]!
+                }
+              }
+              num = maxX + 1
               break
             default:
               break

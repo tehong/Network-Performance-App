@@ -25,12 +25,12 @@ function getImageFromAverage(dailyAverage: number, redThreshold: number, greenTh
     if (dailyAverage < redThreshold) {
       // red
       backgroundImage = "BG_Red_KPI_Item";
-    } else if (dailyAverage > greenThreshold) {
+    } else if (dailyAverage >= greenThreshold) {
       // green
       backgroundImage = "BG_Green_KPI_Item";
     }
   } else {
-    if (dailyAverage < greenThreshold) {
+    if (dailyAverage <= greenThreshold) {
       // green
       backgroundImage = "BG_Green_KPI_Item";
     } else if (dailyAverage > redThreshold) {

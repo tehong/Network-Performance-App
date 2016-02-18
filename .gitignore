@@ -33,6 +33,10 @@ local.properties
 #
 node_modules/
 npm-debug.log
+!node_modules/react-native-refreshable-listview/lib/ListView.js
+
+#atom editor
+.tag*
 
 # private
 *_new

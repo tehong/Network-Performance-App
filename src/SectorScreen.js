@@ -5,6 +5,7 @@ var {
   ActivityIndicatorIOS,
   ListView,
   Platform,
+  TouchableOpacity,
   // ProgressBarAndroid,
   StyleSheet,
   Text,
@@ -12,7 +13,7 @@ var {
 } = React;
 
 // list view with less memory usage
-var SGListView = require('react-native-sglistview');
+var RefreshableListView = require('react-native-refreshable-listview');
 
 var TimerMixin = require('react-timer-mixin');
 
@@ -33,13 +34,21 @@ var MobNavTitle = require('./components/icons/sectors/MobNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./components/getSortedDataArray');
 var mixpanelTrack = require('./components/mixpanelTrack');
+var ShowModalMessage = require('./components/ShowModalMessage');
 
  /* with syringa */
  // var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
  /* with Thumb without the zone, just site */
- var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sectors/site/';
- // var SECTOR_COLOR_URL = 'http://54.165.24.76:3010/kpis/v1/sector/all/';
- var SECTOR_COLOR_URL = 'http://52.20.201.145:3010/kpis/v1/sector/all/';
+ // var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sectors/site/';
+ // DEV below
+ var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v2/sectors/site/';
+ // var SECTOR_URL = 'http://54.165.24.76:3010/kpis/v2/sectors/site/';
+ // var SECTOR_URL = 'http://localhost:3010/kpis/v2/sectors/site/';
+
+ var SECTOR_COLOR_URL = 'http://52.20.201.145:3010/kpis/v2/sector/all/';
+ // var SECTOR_COLOR_URL = 'http://54.165.24.76:3010/kpis/v2/sector/all/';
+ // var SECTOR_COLOR_URL = 'http://localhost:3010/kpis/v2/sector/all/';
+ // var SECTOR_COLOR_URL = 'http://52.20.201.145:3010/kpis/v1/sector/all/';
  /*
 var API_KEYS = [
   '7waqfqbprs7pajbz28mqf6vz',
@@ -67,7 +76,10 @@ var SectorScreen = React.createClass({
 
   getInitialState: function() {
     return {
+      statusCode: "",  // default to OK
+      statusMessage: "",  // show any result status message if present
       isLoading: false,
+      isRefreshing: false,
       isLoadingTail: false,
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
@@ -80,11 +92,11 @@ var SectorScreen = React.createClass({
   componentWillMount: function() {
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
-    resultsCache.totalForQuery = {};
-    resultsCache.dataForQuery = {};
+    // resultsCache.totalForQuery = {};
+    // resultsCache.dataForQuery = {};
   },
-
-  componentDidMount: function() {
+  loadData: function() {
+    /*
     var uncorrectedKpi = this.props.kpi;
     var kpi = uncorrectedKpi.replace("Data ", "");
     kpi = kpi.replace("Uplink ", "");
@@ -134,9 +146,26 @@ var SectorScreen = React.createClass({
     } else {
       query = this.props.zoneName + "/category/" + category + "/kpi/" + kpi + "/";
     }
+    */
+    if (this.props.color) {
+      var query = "color/" + this.props.color + "/kpi/" + this.props.category + " " + this.props.kpi;
+    } else {
+      var query =  this.props.zoneName + "/kpi/" + this.props.category + " " + this.props.kpi;
+    }
     this.getSectors(query);
   },
-
+  reloadData: function() {
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
+    this.loadData();
+  },
+  refreshData: function() {
+    this.setState({isRefreshing: true});
+    this.reloadData();
+  },
+  componentDidMount: function() {
+    this.loadData();
+  },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
@@ -192,35 +221,50 @@ var SectorScreen = React.createClass({
     // fetch(queryString)
       .then((response) => response.json())
       .then((responseData) => {
-        var sectors = responseData;
-        if (sectors) {
-            LOADING[query] = false;
-            resultsCache.totalForQuery[query] = sectors.length;
-            resultsCache.dataForQuery[query] = sectors;
-            // resultsCache.nextPageNumberForQuery[query] = 2;
-
-            if (this.state.filter !== query) {
-              // do not update state if the query is stale
-              return;
-            }
-            this.setState({
-              isLoading: false,
-              // dataSource: this.getDataSource(responseData.movies),
-              dataSource: this.getDataSource(sectors),
-            });
+        if(responseData.message || (responseData.statusCode && responseData.statusCode !== 200)) {
+          var message = responseData.statusMessage ? responseData.statusMessage : responseData.message;
+          this.setState({
+            isLoading: false,
+            isRefreshing: false,
+            statusCode: responseData.statusCode,
+            statusMessage: message,
+          });
         } else {
-            LOADING[query] = false;
-            resultsCache.dataForQuery[query] = undefined;
+          var sectors = responseData;
+          if (sectors) {
+              LOADING[query] = false;
+              resultsCache.totalForQuery[query] = sectors.length;
+              resultsCache.dataForQuery[query] = sectors;
+              // resultsCache.nextPageNumberForQuery[query] = 2;
 
-            this.setState({
-              dataSource: this.getDataSource([]),
-              isLoading: false,
-            });
+              if (this.state.filter !== query) {
+                // do not update state if the query is stale
+                return;
+              }
+              this.setState({
+                isLoading: false,
+                isRefreshing: false,
+                // dataSource: this.getDataSource(responseData.movies),
+                dataSource: this.getDataSource(sectors),
+              });
+          } else {
+              LOADING[query] = false;
+              resultsCache.dataForQuery[query] = undefined;
+
+              this.setState({
+                dataSource: this.getDataSource([]),
+                isLoading: false,
+                isRefreshing: false,
+              });
+          }
         }
       })
       .catch((ex) => {
         console.log('response failed', ex)
-        this.setState({isLoading: false});
+        this.setState({
+          isLoading: false,
+          isRefreshing: false,
+        });
       })
   },
   getSectors: function(query: string) {
@@ -290,7 +334,6 @@ var SectorScreen = React.createClass({
           title: sector.title,
           sector: sector,
           areaName: this.props.areaName,
-          currentUser: this.props.currentUser,
           zoneName: this.props.zoneName,
         }
       });
@@ -311,7 +354,7 @@ var SectorScreen = React.createClass({
     this.timeoutID = this.setTimeout(() => this.getSectors(filter), 100);
   },
   mpSelectSector: function(sectorName) {
-    mixpanelTrack("Sector Selected", {"Sector Name": sectorName}, this.props.currentUser);
+    mixpanelTrack("Sector Selected", {"Sector Name": sectorName}, global.currentUser);
   },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
@@ -364,7 +407,8 @@ var SectorScreen = React.createClass({
   },
 
   render: function() {
-    if (this.state.isLoading) {
+    // don't show activitt indicator when refreshing
+    if (this.state.isLoading && !this.state.isRefreshing) {
       var content =
       <ActivityIndicatorIOS
         animating={true}
@@ -373,12 +417,28 @@ var SectorScreen = React.createClass({
         size="large"
       />;
     } else {
-      var content = this.state.dataSource.getRowCount() === 0 ?
+      var message =
         <NoSectors
           filter={this.state.filter}
+          statusCode={this.state.statusCode}
+          statusMessage={this.state.statusMessage}
           isLoading={this.state.isLoading}
-        /> :
-        <SGListView
+        />;
+      if (this.state.statusCode && this.state.statusCode !== "") {
+        message =
+        <ShowModalMessage
+          filter={this.state.filter}
+          statusCode={this.state.statusCode}
+          statusMessage={this.state.statusMessage}
+          isLoading={this.state.isLoading}
+          onPressRefresh={this.reloadData}
+          buttonText={'Try Again'}
+        />;
+      }
+      var content = this.state.dataSource.getRowCount() === 0 ?
+        message
+        :
+        <RefreshableListView
           style={styles.listView}
           ref="listview"
           removeClippedSubviews={true}
@@ -391,6 +451,8 @@ var SectorScreen = React.createClass({
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
           showsVerticalScrollIndicator={false}
+          loadData={this.refreshData}
+          refreshDescription="Refreshing Data ..."
         />;
         /*renderSeparator={this.renderSeparator}*/
     }
@@ -414,10 +476,11 @@ var SectorScreen = React.createClass({
 
 var NoSectors = React.createClass({
   render: function() {
+    var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     var text = '';
-    if (this.props.filter) {
-      text = 'No sectors found';
-    } else if (!this.props.isLoading) {
+    if (this.props.statusMessage && this.props.statusMessage !== "") {
+      text = this.props.statusMessage;
+    } else {
       // If we're looking at the latest sectors, aren't currently loading, and
       // still have no results, show a message
       text = 'No sectors found';
@@ -433,4 +496,3 @@ var NoSectors = React.createClass({
 var styles = getAreaScreenStyles();
 
 module.exports = SectorScreen;
-//

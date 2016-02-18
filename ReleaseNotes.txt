@@ -1,4 +1,4 @@
-- Beeper iOS 0.1.9 Release Note
+- Beeper iOS 0.1.9 Internal Release Note
 Release 0.1.9 is on TestFlight:
 (1) Swapped out the touch element so instead creating shadows on touch, it just dims the touch element.  This removes the background artifact of elements that have no background image.
 (2) Changed the sorting of the KPI to base on worst to best values instead of colors.
@@ -7,7 +7,7 @@ Release 0.1.9 is on TestFlight:
 (5) Implemented the user profile screen and populated the information from Parse backend user profile DB into the user profile screen.
 (6) Integrated Intercom and allowed the ability to invoke it in the user profile by pressing the conversational icon.
 
-- Beeper iOS 0.2.1 Release Note
+- Beeper iOS 0.2.1 Internal Release Note
 Release 0.2.1 is on TestFlight:
 (1) Fixed a bug on User Profile to show the right First Name and Last Name on the title.
 (2) Made minor cosmetic adjustments on UI.
@@ -28,7 +28,7 @@ Release 0.2.1 is on TestFlight:
 
   The "Beeper - Thumb" BAAS app in Parse, which will be used for Thumb support, will have its own application ID/Key set.
 
-- Beeper iOS 0.2.2 Release Note
+- Beeper iOS 0.2.2 Internal Release Note
 Release 0.2.2 is on TestFlight:
 (1) Completed network performance KPI story with new backend data.
 (2) Completed site performance KPI story with new backend data.
@@ -41,7 +41,7 @@ Release 0.2.2 is on TestFlight:
 (9) Changed the area sort to sort by color first then by alphabetically.
 (10) Changed the default map radius to 10 miles to showcase neighboring sites.
 
-- Beeper iOS 0.2.3 Release Note
+- Beeper iOS 0.2.3 Internal Release Note
 Release 0.2.3 is on TestFlight:
 (1) Fixed the sector details map annotation popup to show only site name if the sector is not the selected sector.
 (2) Removed the diagnosis and remedy tabs in sector details.
@@ -51,7 +51,7 @@ Release 0.2.3 is on TestFlight:
 (6) Removed the CS Fallback KPI in sector details.
 (7) Made the map bigger on the sector details in portrait mode since now there are only four KPIs.
 
-- Beeper iOS 0.2.5 Release Note
+- Beeper iOS 0.2.5 Internal Release Note
 (1) Allows all sectors to be displayed on the map by removing the search for neighboring sectors and just show all sectors.
 (2) Changed the default map diameter to 50 miles to show less crowded sectors on the map.
 (3) Modified the map annotations to only show "Network - SectorName" when user clicks on focused sector on the map.
@@ -71,16 +71,16 @@ Release 0.2.3 is on TestFlight:
    Application ID: Df3vSYw5LP
    Application Key: 8TX1uMCvgz
 
-- Beeper iOS 0.2.6 Release Note
+- Beeper iOS 0.2.6 Internal Release Note
   (1) Put in the Alpha release login screen.
   (2) Fixed the chart problem.
   (3) Added App Version" in Mixpanel stats (AppLauch, AppActive, AppInactive, AppLogin).
 
-- Beeper iOS 0.2.7 Release Note
+- Beeper iOS 0.2.7 Internal Release Note
   (1) Fixed a software typo that caused program to exit when the Data Accessibility is showing red in the Sector Details.
   (2) Decreased cached results, now the app always retrieves new data when a page is entered.
 
-- Beeper iOS 0.2.9 Release Note
+- Beeper iOS 0.2.9 Internal Release Note
   (1) Added real-time validation for Application ID and Key when entering them.
   (2) Added a prompt to ask user's name for a the 'Forgotten Username or Password' so they can create a new Intercom conversation.
   (3) Added detection of connection problem when logging in and show connection problem message for user.
@@ -105,7 +105,7 @@ Release 0.2.3 is on TestFlight:
      Application ID: Df3vSYw5LP
      Application Key: 8TX1uMCvgz
 
-- Beeper iOS 0.3.0 Release Note
+- Beeper iOS 0.3.0 Internal Release Note
   (1) Put in the sector count touch navigating to the single color only sector screen. (red/yellow/green only, grey ones may still appear in other colors)
   (2) Removed the extra spinner bug on the profile picture.
   (3) Added software version and release notes in the user profile.
@@ -114,7 +114,7 @@ Release 0.2.3 is on TestFlight:
   (6) Added Mixpanel push notifications.
   (7) Added Intercom push notifications.
 
-- Beeper iOS 0.3.1 Release Note
+- Beeper iOS 0.3.1 Internal Release Note
   (1) Fixed app crash by changing out the ListView to a new one that releases memory when a cell is moved out of view.
   (2) Reduced the table cell background Green/Yellow/Red/Grey image resolution by 1/3 to reduce frame drops due to more dynamic memory allocation.
   (3) Changed the background color of newtork/site/sector screens to light grey.
@@ -124,6 +124,30 @@ Release 0.2.3 is on TestFlight:
   (7) Removed the ability to change Application ID and Key in the app due to the problem with multiple push registration with OS.
   (8) Fixed a problem where Front-end is showing zeros when the data points have no data.
 
+- Beeper iOS 0.3.2 Internal Release Note
+  (1) Fixed the short line average plot when some data are missing from the backend.
+  (2) Added pull-to-refresh on all list views on all screens.
+  (3) Completed a story #651: The sector detail KPI list is now sorted from worst to best and, within the same color, alphabetically.
+
+- Beeper iOS 0.3.3 Internal Release Note
+  (1) Changed the "No Network Data" message to indicate maintenance windows or error in getting data.  (requires new service API changes)
+  (2) New Mixpanel events
+    - New "App Background" event that shows App is now put in background and suspended.
+    - Active "Duration" embedded in the "App Background" event, using that Duration, you should be able to derive user App session time.
+    - Fixed incorrect "App Inactive" event.
+    - New "Sector Count" event.
+    - Fixed incorrect user identity.
+  (3) New modal message showing the maintenance hours or system failure.  (Maintenance hour will only be seen with the new service API)
+  (4) Draw green threshold line instead of the dailyAverage on chart.
+  (5) Better clearing of the App Badge number via App Active detection.
+
+- Beeper iOS 0.3.4 Internal Release Note
+  (1) Added support for supporting any KPI sent by the backend and
+  (2) Added support for V2 service API.
+  (3) Added the ability to display the number of dailyAverage digits dynamically based on the number.
+  (4) Readjust the KPI chart to show the green threshold clear.
+
 - TODO:
-  (1) New set of KPIs are displayed.
+
+  (1) Changed the header dates to the actual date instead of just the day before.
   (1) KPI sector colors are displayed on the map's sectors' leaves.
