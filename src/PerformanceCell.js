@@ -54,7 +54,13 @@ var PerformanceCell = React.createClass({
     var dataArray = this.props.geoArea.data;
     // might be invalid data when length < 2, i.e. 1
 
-    var dailyAverage = this.props.geoArea.dailyAverage.toString();
+    var dailyAverage = this.props.geoArea.dailyAverage;
+    if (dailyAverage !== null) {
+      dailyAverage = this.props.geoArea.dailyAverage.toString();
+    } else {
+      dailyAverage = "No Data";
+      return dailyAverage;
+    }
     if (isDataEmpty(dataArray) && zeroFill === false) {
       dailyAverage = "No Data";
     } else {
@@ -336,6 +342,8 @@ var PerformanceCell = React.createClass({
     var redCount = this.props.geoArea.sectorStatusCount.red;
     var greenCount = this.props.geoArea.sectorStatusCount.green;
     var yellowCount = this.props.geoArea.sectorStatusCount.yellow;
+    var greyCount = this.props.geoArea.sectorStatusCount.grey;
+    /*
     if (isDataEmpty(dataArray)) {
       // set yellowCount to the total count when data is empty
       if (redCount !== 0) {
@@ -346,6 +354,7 @@ var PerformanceCell = React.createClass({
         greenCount = 0;
       }
     }
+    */
     var TouchableElement = TouchableOpacity;
     if (Platform.OS === 'android') {
       TouchableElement = TouchableNativeFeedback;
@@ -378,6 +387,16 @@ var PerformanceCell = React.createClass({
               activeOpacity={0.5}
               >
               <Text style={styles.sectorCountText}>{greenCount}</Text>
+              <Text style={styles.sectors}>Sectors</Text>
+            </TouchableElement>
+          </Image>
+          <View style={styles.lineVertical}></View>
+          <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Grey.png")}>
+            <TouchableElement style={styles.countContainer}
+              onPress={this.props.onSelectGrey}
+              activeOpacity={0.5}
+              >
+              <Text style={styles.sectorCountText}>{greyCount}</Text>
               <Text style={styles.sectors}>Sectors</Text>
             </TouchableElement>
           </Image>
@@ -421,7 +440,7 @@ var styles = StyleSheet.create({
     // borderWidth: 2,
   },
   sectorCountText: {
-    fontSize: 39,
+    fontSize: 38,
     fontWeight: '700',
     color: 'white',
     fontFamily: 'Helvetica Neue',

@@ -77,21 +77,19 @@ var LoginScreen = React.createClass({
   },
   saveAppKeys: function() {
     var valid = true;
-    if (saveKeys) {
-      if (this.state.username.length !== global.CONTROL_KEY_LENGTH) {
-        Alert.alert(
-          'Incorrect Application ID Entry!',
-          'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.username.length,
-        );
-        valid = false;
-      }
-      if (this.state.password.length !== global.CONTROL_KEY_LENGTH) {
-        Alert.alert(
-          'Incorrect Applicaiton Key Entry!',
-          'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.password.length,
-        );
-        valid = false;
-      }
+    if (this.state.username.length !== global.CONTROL_KEY_LENGTH) {
+      Alert.alert(
+        'Incorrect Application ID Entry!',
+        'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.username.length,
+      );
+      valid = false;
+    }
+    if (this.state.password.length !== global.CONTROL_KEY_LENGTH) {
+      Alert.alert(
+        'Incorrect Applicaiton Key Entry!',
+        'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.password.length,
+      );
+      valid = false;
     }
     if (valid) {
       var masterUsername = this.state.username;
@@ -469,7 +467,6 @@ var LoginScreen = React.createClass({
       this.toDataScreen();
     }
   },
-  // saveKeys
   onPressLogin: function() {
     if (!this.state.appID || !this.state.appKey) {
       this.saveAppKeys();

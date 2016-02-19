@@ -147,6 +147,14 @@ Release 0.2.3 is on TestFlight:
   (3) Added the ability to display the number of dailyAverage digits dynamically based on the number.
   (4) Readjust the KPI chart to show the green threshold clear.
 
+- Beeper iOS 0.3.5 Internal Release Note
+  (1) Added grey sector count in network page.
+  (2) Added dailyAverage equal to null handling code.
+  (3) Fixed auto-login random application ID and Key bug #822.
+
+- Beeper iOS 0.3.6 Internal Release Note
+  (1) Fixed the app ID/Key installation problem from last release.
+
 - TODO:
 
   (1) Changed the header dates to the actual date instead of just the day before.

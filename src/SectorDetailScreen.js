@@ -385,6 +385,9 @@ var SectorDetailScreen = React.createClass({
         }
         */
         var unit = item.unit;
+        if(item.dailyAvearge === null) {
+          item.dailyAverage = "No Data";
+        }
         if (item.dailyAverage === "No Data") {
           unit = "";
         }

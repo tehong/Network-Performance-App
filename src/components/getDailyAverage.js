@@ -16,7 +16,7 @@
 'use strict';
 
 function getDailyAverage(dailyAverage: string) {
-  if (dailyAverage !== 'No Data') {
+  if (dailyAverage !== 'No Data' && dailyAverage !== null) {
     var newDailyAverage = dailyAverage.toString();
     // Limit the number of total digits to 3 non-leading-zero digits
     var indexDecimal = newDailyAverage.indexOf('.');
@@ -37,6 +37,9 @@ function getDailyAverage(dailyAverage: string) {
     }
     newDailyAverage = parseFloat(newDailyAverage);
     return newDailyAverage;
+  }
+  if (dailyAverage === null) {
+    dailyAverage = "No Data";
   }
   return dailyAverage;
 }

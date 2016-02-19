@@ -15,7 +15,8 @@ var CustomerReleaseNotes = "\
 (9) Added auto-logout when app ID and Key are changed in the user profile\n\
 (10) Miscellanous UI tweaks.\n\
 (11) Added pull-to-refresh for all the views of KPI list.\n\
-(12) Replaced dailay average dotted chart on KPI chart with green threshold on chart.\
+(12) Replaced dailay average dotted chart on KPI chart with green threshold on chart.\n\
+(13) Added grey sector counts in network performance page.\
 ";
 
 import Storage from 'react-native-storage';

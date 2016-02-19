@@ -444,6 +444,10 @@ var AreaScreen = React.createClass({
     this.mpSelectSectorColor(area.kpi, "green");
     this.selectSectorKpi(area, "green");
   },
+  selectKpiGrey: function(area: Object) {
+    this.mpSelectSectorColor(area.kpi, "grey");
+    this.selectSectorKpi(area, "grey");
+  },
   selectSectorKpi(area: Object, color: string) {
     // this.mpSelectKpi(area.category + " " + area.kpi);
     // use lazy loading, this prevent possible loop require collision
@@ -542,6 +546,7 @@ var AreaScreen = React.createClass({
         onSelectRed={() => this.selectKpiRed(area)}
         onSelectYellow={() => this.selectKpiYellow(area)}
         onSelectGreen={() => this.selectKpiGreen(area)}
+        onSelectGrey={() => this.selectKpiGrey(area)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={area}

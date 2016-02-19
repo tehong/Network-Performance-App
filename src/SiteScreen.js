@@ -255,7 +255,7 @@ var SiteScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    // console.log("SiteScreen queryString = " + queryString);
+    console.log("SiteScreen queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
