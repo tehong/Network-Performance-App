@@ -31,10 +31,18 @@ local.properties
 
 # node.js
 #
-node_modules/
 npm-debug.log
-!node_modules/react-native-refreshable-listview/lib/RefreshableListView.js
-!node_modules/react-native-refreshable-listview/lib/ControlledRefreshableListView.js
+
+node_modules/*
+!node_modules/react-native-refreshable-listview/
+
+node_modules/react-native-refreshable-listview/*
+!node_modules/react-native-refreshable-listview/lib
+
+node_modules/react-native-refreshable-listview/lib/*
+!./node_modules/react-native-refreshable-listview/lib/RefreshableListView.js
+!./node_modules/react-native-refreshable-listview/lib/ControlledRefreshableListView.js
+
 
 #atom editor
 .tag*

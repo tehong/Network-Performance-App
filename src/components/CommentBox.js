@@ -113,6 +113,7 @@ class CommentBox extends React.Component {
     feed.set('user', global.currentUser);
     feed.set('entityType', _this.props.entityType);
     feed.set('entityName', _this.props.entityName);
+    feed.set('kpi', _this.props.kpi);
     feed.set('networkName', networkName);
     feed.set('siteName', siteName);
     feed.set('sectorName', sectorName);

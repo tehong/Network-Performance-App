@@ -263,8 +263,13 @@ var AreaScreen = React.createClass({
       var sortedAreas = getSortedDataArray(areas);
       for (var i=0; i<sortedAreas.length; i++) {
         var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
+        var siteName = global.navCommentProps.siteName;
         if (kpi === kpiName) {
-          this.selectKpi(sortedAreas[i]);
+          if (siteName === "red" || siteName === "grey" || siteName === "green" || siteName === "yellow") {
+            this.selectSectorKpi(sortedAreas[i], siteName);
+          } else {
+            this.selectKpi(sortedAreas[i]);
+          }
         }
       }
     }
@@ -487,11 +492,12 @@ var AreaScreen = React.createClass({
         component: SectorScreen,
         headerStyle: styles.header,
         passProps: {
-          entityType: 'Sector',
+          entityType: 'sector',
           category: area.category,
           kpi: area.kpi,
           areaName: area.name,
           color: color,
+          siteName: color,
         }
       });
     } else {

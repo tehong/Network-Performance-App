@@ -180,11 +180,15 @@ Release 0.2.3 is on TestFlight:
   (3) Added touch navigation from Feed comment to the correct screen and display comment.
   (4) Formatted the comment hours and minutes with leading zero.
   (5) Removed leading and trailing spaces and new lines from the comments.
+  (6) Shrink the map sector image to 1/3 to try to save memory usage.
 
 - Beeper iOS 0.4.2 Internal Release Note
+  (1) Fixed a bug that was introduced in the last session that prevented from loading the Feed.
+  (2) Fixed a comment navigation issue with color sectors.
+
   TODO:
   - Need to add Mixpanel events for the comment box and feed as well.  Not sure how details that would be.
-  - KPI target
+  - KPI monthly target screen
 
 - TODO:
 
