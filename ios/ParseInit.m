@@ -44,7 +44,18 @@ RCT_EXPORT_METHOD(init:(NSString *)appId key: (NSString *)appKey) {
   
 }
 
-// init the parse with the right app ID and Key, also start the
+// get the badge number
+// return value with a promise in JS
+RCT_REMAP_METHOD(getBadgeValue, resolver: (RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  NSUInteger badgeValue = [UIApplication sharedApplication].applicationIconBadgeNumber;
+  // Need to convert Integer to NSNumber object
+  NSNumber *badge = [NSNumber numberWithInteger:badgeValue];
+  resolve(badge);
+}
+
+// clear the badge
 RCT_EXPORT_METHOD(clearBadge) {
   PFInstallation *currentInstallation = [PFInstallation currentInstallation];
   if (currentInstallation.badge != 0) {

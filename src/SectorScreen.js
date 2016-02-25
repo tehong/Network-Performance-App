@@ -13,13 +13,15 @@ var {
 } = React;
 
 // list view with less memory usage
+var SGListView = require('react-native-sglistview');
+
 var RefreshableListView = require('react-native-refreshable-listview');
 
 var TimerMixin = require('react-timer-mixin');
 
-var PerformanceCell = require('./PerformanceCell');
+var PerformanceCell = require('./components/PerformanceCell');
 var SectorDetailScreen = require('./SectorDetailScreen');
-var SearchBar = require('SearchBar');
+var SearchBar = require('./components/SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var SectorDetailTitle = require('./components/icons/sectors/SectorDetailTitle');
@@ -32,9 +34,10 @@ var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
 var MobNavTitle = require('./components/icons/sectors/MobNavTitle');
 */
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
-var getSortedDataArray = require('./components/getSortedDataArray');
-var mixpanelTrack = require('./components/mixpanelTrack');
+var getSortedDataArray = require('./utils/getSortedDataArray');
+var mixpanelTrack = require('./utils/mixpanelTrack');
 var ShowModalMessage = require('./components/ShowModalMessage');
+var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
 
  /* with syringa */
  // var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
@@ -85,6 +88,7 @@ var SectorScreen = React.createClass({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
       filter: '',
+      contentInset: null,
       queryNumber: 0,
     };
   },
@@ -94,8 +98,13 @@ var SectorScreen = React.createClass({
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
     // resultsCache.dataForQuery = {};
+    if (this.props.entityType) {
+      saveEntityTypeInCloud(this.props.entityType);
+    }
+    this.loadData();
   },
   loadData: function() {
+    global.refreshFeedCount();
     /*
     var uncorrectedKpi = this.props.kpi;
     var kpi = uncorrectedKpi.replace("Data ", "");
@@ -150,7 +159,7 @@ var SectorScreen = React.createClass({
     if (this.props.color) {
       var query = "color/" + this.props.color + "/kpi/" + this.props.category + " " + this.props.kpi;
     } else {
-      var query =  this.props.zoneName + "/kpi/" + this.props.category + " " + this.props.kpi;
+      var query =  this.props.siteName + "/kpi/" + this.props.category + " " + this.props.kpi;
     }
     this.getSectors(query);
   },
@@ -163,8 +172,20 @@ var SectorScreen = React.createClass({
     this.setState({isRefreshing: true});
     this.reloadData();
   },
+  // Extend the list view bottom inset to accomondate keyboard input
+  onToggleComment: function() {
+    if (this.state.contentInset !== null) {
+      this.setState({
+        contentInset: null,
+      });
+    } else {
+      var inset = {bottom:250};
+      this.setState({
+        contentInset: inset
+      });
+    }
+  },
   componentDidMount: function() {
-    this.loadData();
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
@@ -178,7 +199,7 @@ var SectorScreen = React.createClass({
       if (this.props.color) {
         var queryString = SECTOR_COLOR_URL + 'color/' + this.props.color + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
       } else {
-        var queryString = SECTOR_URL + this.props.zoneName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
+        var queryString = SECTOR_URL + this.props.siteName + '/category/' + this.props.category + '/kpi/' + this.props.kpi + '/'
       }
     }
     return queryString;
@@ -213,6 +234,7 @@ var SectorScreen = React.createClass({
     }
     */
     // var queryString = 'https://52.20.201.145:55555/kpis/v1/sector/930018_Watrousville_1/daily/kpi';
+    var _this = this;  // saved for the procmise processing
     fetch(queryString, {
       headers: {
         'networkid': 'thumb',
@@ -223,7 +245,7 @@ var SectorScreen = React.createClass({
       .then((responseData) => {
         if(responseData.message || (responseData.statusCode && responseData.statusCode !== 200)) {
           var message = responseData.statusMessage ? responseData.statusMessage : responseData.message;
-          this.setState({
+          _this.setState({
             isLoading: false,
             isRefreshing: false,
             statusCode: responseData.statusCode,
@@ -237,22 +259,22 @@ var SectorScreen = React.createClass({
               resultsCache.dataForQuery[query] = sectors;
               // resultsCache.nextPageNumberForQuery[query] = 2;
 
-              if (this.state.filter !== query) {
+              if (_this.state.filter !== query) {
                 // do not update state if the query is stale
                 return;
               }
-              this.setState({
+              _this.setState({
                 isLoading: false,
                 isRefreshing: false,
-                // dataSource: this.getDataSource(responseData.movies),
-                dataSource: this.getDataSource(sectors),
+                // dataSource: _this.getDataSource(responseData.movies),
+                dataSource: _this.getDataSource(sectors),
               });
           } else {
               LOADING[query] = false;
               resultsCache.dataForQuery[query] = undefined;
 
-              this.setState({
-                dataSource: this.getDataSource([]),
+              _this.setState({
+                dataSource: _this.getDataSource([]),
                 isLoading: false,
                 isRefreshing: false,
               });
@@ -261,7 +283,7 @@ var SectorScreen = React.createClass({
       })
       .catch((ex) => {
         console.log('response failed', ex)
-        this.setState({
+        _this.setState({
           isLoading: false,
           isRefreshing: false,
         });
@@ -284,7 +306,10 @@ var SectorScreen = React.createClass({
           isLoading: false
         });
       } else {
-        this.setState({isLoading: true});
+        this.setState({
+          contentInset: null,
+          isLoading: true,
+        });
       }
       return;
     }
@@ -292,6 +317,7 @@ var SectorScreen = React.createClass({
     LOADING[query] = true;
     resultsCache.dataForQuery[query] = null;
     this.setState({
+      contentInset: null,
       isLoading: true,
       queryNumber: this.state.queryNumber + 1,
       isLoadingTail: false,
@@ -307,17 +333,17 @@ var SectorScreen = React.createClass({
   },
 
   getDataSource: function(sectors: Array<any>): ListView.DataSource {
-    var sortedMarkets = getSortedDataArray(sectors);
+    var sortedSites = getSortedDataArray(sectors);
     /*
     var filteredSet = [];
-    for (var i in sortedMarkets) {
-      if (sortedMarkets[i].parentEntityId == this.props.parentEntityId) {
-        filteredSet.push(sortedMarkets[i]);  // save the right ones to the filtered set
+    for (var i in sortedSites) {
+      if (sortedSites[i].parentEntityId == this.props.parentEntityId) {
+        filteredSet.push(sortedSites[i]);  // save the right ones to the filtered set
       }
     }
     return this.state.dataSource.cloneWithRows(filteredSet);
     */
-    return this.state.dataSource.cloneWithRows(sortedMarkets);
+    return this.state.dataSource.cloneWithRows(sortedSites);
   },
 
   selectSector: function(sector: Object) {
@@ -331,10 +357,11 @@ var SectorScreen = React.createClass({
         component: SectorDetailScreen,
         headerStyle: styles.header,
         passProps: {
+          entityType: 'sector_detail',
           title: sector.title,
           sector: sector,
           areaName: this.props.areaName,
-          zoneName: this.props.zoneName,
+          siteName: this.props.siteName,
         }
       });
     } else {
@@ -400,8 +427,12 @@ var SectorScreen = React.createClass({
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={sector}
+        areaName={this.props.areaName}
+        siteName={this.props.siteName}
+        sectorName={sector.name}
         color={this.props.color}
-        geoEntity="sector"
+        entityType={this.props.entityType}
+        onToggleComment={this.onToggleComment}
       />
     );
   },
@@ -439,6 +470,7 @@ var SectorScreen = React.createClass({
         message
         :
         <RefreshableListView
+          listViewComponent={SGListView}
           style={styles.listView}
           ref="listview"
           removeClippedSubviews={true}
@@ -450,9 +482,10 @@ var SectorScreen = React.createClass({
           automaticallyAdjustContentInsets={false}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           loadData={this.refreshData}
           refreshDescription="Refreshing Data ..."
+          contentInset={this.state.contentInset}
         />;
         /*renderSeparator={this.renderSeparator}*/
     }

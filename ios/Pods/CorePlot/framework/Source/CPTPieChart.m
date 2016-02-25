@@ -277,18 +277,32 @@ static const CGFloat colorLookupTable[10][3] =
 -(instancetype)initWithCoder:(NSCoder *)coder
 {
     if ( (self = [super initWithCoder:coder]) ) {
-        pieRadius                     = [coder decodeCGFloatForKey:@"CPTPieChart.pieRadius"];
-        pieInnerRadius                = [coder decodeCGFloatForKey:@"CPTPieChart.pieInnerRadius"];
-        startAngle                    = [coder decodeCGFloatForKey:@"CPTPieChart.startAngle"];
-        endAngle                      = [coder decodeCGFloatForKey:@"CPTPieChart.endAngle"];
-        sliceDirection                = (CPTPieDirection)[coder decodeIntegerForKey : @"CPTPieChart.sliceDirection"];
-        centerAnchor                  = [coder decodeCPTPointForKey:@"CPTPieChart.centerAnchor"];
-        borderLineStyle               = [[coder decodeObjectForKey:@"CPTPieChart.borderLineStyle"] copy];
-        overlayFill                   = [[coder decodeObjectForKey:@"CPTPieChart.overlayFill"] copy];
+        pieRadius       = [coder decodeCGFloatForKey:@"CPTPieChart.pieRadius"];
+        pieInnerRadius  = [coder decodeCGFloatForKey:@"CPTPieChart.pieInnerRadius"];
+        startAngle      = [coder decodeCGFloatForKey:@"CPTPieChart.startAngle"];
+        endAngle        = [coder decodeCGFloatForKey:@"CPTPieChart.endAngle"];
+        sliceDirection  = (CPTPieDirection)[coder decodeIntegerForKey:@"CPTPieChart.sliceDirection"];
+        centerAnchor    = [coder decodeCPTPointForKey:@"CPTPieChart.centerAnchor"];
+        borderLineStyle = [[coder decodeObjectOfClass:[CPTLineStyle class]
+                                               forKey:@"CPTPieChart.borderLineStyle"] copy];
+        overlayFill = [[coder decodeObjectOfClass:[CPTFill class]
+                                           forKey:@"CPTPieChart.overlayFill"] copy];
         labelRotationRelativeToRadius = [coder decodeBoolForKey:@"CPTPieChart.labelRotationRelativeToRadius"];
         pointingDeviceDownIndex       = NSNotFound;
     }
     return self;
+}
+
+/// @endcond
+
+#pragma mark -
+#pragma mark NSSecureCoding Methods
+
+/// @cond
+
++(BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 /// @endcond
@@ -594,15 +608,18 @@ static const CGFloat colorLookupTable[10][3] =
 
         bounds = CPTRectMake( centerPoint.x - radius, centerPoint.y - radius, radius * CPTFloat(2.0), radius * CPTFloat(2.0) );
     }
+    else {
+        bounds = CGRectZero;
+    }
 
     [borderStyle setLineStyleInContext:context];
     Class fillClass = [CPTFill class];
 
     while ( currentIndex < sampleCount ) {
-        CGFloat currentWidth = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthNormalized recordIndex : currentIndex];
+        CGFloat currentWidth = (CGFloat)[self cachedDoubleForField:CPTPieChartFieldSliceWidthNormalized recordIndex:currentIndex];
 
         if ( !isnan(currentWidth) ) {
-            CGFloat radialOffset = [(NSNumber *)offsetArray[currentIndex] cgFloatValue];
+            CGFloat radialOffset = [(NSNumber *) offsetArray[currentIndex] cgFloatValue];
 
             // draw slice
             CGContextSaveGState(context);
@@ -909,7 +926,7 @@ static const CGFloat colorLookupTable[10][3] =
         NSDecimalNumber *yValue = [[NSDecimalNumber alloc] initWithDecimal:plotPoint[CPTCoordinateY]];
         label.anchorPlotPoint = @[xValue, yValue];
 
-        CGFloat currentWidth = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthNormalized recordIndex : idx];
+        CGFloat currentWidth = (CGFloat)[self cachedDoubleForField:CPTPieChartFieldSliceWidthNormalized recordIndex:idx];
         if ( self.hidden || isnan(currentWidth) ) {
             contentLayer.hidden = YES;
         }
@@ -919,7 +936,7 @@ static const CGFloat colorLookupTable[10][3] =
 
             CGFloat startingWidth = CPTFloat(0.0);
             if ( idx > 0 ) {
-                startingWidth = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthSum recordIndex : idx - 1];
+                startingWidth = (CGFloat)[self cachedDoubleForField:CPTPieChartFieldSliceWidthSum recordIndex:idx - 1];
             }
             CGFloat labelAngle = [self radiansForPieSliceValue:startingWidth + currentWidth / CPTFloat(2.0)];
 
@@ -1239,7 +1256,7 @@ static const CGFloat colorLookupTable[10][3] =
 
             for ( NSUInteger currentIndex = 0; currentIndex < sampleCount; currentIndex++ ) {
                 // calculate angles for this slice
-                CGFloat width = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthNormalized recordIndex : currentIndex];
+                CGFloat width = (CGFloat)[self cachedDoubleForField:CPTPieChartFieldSliceWidthNormalized recordIndex:currentIndex];
                 if ( isnan(width) ) {
                     continue;
                 }
@@ -1296,7 +1313,7 @@ static const CGFloat colorLookupTable[10][3] =
 
             for ( NSUInteger currentIndex = 0; currentIndex < sampleCount; currentIndex++ ) {
                 // calculate angles for this slice
-                CGFloat width = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthNormalized recordIndex : currentIndex];
+                CGFloat width = (CGFloat)[self cachedDoubleForField:CPTPieChartFieldSliceWidthNormalized recordIndex:currentIndex];
                 if ( isnan(width) ) {
                     continue;
                 }

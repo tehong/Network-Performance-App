@@ -155,6 +155,37 @@ Release 0.2.3 is on TestFlight:
 - Beeper iOS 0.3.6 Internal Release Note
   (1) Fixed the app ID/Key installation problem from last release.
 
+- Beeper iOS 0.3.7 Internal Release Note
+  (1) Added tab view with two tabs: performance and feed.
+  (2) Added the ability to create several backend Parse tables based on the data obtained at the front-end.
+  (3) Disabled map heading rotation due to the problem with sector symbol azimuth not rotating with it and currently there is no way to detect the map heading angle in RN.
+  (4) Added the comment icon and the comment page and the ability to submit comments.
+  (5) Added the comment and feed retrieval.
+  (6) Added new list view to show inverted lists in comment box and feed screen.
+  (7) Added push notification and badge number is cleared when the Feed tab is opened.
+
+- Beeper iOS 0.3.8 Internal Release Note
+  (1) Separated into three # tags per channel. And made them all lower cases.
+  (2) Able to display user friendly names and profile pictures of other users.
+
+- Beeper iOS 0.4.0 Internal Release Note
+  (1) Fixed a bug where comment is not showing up in the comment box due to lower case changes in the last release.
+  (2) Removed additional in-app alert notification.  However, user might still get OS alert notification if app is running.
+  (3) Added badge number on the feed icon via quick and dirty hack of local storage via front-end code only.
+  (4) Refresh and clear app badge counts and feed badge counts in strategic places.
+
+- Beeper iOS 0.4.1 Internal Release Note
+  (1) Added more strategy point to refresh feed badge count.
+  (2) Removed the Alpha release label images.
+  (3) Added touch navigation from Feed comment to the correct screen and display comment.
+  (4) Formatted the comment hours and minutes with leading zero.
+  (5) Removed leading and trailing spaces and new lines from the comments.
+
+- Beeper iOS 0.4.2 Internal Release Note
+  TODO:
+  - Need to add Mixpanel events for the comment box and feed as well.  Not sure how details that would be.
+  - KPI target
+
 - TODO:
 
   (1) Changed the header dates to the actual date instead of just the day before.

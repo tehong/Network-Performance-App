@@ -14,9 +14,9 @@ var {
 
 var TimerMixin = require('react-timer-mixin');
 
-var PerformanceCell = require('./PerformanceCell');
+var PerformanceCell = require('./components/PerformanceCell');
 var SectorScreen = require('./SectorScreen');
-var SearchBar = require('SearchBar');
+var SearchBar = require('./components/SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var AccNavTitle = require('./components/icons/sectors/AccNavTitle');
@@ -28,7 +28,7 @@ var DltNavTitle = require('./components/icons/sectors/DltNavTitle');
 var UltNavTitle = require('./components/icons/sectors/UltNavTitle');
 var TNOLNavTitle = require('./components/icons/sectors/TNOLNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
-var getSortedDataArray = require('./components/getSortedDataArray');
+var getSortedDataArray = require('./utils/getSortedDataArray');
 
 
 /**
@@ -367,7 +367,7 @@ var ZoneScreen = React.createClass({
           automaticallyAdjustContentInsets={false}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
         />;
     }
         /*renderSeparator={this.renderSeparator}*/

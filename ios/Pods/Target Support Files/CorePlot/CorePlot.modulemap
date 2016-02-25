@@ -9,6 +9,7 @@ framework module CorePlot {
   private header "_CPTAnimationCGRectPeriod.h"
   private header "_CPTAnimationCGSizePeriod.h"
   private header "_CPTAnimationNSDecimalPeriod.h"
+  private header "_CPTAnimationNSNumberPeriod.h"
   private header "_CPTAnimationPlotRangePeriod.h"
   private header "_CPTAnimationTimingFunctions.h"
   private header "_CPTBorderLayer.h"

@@ -14,18 +14,21 @@ var {
   Image,
 } = React;
 
+
 var TimerMixin = require('react-timer-mixin');
 var RefreshableListView = require('react-native-refreshable-listview');
 
-var PerformanceCell = require('./PerformanceCell');
+var PerformanceCell = require('./components/PerformanceCell');
 var ZoneScreen = require('./ZoneScreen');
 var SiteScreen = require('./SiteScreen');
-var SearchBar = require('SearchBar');
+var SearchBar = require('./components/SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
+var Parse = require('parse/react-native');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var ShowModalMessage = require('./components/ShowModalMessage');
+var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
 
 // title for the next scene
 /* zone */
@@ -53,8 +56,8 @@ var TNOLNavTitle = require('./components/icons/sites/TNOLNavTitle');
 */
 
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
-var getSortedDataArray = require('./components/getSortedAreaDataArray');
-var mixpanelTrack = require('./components/mixpanelTrack');
+var getSortedDataArray = require('./utils/getSortedAreaDataArray');
+var mixpanelTrack = require('./utils/mixpanelTrack');
 
 /**
  * This is for demo purposes only, and rate limited.
@@ -98,12 +101,17 @@ var AreaScreen = React.createClass({
       }),
       filter: '',
       queryNumber: 0,
+      contentInset: null,
     };
   },
-
   componentWillMount: function() {
+    global.refreshFeedCount();
+    this.getAreas('area');
   },
   componentDidMount: function() {
+    if (this.props.entityType) {
+      saveEntityTypeInCloud(this.props.entityType);
+    }
     // never hit, why?
     this.mpAppState('active');
     this.setState({appState: 'active'});
@@ -133,17 +141,30 @@ var AreaScreen = React.createClass({
     this.setState({memoryWarnings: this.state.memoryWarnings + 1})
     this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
   },
-  componentWillMount: function() {
-    this.getAreas('area');
+  // Extend the list view bottom inset to accomondate keyboard input
+  onToggleComment: function() {
+    if (this.state.contentInset !== null) {
+      this.setState({
+        contentInset: null,
+      });
+    } else {
+      var inset = {bottom:250};
+      this.setState({
+        contentInset: inset
+      });
+    }
   },
-
   reloadData: function() {
+    global.refreshFeedCount();
     resultsCache.totalForQuery = {};
     resultsCache.dataForQuery = {};
     this.getAreas('area');
   },
   refreshData: function() {
-    this.setState({isRefreshing: true});
+    this.setState({
+      isRefreshing: true,
+    });
+
     this.reloadData();
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
@@ -153,6 +174,7 @@ var AreaScreen = React.createClass({
   },
   fetchData: function(query, queryString) {
     console.log("queryString = " + queryString);
+    var _this = this;  // ready for promise processing
     fetch(queryString, {
       headers: {
         'networkid': 'thumb',
@@ -161,7 +183,7 @@ var AreaScreen = React.createClass({
       .then((response) => response.json())
       .then((responseData) => {
         if(responseData.statusCode && responseData.statusCode !== 200) {
-          this.setState({
+          _this.setState({
             isLoading: false,
             isRefreshing: false,
             statusCode: responseData.statusCode,
@@ -170,35 +192,6 @@ var AreaScreen = React.createClass({
         } else {
           var areas = responseData;
           if (areas) {
-  // Test Data for missing data points
-  /*
-  areas[0].dailyAverage = 98.2;
-  areas[0].data = [
-  [0, "96.0"],
-  [1, "97.5"],
-  [2],
-  [3, "98.0"],
-  [4, "97.9"],
-  [5, "97.0"],
-  [6],
-  [7, "99.8"],
-  [8],
-  [9, "99.7"],
-  [10, "99.7"],
-  [11, "99.7"],
-  [12, "99.0"],
-  [13, "99.7"],
-  [14, "98.6"],
-  [15],
-  [16],
-  [17],
-  [18, "99.7"],
-  [19, "98.9"],
-  [20],
-  [21],
-  [22, "98.9"],
-  [23]];
-  */
               LOADING[query] = false;
               resultsCache.totalForQuery[query] = areas.length;
               resultsCache.dataForQuery[query] = areas;
@@ -207,7 +200,7 @@ var AreaScreen = React.createClass({
                 // do not update state if the query is stale
                 return;
               }
-              this.setState({
+              _this.setState({
                 isLoading: false,
                 isRefreshing: false,
                 // dataSource: this.getDataSource(responseData.movies),
@@ -217,7 +210,7 @@ var AreaScreen = React.createClass({
               LOADING[query] = false;
               resultsCache.dataForQuery[query] = undefined;
 
-              this.setState({
+              _this.setState({
                 dataSource: this.getDataSource([]),
                 isLoading: false,
                 isRefreshing: false,
@@ -262,6 +255,20 @@ var AreaScreen = React.createClass({
     }
     */
   },
+  navigateToComment: function(areas: object) {
+    // see we need to auto nav to the next page to get to the comment item
+    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() !== "network") {
+      // need to run the sorted data array because it modifies the record slightly
+      var kpi = global.navCommentProps.kpi;
+      var sortedAreas = getSortedDataArray(areas);
+      for (var i=0; i<sortedAreas.length; i++) {
+        var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
+        if (kpi === kpiName) {
+          this.selectKpi(sortedAreas[i]);
+        }
+      }
+    }
+  },
   getAreas: function(query: string) {
     this.timeoutID = null;
 
@@ -275,8 +282,13 @@ var AreaScreen = React.createClass({
           isLoading: false
         });
       } else {
-        this.setState({isLoading: true});
+        this.setState({
+          contentInset: null,
+          isLoading: true,
+        });
       }
+      // see we need to auto nav to the next page to get to the comment item
+      this.navigateToComment(cachedResultsForQuery);
       return;
     }
 
@@ -284,6 +296,7 @@ var AreaScreen = React.createClass({
     resultsCache.dataForQuery[query] = null;
     this.setState({
       isLoading: true,
+      contentInset: null,
       queryNumber: this.state.queryNumber + 1,
       // isLoadingTail: false,
     });
@@ -363,53 +376,63 @@ var AreaScreen = React.createClass({
       .done();
   */
   },
-
+  // save the KPI names in cloud
+  updateKpiNameInCloud: function(areas: Array<any>) {
+    var KPI = Parse.Object.extend("Kpi");
+    var kpiArray = [];
+    var kpiSaveArray = [];
+    var numKpiProcessed = 0;
+    // first find all KPIs in the KPI table
+    var query = new Parse.Query(KPI);
+    query.find({
+      success: function(results) {
+        for (var i = 0; i < results.length; i++) {
+          var kpiObj = results[i]
+          kpiArray.push(kpiObj.get('kpiName'));
+        }
+        // now construct kpiSaveArray
+        for (var i = 0; i < areas.length; i++) {
+          var kpiName = areas[i].category.toLowercase()+ "_" + areas[i].kpi.replace(/ /g, "").toLowerCase();
+          var kpiSave = true;
+          for (var j = 0; j < kpiArray.length; j++) {
+            if (kpiArray[j].indexOf(kpiName) > -1) {
+              kpiSave = false;
+            }
+          }
+          if (kpiSave) {
+            var kpi = new KPI();
+            kpi.set('kpiName', kpiName)
+            kpiSaveArray.push(kpi);
+          }
+        }
+        // now save the kpiSaveArray
+        Parse.Object.saveAll(kpiSaveArray, {
+          success: function(objs) {
+            console.log("parse - saving all kpi - ", kpiSaveArray);
+          },
+          error: function(error) {
+            console.log("parse - kpi saving failed, error code = " + error.message);
+          }
+        });
+      },
+      error: function(error) {
+        // error is an instance of Parse.Error.
+      }
+    });
+  },
   getDataSource: function(areas: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
     var sortedAreas = getSortedDataArray(areas);
+    // save the KPI name in cloud
+    // need to be after it is sorted and category is populated!
+    this.updateKpiNameInCloud(sortedAreas);  // populate the category name
     return this.state.dataSource.cloneWithRows(sortedAreas );
   },
-
   selectKpi: function(area: Object) {
     this.mpSelectKpi(area.category + " " + area.kpi);
     var titleComponent = SiteNavTitle;
-    /*  no more special title for each KPI, changed to general title
-    var cat = area.category.toLowerCase();
-    var kpi = area.kpi;
-    switch(kpi.toLowerCase()) {
-      case "accessibility":
-        if (cat === "data") {
-          var titleComponent = AccNavTitle;
-        } else {
-          var titleComponent = VOLTEAccNavTitle;
-        }
-        break;
-      case "retainability":
-        if (cat === "data") {
-          var titleComponent = RetNavTitle;
-        } else {
-          var titleComponent = VOLTERetNavTitle;
-        }
-        break;
-      case "throughput":
-        if (cat === "downlink") {
-          var titleComponent = DltNavTitle;
-        } else {
-          var titleComponent = UltNavTitle;
-        }
-        break;
-      case "tnol":
-        var titleComponent = TNOLNavTitle;
-        break;
-      case "fallback":
-        var titleComponent = CSFBNavTitle;
-        break;
-    }
-    */
-    // var newTitleComponent = React.render(<titleComponent area={"Zone"}/>);
 
     if (Platform.OS === 'ios') {
-      ParseInitIOS.clearBadge();  // clear badge number on the app icon
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,
@@ -418,6 +441,7 @@ var AreaScreen = React.createClass({
         component: SiteScreen,
         headerStyle: styles.header,
         passProps: {
+          entityType: 'site',
           category: area.category,
           kpi: area.kpi,
           areaName: area.name,
@@ -463,6 +487,7 @@ var AreaScreen = React.createClass({
         component: SectorScreen,
         headerStyle: styles.header,
         passProps: {
+          entityType: 'Sector',
           category: area.category,
           kpi: area.kpi,
           areaName: area.name,
@@ -492,8 +517,8 @@ var AreaScreen = React.createClass({
   },
   mpAppState: function(currentAppState) {
     if (currentAppState === 'active') {
+      global.refreshFeedCount();
       mixpanelTrack("App Active", {"App Version": global.BeeperVersion}, global.currentUser);
-      ParseInitIOS.clearBadge();  // clear badge number on the app icon
       Mixpanel.timeEvent("App Inactive");
       Mixpanel.timeEvent("App Background");
     } else if (currentAppState === 'background') {
@@ -550,7 +575,10 @@ var AreaScreen = React.createClass({
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={area}
-        geoEntity="area"
+        areaName={area.name}
+        entityType={this.props.entityType}
+        onToggleComment={this.onToggleComment}
+        navCommentProps={global.navCommentProps}
       />
     );
   },
@@ -586,9 +614,10 @@ var AreaScreen = React.createClass({
           automaticallyAdjustContentInsets={false}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           loadData={this.refreshData}
           refreshDescription="Refreshing Data ..."
+          contentInset={this.state.contentInset}
         />
     }
     /*renderSeparator={this.renderSeparator}*/

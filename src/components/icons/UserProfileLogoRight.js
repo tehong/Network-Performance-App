@@ -12,7 +12,7 @@ var {
 var getRightLogoStyles = require('../../styles/getRightLogoStyles');
 var styles = getRightLogoStyles();
 var Parse = require('parse/react-native');
-var mixpanelTrack = require('../../components/mixpanelTrack');
+var mixpanelTrack = require('../../utils/mixpanelTrack');
 
 module.exports = React.createClass({
   getInitialState: function() {

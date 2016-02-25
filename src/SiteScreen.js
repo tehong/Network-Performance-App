@@ -13,13 +13,16 @@ var {
 } = React;
 
 // memory releasing list view
+// list view with less memory usage
+var SGListView = require('react-native-sglistview');
+
 var RefreshableListView = require('react-native-refreshable-listview');
 
 var TimerMixin = require('react-timer-mixin');
 
-var PerformanceCell = require('./PerformanceCell');
+var PerformanceCell = require('./components/PerformanceCell');
 var SectorScreen = require('./SectorScreen');
-var SearchBar = require('SearchBar');
+var SearchBar = require('./components/SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 // title for the next scene
@@ -35,10 +38,11 @@ var TNOLNavTitle = require('./components/icons/sectors/TNOLNavTitle');
 */
 var SectorNavTitle = require('./components/icons/sectors/SectorNavTitle');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
-var getSortedDataArray = require('./components/getSortedDataArray');
-var mixpanelTrack = require('./components/mixpanelTrack');
+var getSortedDataArray = require('./utils/getSortedDataArray');
+var mixpanelTrack = require('./utils/mixpanelTrack');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 var ShowModalMessage = require('./components/ShowModalMessage');
+var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
 
 
 /**
@@ -86,6 +90,7 @@ var SiteScreen = React.createClass({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
       filter: '',
+      contentInset: null,
       queryNumber: 0,
     };
   },
@@ -97,6 +102,7 @@ var SiteScreen = React.createClass({
     // resultsCache.dataForQuery = {};
   },
   loadData: function() {
+    global.refreshFeedCount();
     /*
     var uncorrectedKpi = this.props.kpi;
     var kpi = uncorrectedKpi.replace("Data ", "");
@@ -155,7 +161,23 @@ var SiteScreen = React.createClass({
     this.setState({isRefreshing: true});
     this.reloadData();
   },
+  // Extend the list view bottom inset to accomondate keyboard input
+  onToggleComment: function() {
+    if (this.state.contentInset !== null) {
+      this.setState({
+        contentInset: null,
+      });
+    } else {
+      var inset = {bottom:250};
+      this.setState({
+        contentInset: inset
+      });
+    }
+  },
   componentDidMount: function() {
+    if (this.props.entityType) {
+      saveEntityTypeInCloud(this.props.entityType);
+    }
     this.loadData();
   },
 
@@ -171,6 +193,7 @@ var SiteScreen = React.createClass({
   fetchData: function(query, queryString) {
     // var queryString = 'https://52.20.201.145:55555/kpis/v1/site/930018_Watrousville_1/daily/kpi';
     // var queryString = 'http://52.20.201.145:3010/kpis/v1/site/930018_Watrousville_1/daily/kpi';
+    var _this = this;  // saved for promise processing
     fetch(queryString, {
       headers: {
         'networkid': 'thumb',
@@ -180,7 +203,7 @@ var SiteScreen = React.createClass({
       .then((response) => response.json())
       .then((responseData) => {
         if(responseData.statusCode && responseData.statusCode !== 200) {
-          this.setState({
+          _this.setState({
             isLoading: false,
             isRefreshing: false,
             statusCode: responseData.statusCode,
@@ -194,22 +217,24 @@ var SiteScreen = React.createClass({
               resultsCache.dataForQuery[query] = sites;
               // resultsCache.nextPageNumberForQuery[query] = 2;
 
-              if (this.state.filter !== query) {
+              if (_this.state.filter !== query) {
                 // do not update state if the query is stale
                 return;
               }
-              this.setState({
+              _this.setState({
                 isLoading: false,
                 isRefreshing: false,
-                // dataSource: this.getDataSource(responseData.movies),
-                dataSource: this.getDataSource(sites),
+                // dataSource: _this.getDataSource(responseData.movies),
+                dataSource: _this.getDataSource(sites),
               });
+              // see we need to auto nav to the next page to get to the comment item
+              _this.navigateToComment(sites);
           } else {
               LOADING[query] = false;
               resultsCache.dataForQuery[query] = undefined;
 
-              this.setState({
-                dataSource: this.getDataSource([]),
+              _this.setState({
+                dataSource: _this.getDataSource([]),
                 isLoading: false,
                 isRefreshing: false,
               });
@@ -218,11 +243,27 @@ var SiteScreen = React.createClass({
       })
       .catch((ex) => {
         console.log('response failed', ex)
-        this.setState({
+        _this.setState({
           isLoading: false,
           isRefreshing: false,
         });
       })
+  },
+  navigateToComment: function(sites: object) {
+    // see if we need to auto nav to the next page to get to the comment item
+    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "sector") {
+      // need to run the sorted data array because it modifies the record slightly
+      var kpi = global.navCommentProps.kpi;
+      var site = global.navCommentProps.siteName;
+      var sortedSites = getSortedDataArray(sites);
+      for (var i=0; i<sortedSites.length; i++) {
+        var kpiName = sortedSites[i].category.toLowerCase()+ "_" + sortedSites[i].kpi.replace(/ /g, "_").toLowerCase();
+        var siteName = sortedSites[i].name.toLowerCase();
+        if (site === siteName && kpi === kpiName) {
+          this.selectSite(sortedSites[i]);
+        }
+      }
+    }
   },
   getSites: function(query: string) {
     this.timeoutID = null;
@@ -241,14 +282,20 @@ var SiteScreen = React.createClass({
           isLoading: false
         });
       } else {
-        this.setState({isLoading: true});
+        this.setState({
+          contentInset: null,
+          isLoading: true,
+        });
       }
+      // see we need to auto nav to the next page to get to the comment item
+      this.navigateToComment(cachedResultsForQuery);
       return;
     }
 
     LOADING[query] = true;
     resultsCache.dataForQuery[query] = null;
     this.setState({
+      contentInset: null,
       isLoading: true,
       queryNumber: this.state.queryNumber + 1,
       isLoadingTail: false,
@@ -279,10 +326,12 @@ var SiteScreen = React.createClass({
 
   selectSite: function(site: Object) {
     this.mpSelectSite(site.name);
+    /*
     var uncorrectedKpi = site.kpi;
     var kpi = uncorrectedKpi.replace("Data ", "");
     kpi = kpi.replace("Uplink ", "");
     kpi = kpi.replace("Downlink ", "");
+    */
     var titleComponent = SectorNavTitle;
     /* no special KPI-based title for the sector screen
     var cat = site.category.toLowerCase();
@@ -317,7 +366,6 @@ var SiteScreen = React.createClass({
     }
     */
     if (Platform.OS === 'ios') {
-      ParseInitIOS.clearBadge();  // clear badge number on the app icon
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,
@@ -325,10 +373,11 @@ var SiteScreen = React.createClass({
         component: SectorScreen,
         headerStyle: styles.header,
         passProps: {
+          entityType: 'sector',
           category: site.category,
           kpi: site.kpi,
           areaName: this.props.areaName,
-          zoneName: site.name,
+          siteName: site.name,
         }
       });
     } else {
@@ -393,7 +442,10 @@ var SiteScreen = React.createClass({
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={site}
-        geoEntity="site"
+        areaName={this.props.areaName}
+        siteName={site.name}
+        entityType={this.props.entityType}
+        onToggleComment={this.onToggleComment}
       />
     );
   },
@@ -418,6 +470,7 @@ var SiteScreen = React.createClass({
           buttonText={'Try Again'}
         /> :
         <RefreshableListView
+          listViewComponent={SGListView}
           ref="listview"
           style={styles.listView}
           dataSource={this.state.dataSource}
@@ -427,9 +480,10 @@ var SiteScreen = React.createClass({
           automaticallyAdjustContentInsets={false}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           loadData={this.refreshData}
           refreshDescription="Refreshing Data ..."
+          contentInset={this.state.contentInset}
         />;
         /*renderSeparator={this.renderSeparator}*/
     }

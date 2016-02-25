@@ -429,7 +429,7 @@
     if ( (self = [super init]) ) {
         CGColorSpaceRef colorSpace = [coder newCGColorSpaceDecodeForKey:@"CPTColor.colorSpace"];
 
-        size_t numberOfComponents = (size_t)[coder decodeInt64ForKey : @"CPTColor.numberOfComponents"];
+        size_t numberOfComponents = (size_t)[coder decodeInt64ForKey:@"CPTColor.numberOfComponents"];
 
         CGFloat *colorComponents = malloc( numberOfComponents * sizeof(CGFloat) );
 
@@ -448,6 +448,18 @@
 }
 
 #pragma mark -
+#pragma mark NSSecureCoding Methods
+
+/// @cond
+
++(BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+/// @endcond
+
+#pragma mark -
 #pragma mark NSCopying Methods
 
 /// @cond
@@ -460,10 +472,13 @@
 
     if ( myColor ) {
         cgColorCopy = CGColorCreateCopy(myColor);
+        CPTColor *colorCopy = [[[self class] allocWithZone:zone] initWithCGColor:cgColorCopy];
+        CGColorRelease(cgColorCopy);
+        return colorCopy;
     }
-    CPTColor *colorCopy = [[[self class] allocWithZone:zone] initWithCGColor:cgColorCopy];
-    CGColorRelease(cgColorCopy);
-    return colorCopy;
+    else {
+        return nil;
+    }
 }
 
 /// @endcond

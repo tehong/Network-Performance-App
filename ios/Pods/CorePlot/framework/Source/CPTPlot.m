@@ -405,29 +405,39 @@ NSString *const CPTPlotBindingDataLabels = @"dataLabels"; ///< Plot data labels.
 -(instancetype)initWithCoder:(NSCoder *)coder
 {
     if ( (self = [super initWithCoder:coder]) ) {
-        dataSource           = [coder decodeObjectForKey:@"CPTPlot.dataSource"];
-        title                = [[coder decodeObjectForKey:@"CPTPlot.title"] copy];
-        attributedTitle      = [[coder decodeObjectForKey:@"CPTPlot.attributedTitle"] copy];
-        plotSpace            = [coder decodeObjectForKey:@"CPTPlot.plotSpace"];
-        cachePrecision       = (CPTPlotCachePrecision)[coder decodeIntegerForKey : @"CPTPlot.cachePrecision"];
-        needsRelabel         = [coder decodeBoolForKey:@"CPTPlot.needsRelabel"];
-        adjustLabelAnchors   = [coder decodeBoolForKey:@"CPTPlot.adjustLabelAnchors"];
-        showLabels           = [coder decodeBoolForKey:@"CPTPlot.showLabels"];
-        labelOffset          = [coder decodeCGFloatForKey:@"CPTPlot.labelOffset"];
-        labelRotation        = [coder decodeCGFloatForKey:@"CPTPlot.labelRotation"];
-        labelField           = (NSUInteger)[coder decodeIntegerForKey : @"CPTPlot.labelField"];
-        labelTextStyle       = [[coder decodeObjectForKey:@"CPTPlot.labelTextStyle"] copy];
-        labelFormatter       = [coder decodeObjectForKey:@"CPTPlot.labelFormatter"];
-        labelShadow          = [coder decodeObjectForKey:@"CPTPlot.labelShadow"];
-        labelIndexRange      = [[coder decodeObjectForKey:@"CPTPlot.labelIndexRange"] rangeValue];
-        labelAnnotations     = [[coder decodeObjectForKey:@"CPTPlot.labelAnnotations"] mutableCopy];
+        dataSource = [coder decodeObjectOfClass:[NSObject class]
+                                         forKey:@"CPTPlot.dataSource"];
+        title = [[coder decodeObjectOfClass:[NSString class]
+                                     forKey:@"CPTPlot.title"] copy];
+        attributedTitle = [[coder decodeObjectOfClass:[NSAttributedString class]
+                                               forKey:@"CPTPlot.attributedTitle"] copy];
+        plotSpace = [coder decodeObjectOfClass:[CPTPlotSpace class]
+                                        forKey:@"CPTPlot.plotSpace"];
+        cachePrecision     = (CPTPlotCachePrecision)[coder decodeIntegerForKey:@"CPTPlot.cachePrecision"];
+        needsRelabel       = [coder decodeBoolForKey:@"CPTPlot.needsRelabel"];
+        adjustLabelAnchors = [coder decodeBoolForKey:@"CPTPlot.adjustLabelAnchors"];
+        showLabels         = [coder decodeBoolForKey:@"CPTPlot.showLabels"];
+        labelOffset        = [coder decodeCGFloatForKey:@"CPTPlot.labelOffset"];
+        labelRotation      = [coder decodeCGFloatForKey:@"CPTPlot.labelRotation"];
+        labelField         = (NSUInteger)[coder decodeIntegerForKey:@"CPTPlot.labelField"];
+        labelTextStyle     = [[coder decodeObjectOfClass:[CPTTextStyle class]
+                                                  forKey:@"CPTPlot.labelTextStyle"] copy];
+        labelFormatter = [coder decodeObjectOfClass:[NSFormatter class]
+                                             forKey:@"CPTPlot.labelFormatter"];
+        labelShadow = [coder decodeObjectOfClass:[CPTShadow class]
+                                          forKey:@"CPTPlot.labelShadow"];
+        labelIndexRange = [[coder decodeObjectOfClass:[NSValue class]
+                                               forKey:@"CPTPlot.labelIndexRange"] rangeValue];
+        labelAnnotations = [[coder decodeObjectOfClasses:[NSSet setWithArray:@[[NSArray class], [CPTAnnotation class]]]
+                                                  forKey:@"CPTPlot.labelAnnotations"] mutableCopy];
         alignsPointsToPixels = [coder decodeBoolForKey:@"CPTPlot.alignsPointsToPixels"];
 
         drawLegendSwatchDecoration = [coder decodeBoolForKey:@"CPTPlot.drawLegendSwatchDecoration"];
 
         // support old archives
         if ( [coder containsValueForKey:@"CPTPlot.identifier"] ) {
-            self.identifier = [coder decodeObjectForKey:@"CPTPlot.identifier"];
+            self.identifier = [coder decodeObjectOfClass:[NSObject class]
+                                                  forKey:@"CPTPlot.identifier"];
         }
 
         // init other properties
@@ -439,6 +449,18 @@ NSString *const CPTPlotBindingDataLabels = @"dataLabels"; ///< Plot data labels.
         pointingDeviceDownLabelIndex = NSNotFound;
     }
     return self;
+}
+
+/// @endcond
+
+#pragma mark -
+#pragma mark NSSecureCoding Methods
+
+/// @cond
+
++(BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 /// @endcond
@@ -588,7 +610,7 @@ NSString *const CPTPlotBindingDataLabels = @"dataLabels"; ///< Plot data labels.
             size_t sampleSize                  = numericData.sampleBytes;
             size_t length                      = sampleSize * numberOfRecords;
 
-            [(NSMutableData *)numericData.data increaseLengthBy : length];
+            [(NSMutableData *) numericData.data increaseLengthBy:length];
 
             int8_t *start      = [numericData mutableSamplePointer:idx];
             size_t bytesToMove = numericData.data.length - (idx + numberOfRecords) * sampleSize;
@@ -633,7 +655,7 @@ NSString *const CPTPlotBindingDataLabels = @"dataLabels"; ///< Plot data labels.
             dataBuffer.length -= length;
         }
         else {
-            [(NSMutableArray *)data removeObjectsInRange : indexRange];
+            [(NSMutableArray *) data removeObjectsInRange:indexRange];
         }
     }
 
@@ -1147,7 +1169,7 @@ NSString *const CPTPlotBindingDataLabels = @"dataLabels"; ///< Plot data labels.
         if ( ( (CPTNumberArray *)numbers ).count == 0 ) {
             loadedDataType = self.doubleDataType;
         }
-        else if ( [( (NSArray < NSNumber * > *)numbers )[0] isKindOfClass :[NSDecimalNumber class]] ) {
+        else if ( [( (NSArray < NSNumber * > *)numbers )[0] isKindOfClass:[NSDecimalNumber class]] ) {
             loadedDataType = self.decimalDataType;
         }
         else {
@@ -1540,7 +1562,7 @@ NSString *const CPTPlotBindingDataLabels = @"dataLabels"; ///< Plot data labels.
     BOOL plotProvidesLabels          = dataLabelTextStyle && dataLabelFormatter;
 
     BOOL hasCachedLabels                     = NO;
-    NSMutableArray<CPTLayer *> *cachedLabels = (NSMutableArray<CPTLayer *> *)[self cachedArrayForKey : CPTPlotBindingDataLabels];
+    NSMutableArray<CPTLayer *> *cachedLabels = (NSMutableArray<CPTLayer *> *)[self cachedArrayForKey: CPTPlotBindingDataLabels];
     for ( CPTLayer *label in cachedLabels ) {
         if ( ![label isKindOfClass:nullClass] ) {
             hasCachedLabels = YES;

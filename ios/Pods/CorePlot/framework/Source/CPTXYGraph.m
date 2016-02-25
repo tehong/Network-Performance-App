@@ -103,10 +103,22 @@
 -(instancetype)initWithCoder:(NSCoder *)coder
 {
     if ( (self = [super initWithCoder:coder]) ) {
-        xScaleType = (CPTScaleType)[coder decodeIntegerForKey : @"CPTXYGraph.xScaleType"];
-        yScaleType = (CPTScaleType)[coder decodeIntegerForKey : @"CPTXYGraph.yScaleType"];
+        xScaleType = (CPTScaleType)[coder decodeIntegerForKey:@"CPTXYGraph.xScaleType"];
+        yScaleType = (CPTScaleType)[coder decodeIntegerForKey:@"CPTXYGraph.yScaleType"];
     }
     return self;
+}
+
+/// @endcond
+
+#pragma mark -
+#pragma mark NSSecureCoding Methods
+
+/// @cond
+
++(BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 /// @endcond

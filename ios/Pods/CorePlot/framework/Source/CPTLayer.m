@@ -275,9 +275,12 @@ NSString *const CPTLayerBoundsDidChangeNotification = @"CPTLayerBoundsDidChangeN
         paddingRight  = [coder decodeCGFloatForKey:@"CPTLayer.paddingRight"];
         paddingBottom = [coder decodeCGFloatForKey:@"CPTLayer.paddingBottom"];
         masksToBorder = [coder decodeBoolForKey:@"CPTLayer.masksToBorder"];
-        shadow        = [[coder decodeObjectForKey:@"CPTLayer.shadow"] copy];
-        graph         = [coder decodeObjectForKey:@"CPTLayer.graph"];
-        identifier    = [[coder decodeObjectForKey:@"CPTLayer.identifier"] copy];
+        shadow        = [[coder decodeObjectOfClass:[CPTShadow class]
+                                             forKey:@"CPTLayer.shadow"] copy];
+        graph = [coder decodeObjectOfClass:[CPTGraph class]
+                                    forKey:@"CPTLayer.graph"];
+        identifier = [[coder decodeObjectOfClass:[NSObject class]
+                                          forKey:@"CPTLayer.identifier"] copy];
 
         renderingRecursively = NO;
         outerBorderPath      = NULL;
@@ -285,6 +288,18 @@ NSString *const CPTLayerBoundsDidChangeNotification = @"CPTLayerBoundsDidChangeN
     }
     return self;
 }
+
+#pragma mark -
+#pragma mark NSSecureCoding Methods
+
+/// @cond
+
++(BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+/// @endcond
 
 #pragma mark -
 #pragma mark Animation
@@ -379,7 +394,7 @@ NSString *const CPTLayerBoundsDidChangeNotification = @"CPTLayerBoundsDidChangeN
                                   currentSublayerFrameOrigin.y - currentSublayerBounds.origin.y);
             [self applyTransform:self.sublayerTransform toContext:context];
             if ( [currentSublayer isKindOfClass:[CPTLayer class]] ) {
-                [(CPTLayer *)currentSublayer recursivelyRenderInContext : context];
+                [(CPTLayer *) currentSublayer recursivelyRenderInContext:context];
             }
             else {
                 if ( self.masksToBounds ) {
@@ -783,7 +798,7 @@ NSString *const CPTLayerBoundsDidChangeNotification = @"CPTLayerBoundsDidChangeN
 
     CALayer *superlayer = self.superlayer;
     if ( [superlayer isKindOfClass:[CPTLayer class]] ) {
-        [(CPTLayer *)superlayer applySublayerMaskToContext : context forSublayer : self withOffset : layerOffset];
+        [(CPTLayer *) superlayer applySublayerMaskToContext:context forSublayer:self withOffset:layerOffset];
     }
 
     CGPathRef maskPath = self.sublayerMaskingPath;

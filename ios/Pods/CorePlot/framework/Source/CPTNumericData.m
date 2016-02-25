@@ -1135,7 +1135,7 @@
 /// @endcond
 
 #pragma mark -
-#pragma mark NSCoding Methods
+#pragma mark NSCopying Methods
 
 /// @cond
 
@@ -1150,36 +1150,21 @@
 /// @endcond
 
 #pragma mark -
-#pragma mark NSCopying Methods
+#pragma mark NSCoding Methods
 
 /// @cond
 
 -(void)encodeWithCoder:(NSCoder *)encoder
 {
-    if ( encoder.allowsKeyedCoding ) {
-        [encoder encodeObject:self.data forKey:@"CPTNumericData.data"];
+    [encoder encodeObject:self.data forKey:@"CPTNumericData.data"];
 
-        CPTNumericDataType selfDataType = self.dataType;
-        [encoder encodeInteger:selfDataType.dataTypeFormat forKey:@"CPTNumericData.dataType.dataTypeFormat"];
-        [encoder encodeInt64:(int64_t)selfDataType.sampleBytes forKey:@"CPTNumericData.dataType.sampleBytes"];
-        [encoder encodeInt64:selfDataType.byteOrder forKey:@"CPTNumericData.dataType.byteOrder"];
+    CPTNumericDataType selfDataType = self.dataType;
+    [encoder encodeInteger:selfDataType.dataTypeFormat forKey:@"CPTNumericData.dataType.dataTypeFormat"];
+    [encoder encodeInt64:(int64_t)selfDataType.sampleBytes forKey:@"CPTNumericData.dataType.sampleBytes"];
+    [encoder encodeInt64:selfDataType.byteOrder forKey:@"CPTNumericData.dataType.byteOrder"];
 
-        [encoder encodeObject:self.shape forKey:@"CPTNumericData.shape"];
-        [encoder encodeInteger:self.dataOrder forKey:@"CPTNumericData.dataOrder"];
-    }
-    else {
-        [encoder encodeObject:self.data];
-
-        CPTNumericDataType selfDataType = self.dataType;
-        [encoder encodeValueOfObjCType:@encode(CPTDataTypeFormat) at:&(selfDataType.dataTypeFormat)];
-        [encoder encodeValueOfObjCType:@encode(size_t) at:&(selfDataType.sampleBytes)];
-        [encoder encodeValueOfObjCType:@encode(CFByteOrder) at:&(selfDataType.byteOrder)];
-
-        [encoder encodeObject:self.shape];
-
-        CPTDataOrder order = self.dataOrder;
-        [encoder encodeValueOfObjCType:@encode(CPTDataOrder) at:&order];
-    }
+    [encoder encodeObject:self.shape forKey:@"CPTNumericData.shape"];
+    [encoder encodeInteger:self.dataOrder forKey:@"CPTNumericData.dataOrder"];
 }
 
 /// @endcond
@@ -1196,31 +1181,34 @@
         CPTNumberArray *shapeArray;
         CPTDataOrder order;
 
-        if ( decoder.allowsKeyedCoding ) {
-            newData = [decoder decodeObjectForKey:@"CPTNumericData.data"];
+        newData = [decoder decodeObjectOfClass:[NSData class]
+                                        forKey:@"CPTNumericData.data"];
 
-            newDataType = CPTDataType( (CPTDataTypeFormat)[decoder decodeIntegerForKey: @"CPTNumericData.dataType.dataTypeFormat"],
-                                       (size_t)[decoder decodeInt64ForKey: @"CPTNumericData.dataType.sampleBytes"],
-                                       (CFByteOrder)[decoder decodeInt64ForKey: @"CPTNumericData.dataType.byteOrder"] );
+        newDataType = CPTDataType( (CPTDataTypeFormat)[decoder decodeIntegerForKey:@"CPTNumericData.dataType.dataTypeFormat"],
+                                   (size_t)[decoder decodeInt64ForKey:@"CPTNumericData.dataType.sampleBytes"],
+                                   (CFByteOrder)[decoder decodeInt64ForKey:@"CPTNumericData.dataType.byteOrder"] );
 
-            shapeArray = [decoder decodeObjectForKey:@"CPTNumericData.shape"];
-            order      = (CPTDataOrder)[decoder decodeIntegerForKey : @"CPTNumericData.dataOrder"];
-        }
-        else {
-            newData = [decoder decodeObject];
+        shapeArray = [decoder decodeObjectOfClasses:[NSSet setWithArray:@[[NSArray class], [NSNumber class]]]
+                                             forKey:@"CPTNumericData.shape"];
 
-            [decoder decodeValueOfObjCType:@encode(CPTDataTypeFormat) at:&(newDataType.dataTypeFormat)];
-            [decoder decodeValueOfObjCType:@encode(size_t) at:&(newDataType.sampleBytes)];
-            [decoder decodeValueOfObjCType:@encode(CFByteOrder) at:&(newDataType.byteOrder)];
-
-            shapeArray = [decoder decodeObject];
-            [decoder decodeValueOfObjCType:@encode(CPTDataOrder) at:&order];
-        }
+        order = (CPTDataOrder)[decoder decodeIntegerForKey:@"CPTNumericData.dataOrder"];
 
         [self commonInitWithData:newData dataType:newDataType shape:shapeArray dataOrder:order];
     }
 
     return self;
 }
+
+#pragma mark -
+#pragma mark NSSecureCoding Methods
+
+/// @cond
+
++(BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+/// @endcond
 
 @end

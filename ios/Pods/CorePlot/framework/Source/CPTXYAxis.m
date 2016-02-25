@@ -21,7 +21,7 @@
 -(void)orthogonalCoordinateViewLowerBound:(nonnull CGFloat *)lower upperBound:(nonnull CGFloat *)upper;
 -(CGPoint)viewPointForOrthogonalCoordinate:(nullable NSNumber *)orthogonalCoord axisCoordinate:(nullable NSNumber *)coordinateValue;
 
--(NSUInteger)initialBandIndexForSortedLocations:(nonnull CPTNumberArray *)sortedLocations inRange:(nonnull CPTMutablePlotRange *)range;
+-(NSUInteger)initialBandIndexForSortedLocations:(nonnull CPTNumberArray *)sortedLocations inRange:(nullable CPTMutablePlotRange *)range;
 
 @end
 
@@ -108,10 +108,24 @@
 -(instancetype)initWithCoder:(NSCoder *)coder
 {
     if ( (self = [super initWithCoder:coder]) ) {
-        orthogonalPosition = [coder decodeObjectForKey:@"CPTXYAxis.orthogonalPosition"];
-        axisConstraints    = [coder decodeObjectForKey:@"CPTXYAxis.axisConstraints"];
+        orthogonalPosition = [coder decodeObjectOfClass:[NSNumber class]
+                                                 forKey:@"CPTXYAxis.orthogonalPosition"];
+        axisConstraints = [coder decodeObjectOfClass:[CPTConstraints class]
+                                              forKey:@"CPTXYAxis.axisConstraints"];
     }
     return self;
+}
+
+/// @endcond
+
+#pragma mark -
+#pragma mark NSSecureCoding Methods
+
+/// @cond
+
++(BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 /// @endcond

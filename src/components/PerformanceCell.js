@@ -26,27 +26,90 @@ var {
   View
 } = React;
 
-var getImageSource = require('./components/getImageSource');
-var getTextFromScore = require('./components/getTextFromScore');
-var getImageFromAverage = require('./components/getImageFromAverage');
-var getImageViewFromParentKPI = require('./components/getImageViewFromParentKPI');
-var getThreshold = require('./components/getThreshold');
+var getImageFromAverage = require('../utils/getImageFromAverage');
+var getImageViewFromParentKPI = require('../utils/getImageViewFromParentKPI');
+var getThreshold = require('../utils/getThreshold');
 var SparklineView= require('./SparklineView');
-var isDataEmpty = require('./components/isDataEmpty');
+var isDataEmpty = require('../utils/isDataEmpty');
+var CommentBox = require('./CommentBox');
 
 var PerformanceCell = React.createClass({
+  propTypes: {
+    onToggleComment:   React.PropTypes.func,
+  },
+  getInitialState: function() {
+    return {
+      commentCount: 0,
+      isShowComment: false,  // used for show comment extension
+    };
+  },
+  componentDidMount() {
+    this.goToComment();
+  },
+  goToComment: function() {
+    if(global.navCommentProps && global.navCommentProps.entityType === this.props.entityType) {
+      var kpi = this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.toLowerCase().replace(/ /g, "_");
+      var hit = false;
+      switch(this.props.entityType) {
+        case "network":
+          if (global.navCommentProps.kpi === kpi) {
+            hit = true;
+          }
+          break;
+        case "site":
+          var entityName = this.props.siteName.toLowerCase();
+          if (global.navCommentProps.entityName === entityName) {
+            hit = true;
+          }
+          break;
+        case "sector":
+          var entityName = this.props.sectorName.toLowerCase();
+          if (global.navCommentProps.entityName === entityName) {
+            hit = true;
+          }
+          break;
+      }
+      if (hit) {
+        this.setState({isShowComment: true});
+        global.navCommentProps = undefined;
+      }
+    }
+  },
+  toggleComment: function() {
+    global.refreshFeedCount();
+    if (typeof this.props.onToggleComment === 'function') {
+      this.props.onToggleComment();  // shrink it
+    }
+    this.setState({isShowComment: !this.state.isShowComment});
+  },
   render: function() {
     var kpi = this.props.geoArea.kpi;
+    var kpiName = this.props.geoArea.category.toLowerCase() + "_" + kpi.replace(/ /g, "_").toLowerCase();
     var dailyAverage = this.getDailyAverage(false);
     var redThreshold = getThreshold(this.props.geoArea.thresholds, "red", kpi);
     var greenThreshold = getThreshold(this.props.geoArea.thresholds, "green", kpi);
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
-    // backgroundImage = require("./assets/images/" + backgroundImage + ".png");  // can't use vairables
+    var commentContent =
+        this.state.isShowComment?
+        <CommentBox
+          style={styles.commentExtensionContainer}
+          entityType={this.props.entityType}
+          entityName={this.props.geoArea.name.toLowerCase()}
+          kpi={kpiName}
+          geoArea={this.props.geoArea}
+          areaName={this.props.areaName}
+          siteName={this.props.siteName}
+          sectorName={this.props.sectorName}
+        />
+        :
+        null;
+    // backgroundImage = require("../assets/images/" + backgroundImage + ".png");  // can't use vairables
     // default to yellow
     return (
-      <View>
+      <View style={styles.topContainer}>
         {this.contentView(backgroundImage)}
         {this.sectorCounterView(dailyAverage, redThreshold, greenThreshold)}
+        {commentContent}
       </View>
     );
   },
@@ -108,28 +171,29 @@ var PerformanceCell = React.createClass({
           onHideUnderlay={this.props.onUnhighlight}>
           {this.innerContentView()}
       </TouchableElement>;
+
     switch(backgroundImage) {
       case "BG_Red_KPI_Item":
         return(
-          <Image style={styles.backgroundImage} source={require("./assets/images/BG_Red_KPI_Item.png")}>
+          <Image style={styles.backgroundImage} source={require("../assets/images/BG_Red_KPI_Item.png")}>
             {touchContent}
           </Image>
         );
       case "BG_Green_KPI_Item":
         return(
-          <Image style={styles.backgroundImage} source={require("./assets/images/BG_Green_KPI_Item.png")}>
+          <Image style={styles.backgroundImage} source={require("../assets/images/BG_Green_KPI_Item.png")}>
             {touchContent}
           </Image>
         );
       case "BG_Yellow_KPI_Item":
         return(
-          <Image style={styles.backgroundImage} source={require("./assets/images/BG_Yellow_KPI_Item.png")}>
+          <Image style={styles.backgroundImage} source={require("../assets/images/BG_Yellow_KPI_Item.png")}>
             {touchContent}
           </Image>
         );
       case "BG_Grey_KPI_Item":
         return(
-          <Image style={styles.backgroundImage} source={require("./assets/images/BG_Grey_KPI_Item.png")}>
+          <Image style={styles.backgroundImage} source={require("../assets/images/BG_Grey_KPI_Item.png")}>
             {touchContent}
           </Image>
         );
@@ -256,6 +320,7 @@ var PerformanceCell = React.createClass({
     );
   },
   chartView: function() {
+    var TouchableElement = TouchableOpacity;
     var kpi = this.props.geoArea.kpi;
     var redThreshold = getThreshold(this.props.geoArea.thresholds, "red", kpi);
     var greenThreshold = getThreshold(this.props.geoArea.thresholds, "green", kpi);
@@ -289,10 +354,14 @@ var PerformanceCell = React.createClass({
     else {
       unit = ""
     }
+    var commentCount = this.state.commentCount;
+    if (commentCount === 0) {
+      commentCount = "";
+    }
     return(
       <View style={styles.dataContainer}>
         <View style={styles.chartContainer}>
-          <Image style={styles.chartBands} source={require("./assets/images/BG_Chart_Bands.png")}>
+          <Image style={styles.chartBands} source={require("../assets/images/BG_Chart_Bands.png")}>
             <SparklineView
               style={styles.hostView}
               average={greenThreshold}
@@ -322,8 +391,13 @@ var PerformanceCell = React.createClass({
               <Text style={styles.tv}>{greenDir}{greenThreshold}{unit}</Text>
             </View>
           </View>
-          <View style={styles.thresholdSpace}>
-          </View>
+          <TouchableElement style={styles.commentContainer}
+              onPress={this.toggleComment}
+              activeOpacity={0.5}
+              >
+            <Image style={styles.commentIcon} source={require("../assets/icons/icon_comment.png")}/>
+            <Text style={styles.commentCount}>{commentCount}</Text>
+          </TouchableElement>
         </View>
       </View>
     );
@@ -332,10 +406,10 @@ var PerformanceCell = React.createClass({
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     var totalNumSectors = 9;  // default sectors per zone
     // don't show sector count for sector page
-    if (this.props.geoEntity === "sector" || this.props.geoEntity === "site"){
+    if (this.props.entityType.toLowerCase() === "sector" || this.props.entityType.toLowerCase() === "site"){
       return;
     }
-    if (this.props.geoEntity === "zone") {
+    if (this.props.entityType.toLowerCase() === "zone") {
       totalNumSectors = 45;
     }
     var dataArray = this.props.geoArea.data;
@@ -361,7 +435,7 @@ var PerformanceCell = React.createClass({
     }
     return(
         <View style={styles.sectorContainer}>
-          <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Red.png")}>
+          <Image style={styles.sectorBackgroundImage} source={require("../assets/images/BG_Sector_Count_Red.png")}>
             <TouchableElement style={styles.countContainer}
               onPress={this.props.onSelectRed}
               activeOpacity={0.5}
@@ -371,7 +445,7 @@ var PerformanceCell = React.createClass({
             </TouchableElement>
           </Image>
           <View style={styles.lineVertical}></View>
-          <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Yellow.png")}>
+          <Image style={styles.sectorBackgroundImage} source={require("../assets/images/BG_Sector_Count_Yellow.png")}>
             <TouchableElement style={styles.countContainer}
               onPress={this.props.onSelectYellow}
               activeOpacity={0.5}
@@ -381,7 +455,7 @@ var PerformanceCell = React.createClass({
             </TouchableElement>
           </Image>
           <View style={styles.lineVertical}></View>
-          <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Green.png")}>
+          <Image style={styles.sectorBackgroundImage} source={require("../assets/images/BG_Sector_Count_Green.png")}>
             <TouchableElement style={styles.countContainer}
               onPress={this.props.onSelectGreen}
               activeOpacity={0.5}
@@ -391,7 +465,7 @@ var PerformanceCell = React.createClass({
             </TouchableElement>
           </Image>
           <View style={styles.lineVertical}></View>
-          <Image style={styles.sectorBackgroundImage} source={require("./assets/images/BG_Sector_Count_Grey.png")}>
+          <Image style={styles.sectorBackgroundImage} source={require("../assets/images/BG_Sector_Count_Grey.png")}>
             <TouchableElement style={styles.countContainer}
               onPress={this.props.onSelectGrey}
               activeOpacity={0.5}
@@ -406,7 +480,11 @@ var PerformanceCell = React.createClass({
 });
 
 var styles = StyleSheet.create({
+  topContainer: {
+    flexDirection: 'column',
+  },
   container: {
+    flex: 2,
     alignItems: "stretch",
   },
   sectorContainer: {
@@ -417,9 +495,14 @@ var styles = StyleSheet.create({
     // borderColor: "yellow",
     // borderWidth: 2,
   },
+  commentExtensionContainer: {
+    flex: 3,
+    backgroundColor: 'white',
+  },
   backgroundImage: {
     width: null, // stretch to the max
     height: null, // stretch to the max
+    flexDirection: 'column',
     // borderColor: "blue",
     // borderWidth: 2,
   },
@@ -657,18 +740,42 @@ var styles = StyleSheet.create({
   },
   thresholdValue: {
     flexDirection: "row",
-    flex: 11,
+    flex: 9,
     justifyContent: "space-around",
     alignItems: "flex-start",
     paddingTop: 4,
     backgroundColor: 'transparent',
-    // borderColor: "yellow",
-    // borderWidth: 2,
+    // borderColor: "red",
+    // borderWidth: 1,
   },
-  thresholdSpace: {
+  commentContainer: {
     flex: 2,
-    // borderColor: "green",
-    // borderWidth: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    // borderColor: "white",
+    // borderWidth: 1,
+  },
+  commentIcon: {
+    flex: 2,
+    height: 15,
+    backgroundColor: 'transparent',
+    marginLeft: 2,
+    marginRight: 3,
+    marginBottom: 5,
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
+  commentCount: {
+    flex: 3,
+    backgroundColor: 'transparent',
+    color: 'white',
+    fontSize: 10,
+    fontWeight: "600",
+    fontFamily: 'Helvetica Neue',
+    marginBottom: 9,
+    // borderColor: "yellow",
+    // borderWidth: 1,
   },
   ttContainer: {
     flex: 17,

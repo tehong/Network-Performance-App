@@ -8,6 +8,42 @@ Parse.Cloud.define("hello", function(request, response) {
 */
 // Parse.Cloud.define("reminder", function(request, response) {
 
+Parse.Cloud.afterSave("Feed", function(request) {
+  // get the user of the Feed comment
+  // console.log(request);
+  var user = request.user;
+  // console.log(user);
+  var friendlyName = "@" + user.get('friendlyName').toLowerCase();
+  var entityType = request.object.get('entityType');
+  var entityName = request.object.get('entityName');
+  var kpi = request.object.get('kpi');
+  var channel = '#' + entityType.toLowerCase() + " #" + entityName.toLowerCase() + " #" + kpi.toLowerCase();
+  var commentText = request.object.get('comment');
+
+  var message = friendlyName + ": " + commentText + " " + channel;
+
+  var pushQuery = new Parse.Query(Parse.Installation);
+  // pushQuery.equalTo('deviceType', 'ios');
+
+  Parse.Push.send({
+    where: pushQuery, // Set our Installation query
+    data: {
+      alert: message,
+      badge: "Increment",
+      // sound: "Bell.caf",
+      sound: "default",   // "" doesn't work, use "default"
+    }
+  }, {
+    success: function() {
+      console.log("Beeper morning reminder sent!");
+    },
+    error: function(error) {
+      console.error("Beeper Feed aftersave send failure");
+      throw "Got an error " + error.code + " : " + error.message;
+    }
+  });
+});
+
 // Parse background job
 Parse.Cloud.job("morningReminder", function(request, status) {
   var query = new Parse.Query(Parse.Installation);

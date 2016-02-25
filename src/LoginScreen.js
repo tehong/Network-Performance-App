@@ -31,12 +31,12 @@ var {
 } = React;
 
 import Storage from 'react-native-storage';
-var AreaScreen = require('./AreaScreen');
+var AfterLoginScreen = require('./AfterLoginScreen');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var Login = require('./components/icons/Login');
 // var BackButton = require('./components/icons/BackButton');
 var Orientation = require('react-native-orientation');
-var mixpanelTrack = require('./components/mixpanelTrack');
+var mixpanelTrack = require('./utils/mixpanelTrack');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 var PARSE_MASTER_APP_ID = 'B9NTwqpe0pua2VK3uKRleQvztdVXbpiQNvPyOJej';
 var PARSE_MASTER_JS_KEY = 'qj6CwwnGTQzSchNuaSUOaGQLNYpNZHkkhypo6hnq';
@@ -60,12 +60,13 @@ var LoginScreen = React.createClass({
   componentWillMount: function() {
     this.loadControlKeysFromStorage();
   },
+  componentWillUnmount: function() {
+  },
   componentDidMount: function() {
     // set up handlers for state changes
 
     Intercom.reset();
   },
-
   resetLoginPrompt: function() {
     this.setState({
       username: '',
@@ -311,8 +312,8 @@ var LoginScreen = React.createClass({
 
     // NOTE: Can't use "require()" for background image to stretch it, need to use uri mothod!
     return (
-      // <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login.png')}>
-      <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login_Alpha.png')}>
+      // <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login_Alpha.png')}>
+      <Image style={styles.backgroundImage} source={require('./assets/images/BG_Login.png')}>
         <View style={styles.container}>
           <TouchableElement
             style={styles.logoContainer}
@@ -406,18 +407,21 @@ var LoginScreen = React.createClass({
       password: password,
       loginButtonLabel: DEFAULT_LOGIN_BUTTON_TEXT,
     });
+    // save this route reset to use with loging out
+    global.resetToRoute = this.props.resetToRoute;
     if (Platform.OS === 'ios') {
       this.mpAppLogin();
       // need lazy loading to get the global.currentUser
       var LogoRight = require('./components/icons/LogoRight');
       this.props.resetToRoute({
-        titleComponent: PerfNavTitle,
-        rightCorner: LogoRight,
-        component: AreaScreen,
-        headerStyle: styles.header,
-        hideNavigationBar: false,
+        // titleComponent: PerfNavTitle,
+        // rightCorner: LogoRight,
+        component: AfterLoginScreen,
+        // headerStyle: styles.header,
+        // hideNavigationBar: true,
+        hideNavigationBar: true,
+        trans: true,
         passProps: {
-          currentUser: this.state.currentUser,
         }
       });
     } else {  // for android, no op for now
@@ -591,7 +595,6 @@ var LoginScreen = React.createClass({
   },
   mpAppLogin: function() {
     mixpanelTrack("App Login", {"App Version": this.props.appVersion}, this.state.currentUser);
-    ParseInitIOS.clearBadge();
   },
   mpAppMemoryWarning: function() {
     mixpanelTrack("App Memory Warning", {"App Version": this.props.appVersion}, this.state.currentUser);

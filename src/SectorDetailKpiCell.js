@@ -11,7 +11,7 @@ var {
   View
 } = React;
 
-var isDataEmpty = require('./components/isDataEmpty');
+var isDataEmpty = require('./utils/isDataEmpty');
 
 var SectorDetailKpiCell = React.createClass({
   render: function() {
@@ -23,14 +23,14 @@ var SectorDetailKpiCell = React.createClass({
   },
   kpiView: function() {
     var sector = this.props.geoArea;
-    var getDailyAverage = require('./components/getDailyAverage');
+    var getDailyAverage = require('./utils/getDailyAverage');
     var dailyAverage = getDailyAverage(sector.dailyAverage);
     var unit = sector.unit;
     var category = sector.category;
     var kpi = sector.kpi;
 
-    var getThreshold = require('./components/getThreshold');
-    var getImageFromAverage = require('./components/getImageFromAverage');
+    var getThreshold = require('./utils/getThreshold');
+    var getImageFromAverage = require('./utils/getImageFromAverage');
 
     var redThreshold = getThreshold(sector.thresholds, "red", kpi);
     var greenThreshold = getThreshold(sector.thresholds, "green", kpi);

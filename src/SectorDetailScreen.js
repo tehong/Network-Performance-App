@@ -19,7 +19,7 @@ var {
   Alert,
 } = React;
 
-var mixpanelTrack = require('./components/mixpanelTrack');
+var mixpanelTrack = require('./utils/mixpanelTrack');
 
 // memory releasing and pull to refresh list view
 var RefreshableListView = require('react-native-refreshable-listview');
@@ -58,6 +58,8 @@ var LOADING = {};
 var TimerMixin = require('react-timer-mixin');
 // Obtain device oritentation changes and process them
 var Orientation = require('react-native-orientation');
+var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
+
 
 var SectorDetailScreen = React.createClass({
   mixins: [TimerMixin],
@@ -112,6 +114,7 @@ var SectorDetailScreen = React.createClass({
     }
   },
   loadData: function() {
+    global.refreshFeedCount();
     // set default region first to remove warnings
     this.setState({
       tabNumber: 0,
@@ -168,6 +171,9 @@ var SectorDetailScreen = React.createClass({
     this.reloadData();
   },
   componentDidMount: function() {
+    if (this.props.entityType) {
+      saveEntityTypeInCloud(this.props.entityType);
+    }
     // this.loadData();
   },
   componentWillUnmount: function() {
@@ -269,7 +275,7 @@ var SectorDetailScreen = React.createClass({
   },
   getDataSource: function(sectors: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
-    var getSortedAreaDataArray = require('./components/getSortedAreaDataArray');
+    var getSortedAreaDataArray = require('./utils/getSortedAreaDataArray');
     var sortedSectors = getSortedAreaDataArray(sectors);
     return this.state.dataSource.cloneWithRows(sortedSectors);
   },
@@ -663,6 +669,7 @@ var SectorDetailScreen = React.createClass({
     } else {
       return (
         <View style={styles.container}>
+          {/* MapView rotateEnabled set to false due to no way to detect the map heading angle to change the azimuth*/}
           <MapView style={styles.map}
             onRegionChange={this._onRegionChange}
             animateDrop={true}
@@ -671,6 +678,8 @@ var SectorDetailScreen = React.createClass({
             annotations={this.state.annotations || undefined}
             overlays={this.state.overlays || undefined}
             onAnnotationPress={this._onAnnotationPressed}
+            rotateEnabled={false}
+            mapType={'standard'}
           />
           {this.showKpiView()}
         </View>
@@ -791,7 +800,7 @@ var SectorDetails = React.createClass({
   },
 });
 
-var getIconFromKpiData = require("./components/getIconFromKpiData");
+var getIconFromKpiData = require("./utils/getIconFromKpiData");
 var KpiDetails = React.createClass({
   render: function() {
     var data = this.props.data;

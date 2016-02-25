@@ -1,10 +1,10 @@
 PODS:
   - Bolts/Tasks (1.6.0)
   - CorePlot (2.1)
-  - Intercom (2.3.18)
-  - Mixpanel (2.9.0):
-    - Mixpanel/Mixpanel (= 2.9.0)
-  - Mixpanel/Mixpanel (2.9.0)
+  - Intercom (2.3.19)
+  - Mixpanel (2.9.4):
+    - Mixpanel/Mixpanel (= 2.9.4)
+  - Mixpanel/Mixpanel (2.9.4)
   - Parse (1.12.0):
     - Bolts/Tasks (~> 1.5)
 
@@ -21,14 +21,14 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CorePlot:
-    :commit: 8747083179a7fd5ac22b6b23f2ef2d4b7543c05a
+    :commit: 4deb4059fff1befb66451b3e7d3180248b056af8
     :git: https://github.com/core-plot/core-plot.git
 
 SPEC CHECKSUMS:
   Bolts: f52a250053bb517ca874523c3913776359ab3def
-  CorePlot: 0116acaa98ce2f8369e6e25ec889968bca0b87c9
-  Intercom: 1d2f2c9fd6bbb292a82640e710ca156133a1ae8c
-  Mixpanel: 42ae6168effc48481d957f7883dd8514a398738d
+  CorePlot: ab9898c79b94999018e9634ab0aa4c21480c8552
+  Intercom: de20d3f2eeb7798aac66b26a7a7b92979211e05c
+  Mixpanel: 80d2ca9bb38ae91c1044d738e80fe448377ac89f
   Parse: de2c52a9a1421b91ae7594ab8ce191afd184f19b
 
 COCOAPODS: 0.39.0

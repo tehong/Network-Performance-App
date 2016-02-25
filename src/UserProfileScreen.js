@@ -15,7 +15,7 @@ var {
 
 var Parse = require('parse/react-native');
 var Intercom = require('react-native-intercom');
-var mixpanelTrack = require('./components/mixpanelTrack');
+var mixpanelTrack = require('./utils/mixpanelTrack');
 var SectorScreen = require('./SectorScreen');
 var BackButton = require('./components/icons/BackButton');
 var main = require('./main');
@@ -34,6 +34,7 @@ module.exports = React.createClass({
     }
   },
   componentWillMount: function() {
+    global.refreshFeedCount();
     //Parse.User.currentAsync()
     // .then((user) => {this.setState({currentUser: user});});
     this.loadProfilePhoto();
@@ -221,7 +222,8 @@ module.exports = React.createClass({
     //   can't load the LoginScreen in the beginning since LoginScreen loads other first
     this.removeLoginStorage()  // remove the login storage so no login info is saved
     var LoginScreen = require('./LoginScreen')
-    this.props.resetToRoute({
+    // need to reset the top most route to the login screen!
+    global.resetToRoute({
       component: LoginScreen,
       trans: true,
       hideNavigationBar: true,
