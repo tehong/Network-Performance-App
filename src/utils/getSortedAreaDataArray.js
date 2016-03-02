@@ -21,7 +21,7 @@ var isDataEmpty = require('./isDataEmpty');
 
 
 function getSortedAreaDataArray(dataArray: Array<any>): Array<any> {
-  // first do a color sort
+  // first do a dailyAverage sort and then alphbetically based on name
   var sortedDataArray = getSortedDataArray(dataArray);
   // now sort them alphbetically
   sortedDataArray.sort(

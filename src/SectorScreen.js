@@ -12,6 +12,8 @@ var {
   View,
 } = React;
 
+var ROW_HEIGHT = 198;
+var prepareCommentBox = require('./utils/prepareCommentBox');
 // list view with less memory usage
 var SGListView = require('react-native-sglistview');
 
@@ -88,12 +90,13 @@ var SectorScreen = React.createClass({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
       filter: '',
-      contentInset: null,
       queryNumber: 0,
     };
   },
 
   componentWillMount: function() {
+    // this.setScrollToTimeout();
+
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
@@ -172,20 +175,43 @@ var SectorScreen = React.createClass({
     this.setState({isRefreshing: true});
     this.reloadData();
   },
-  // Extend the list view bottom inset to accomondate keyboard input
-  onToggleComment: function() {
-    if (this.state.contentInset !== null) {
-      this.setState({
-        contentInset: null,
-      });
-    } else {
-      var inset = {bottom:250};
-      this.setState({
-        contentInset: inset
-      });
+  componentDidMount: function() {
+  },
+  // scroll to entity if needed
+  scrollToEntity: function(entity) {
+    if (entity) {
+      var findScrollItem = require('./utils/findScrollItem');
+      var item = findScrollItem(this.state.dataSource, entity);
+      if (item) {
+        console.log("item found");
+        var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, item, true, ROW_HEIGHT);
+        this.setState({
+          contentInset: contentInset,
+        });
+      }
     }
   },
-  componentDidMount: function() {
+  setScrollToTimeout: function() {
+    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "sector") {
+      var navCommentProps = global.navCommentProps;
+      global.navCommentProps = undefined;
+      /*
+      var refValidation = 0;
+      this.setState({
+        navCommentProps: navCommentProps,
+      });
+      */
+      var interval = this.setInterval(
+        () => {
+          // refValidation++;
+          if(this.refs.listview) {
+            this.scrollToEntity(this.state.navCommentProps);
+            this.clearInterval(interval);
+          }
+        },
+        100, // trigger scrolling x ms later
+      );
+    }
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
@@ -307,7 +333,6 @@ var SectorScreen = React.createClass({
         });
       } else {
         this.setState({
-          contentInset: null,
           isLoading: true,
         });
       }
@@ -317,7 +342,6 @@ var SectorScreen = React.createClass({
     LOADING[query] = true;
     resultsCache.dataForQuery[query] = null;
     this.setState({
-      contentInset: null,
       isLoading: true,
       queryNumber: this.state.queryNumber + 1,
       isLoadingTail: false,
@@ -428,11 +452,19 @@ var SectorScreen = React.createClass({
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={sector}
         areaName={this.props.areaName}
-        siteName={this.props.siteName}
+        siteName={sector.parentEntityName}
         sectorName={sector.name}
         color={this.props.color}
         entityType={this.props.entityType}
-        onToggleComment={this.onToggleComment}
+        onToggleComment={(showComment) => {
+          area["isCommentOn"] = showComment;
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, sector, showComment, ROW_HEIGHT);
+          this.setState({
+            contentInset: contentInset,
+          });
+        }}
+        navCommentProps={this.state.navCommentProps}
+        triggerScroll={this.setScrollToTimeout}
       />
     );
   },
@@ -470,9 +502,9 @@ var SectorScreen = React.createClass({
         message
         :
         <RefreshableListView
+          ref="listview"
           listViewComponent={SGListView}
           style={styles.listView}
-          ref="listview"
           removeClippedSubviews={true}
           scrollRenderAheadDistance={500}
           dataSource={this.state.dataSource}

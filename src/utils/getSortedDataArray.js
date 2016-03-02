@@ -95,12 +95,18 @@ function getSortedDataArray(dataArray: Array<any>): Array<any> {
       b["dailyAverage"] = b_dailyAverage;
       b["kpi"] = kpi;
 
+      // if (a["name"].indexOf("Akron") > -1 && b["name"].indexOf("Watertown") > -1) debugger;
       // based on dailyAverage and the sorting direction, return the right value
+      var result = 0;
       if (a_redThreshold < a_greenThreshold) {
-        return a_dailyAverage - b_dailyAverage;
+        result = a_dailyAverage - b_dailyAverage;
       } else {
-        return b_dailyAverage - a_dailyAverage;
+        result = b_dailyAverage - a_dailyAverage;
       }
+      if (result === 0) {
+        return a["name"] - b['name'];
+      }
+      return result;
     },
   )
   return dataArray;

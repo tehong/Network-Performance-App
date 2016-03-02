@@ -45,40 +45,61 @@ var PerformanceCell = React.createClass({
   },
   componentDidMount() {
     this.goToComment();
+    // this.isLoading();
   },
+  /*
+  isLoading: function() {
+    if (this.props.isLoading) {
+      console.log('PerfCell - closing comment box');
+      this.setState({
+        isShowComment: false,
+      });
+    }
+  },
+  */
   goToComment: function() {
-    if(global.navCommentProps && global.navCommentProps.entityType === this.props.entityType) {
+    // if((this.props && this.props.navCommentProps && this.props.navCommentProps.entityType === this.props.entityType)) {
+    // ||
+      if (global.navCommentProps && global.navCommentProps.entityType === this.props.entityType) {
+      /*
+      if (global.scrollToEntity) {
+        global.navCommentProps = global.scrollToEntity;
+      }
+      */
+      var navCommentProps = global.navCommentProps;
       var kpi = this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.toLowerCase().replace(/ /g, "_");
       var hit = false;
       switch(this.props.entityType) {
         case "network":
-          if (global.navCommentProps.kpi === kpi) {
+          if (navCommentProps.kpi === kpi) {
             hit = true;
           }
           break;
         case "site":
           var entityName = this.props.siteName.toLowerCase();
-          if (global.navCommentProps.entityName === entityName) {
+          if (navCommentProps.entityName === entityName) {
             hit = true;
           }
           break;
         case "sector":
           var entityName = this.props.sectorName.toLowerCase();
-          if (global.navCommentProps.entityName === entityName) {
+          if (navCommentProps.entityName === entityName) {
             hit = true;
           }
           break;
       }
       if (hit) {
         this.setState({isShowComment: true});
-        global.navCommentProps = undefined;
+        this.props.geoArea.isCommentOn = true;
+        // now trigger scrolling when the component is mounted
+        this.props.triggerScroll(navCommentProps);   // trigger scroll to timer
       }
     }
   },
   toggleComment: function() {
     global.refreshFeedCount();
     if (typeof this.props.onToggleComment === 'function') {
-      this.props.onToggleComment();  // shrink it
+      this.props.onToggleComment(!this.state.isShowComment); // scroll correctly
     }
     this.setState({isShowComment: !this.state.isShowComment});
   },
@@ -406,7 +427,9 @@ var PerformanceCell = React.createClass({
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     var totalNumSectors = 9;  // default sectors per zone
     // don't show sector count for sector page
-    if (this.props.entityType.toLowerCase() === "sector" || this.props.entityType.toLowerCase() === "site"){
+    if (this.props.entityType.toLowerCase() === "sector" ||
+        this.props.entityType.toLowerCase() === "site" ||
+        this.props.entityType.toLowerCase() === 'monthly') {
       return;
     }
     if (this.props.entityType.toLowerCase() === "zone") {

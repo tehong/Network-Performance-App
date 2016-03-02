@@ -186,6 +186,9 @@ Release 0.2.3 is on TestFlight:
   (1) Fixed a bug that was introduced in the last session that prevented from loading the Feed.
   (2) Fixed a comment navigation issue with color sectors.
 
+- Beeper iOS 0.4.2 Internal Release Note
+  (1) Added scrolling up the comment box to avoid obstruction with keyboard.
+  (2) Added auto-scroll to the correct comment box from the feed comment touch.
   TODO:
   - Need to add Mixpanel events for the comment box and feed as well.  Not sure how details that would be.
   - KPI monthly target screen

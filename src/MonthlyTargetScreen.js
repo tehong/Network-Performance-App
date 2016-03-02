@@ -15,7 +15,6 @@ var {
 } = React;
 
 
-var TimerMixin = require('react-timer-mixin');
 var RefreshableListView = require('react-native-refreshable-listview');
 
 var PerformanceCell = require('./components/PerformanceCell');
@@ -30,49 +29,21 @@ var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var ShowModalMessage = require('./components/ShowModalMessage');
 var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
 
-// title for the next scene
-/* zone */
-/*
-var AccNavTitle = require('./components/icons/zones/AccNavTitle');
-var CSFBNavTitle = require('./components/icons/zones/CSFBNavTitle');
-var VOLTEAccNavTitle = require('./components/icons/zones/VOLTEAccNavTitle');
-var RetNavTitle = require('./components/icons/zones/RetNavTitle');
-var VOLTERetNavTitle = require('./components/icons/zones/VOLTERetNavTitle');
-var DltNavTitle = require('./components/icons/zones/DltNavTitle');
-var UltNavTitle = require('./components/icons/zones/UltNavTitle');
-var TNOLNavTitle = require('./components/icons/zones/TNOLNavTitle');
-*/
-/* sites */
 var SiteNavTitle = require('./components/icons/sites/SiteNavTitle');
-/*
-var AccNavTitle = require('./components/icons/sites/AccNavTitle');
-var CSFBNavTitle = require('./components/icons/sites/CSFBNavTitle');
-var VOLTEAccNavTitle = require('./components/icons/sites/VOLTEAccNavTitle');
-var RetNavTitle = require('./components/icons/sites/RetNavTitle');
-var VOLTERetNavTitle = require('./components/icons/sites/VOLTERetNavTitle');
-var DltNavTitle = require('./components/icons/sites/DltNavTitle');
-var UltNavTitle = require('./components/icons/sites/UltNavTitle');
-var TNOLNavTitle = require('./components/icons/sites/TNOLNavTitle');
-*/
 
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./utils/getSortedAreaDataArray');
 var mixpanelTrack = require('./utils/mixpanelTrack');
+var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
+var BackButton = require('./components/icons/BackButton');
+var LogoRight = require('./components/icons/LogoRight');
+var AreaScreen = require('./AreaScreen');
 
-/**
- * This is for demo purposes only, and rate limited.
- * In case you want to use the Rotten Tomatoes' API on a real app you should
- * create an account at http://developer.rottentomatoes.com/
- */
 var NETWORK_URL = 'http://52.20.201.145:3010/kpis/v1/network/all/kpi/all';
 // var NETWORK_URL = 'http://localhost:3010/kpis/v1/network/all/kpi/all';
 // Dev DB access: 54.165.24.76
 // var NETWORK_URL = 'http://54.165.24.76:3010/kpis/v1/network/all/kpi/all';
 
-// Results should be cached keyed by the query
-// with values of null meaning "being fetched"
-// and anything besides null and undefined
-// as the result of a valid query
 var resultsCache = {
   dataForQuery: {},
   // nextPageNumberForQuery: {},
@@ -82,10 +53,6 @@ var resultsCache = {
 var LOADING = {};
 
 var MonthlyTargetScreen = React.createClass({
-
-  mixins: [TimerMixin],
-
-  timeoutID: (null: any),
 
   getInitialState: function() {
     return {
@@ -109,37 +76,13 @@ var MonthlyTargetScreen = React.createClass({
     this.getAreas('area');
   },
   componentDidMount: function() {
-    if (this.props.entityType) {
+    if (global.navCommentProps) {
+      this.navigateToNetwork();
+    } else if (this.props.entityType) {
       saveEntityTypeInCloud(this.props.entityType);
     }
-    // never hit, why?
-    this.mpAppState('active');
-    this.setState({appState: 'active'});
-    // now every time the page is visited a new result is retrieved so basically the cache is usless
-    // TODO  => we might have to take the cache out unless it is for paging
-    // resultsCache.totalForQuery = {};
-    // resultsCache.dataForQuery = {};
-    //
-    AppStateIOS.addEventListener('change', this._handleAppStateChange);
-    AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
   },
   componentWillUnmount: function() {
-    AppStateIOS.removeEventListener('change', this._handleAppStateChange);
-    AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
-  },
-  _handleAppStateChange: function(currentAppState) {
-    // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
-    var previousAppStates = this.state.previousAppStates.slice();
-    previousAppStates.push(this.state.appState);
-    this.setState({
-      appState: currentAppState,
-      previousAppStates: previousAppStates,
-    });
-    this.mpAppState(currentAppState);
-  },
-  _handleMemoryWarning: function() {
-    this.setState({memoryWarnings: this.state.memoryWarnings + 1})
-    this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
   },
   // Extend the list view bottom inset to accomondate keyboard input
   onToggleComment: function() {
@@ -180,98 +123,75 @@ var MonthlyTargetScreen = React.createClass({
         'networkid': 'thumb',
       },
     })
-      .then((response) => response.json())
-      .then((responseData) => {
-        if(responseData.statusCode && responseData.statusCode !== 200) {
-          _this.setState({
-            isLoading: false,
-            isRefreshing: false,
-            statusCode: responseData.statusCode,
-            statusMessage: responseData.statusMessage,
-          });
-        } else {
-          var areas = responseData;
-          if (areas) {
-              LOADING[query] = false;
-              resultsCache.totalForQuery[query] = areas.length;
-              resultsCache.dataForQuery[query] = areas;
-              // resultsCache.nextPageNumberForQuery[query] = 2;
-              if (this.state.filter !== query) {
-                // do not update state if the query is stale
-                return;
-              }
-              _this.setState({
-                isLoading: false,
-                isRefreshing: false,
-                // dataSource: this.getDataSource(responseData.movies),
-                dataSource: this.getDataSource(areas),
-              });
-          } else {
-              LOADING[query] = false;
-              resultsCache.dataForQuery[query] = undefined;
-
-              _this.setState({
-                dataSource: this.getDataSource([]),
-                isLoading: false,
-                isRefreshing: false,
-              });
-          }
-        }
-      })
-      .catch((ex) => {
-        console.log('response failed', ex)
-        this.setState({
+    .then((response) => response.json())
+    .then((responseData) => {
+      var goToNetwork = !_this.state.isRefreshing;
+      if(responseData.statusCode && responseData.statusCode !== 200) {
+        _this.setState({
           isLoading: false,
           isRefreshing: false,
+          statusCode: responseData.statusCode,
+          statusMessage: responseData.statusMessage,
         });
-      })
+      } else {
+        var areas = responseData;
+        if (areas) {
+            LOADING[query] = false;
+            resultsCache.totalForQuery[query] = areas.length;
+            resultsCache.dataForQuery[query] = areas;
+            // resultsCache.nextPageNumberForQuery[query] = 2;
+            if (this.state.filter !== query) {
+              // do not update state if the query is stale
+              return;
+            }
+            _this.setState({
+              isLoading: false,
+              isRefreshing: false,
+              // dataSource: this.getDataSource(responseData.movies),
+              dataSource: this.getDataSource(areas),
+            });
+        } else {
+            LOADING[query] = false;
+            resultsCache.dataForQuery[query] = undefined;
 
-      /*`
-    var areas = require('../simulatedData/Areas.json');
-    if (areas) {
-        LOADING[query] = false;
-        resultsCache.totalForQuery[query] = areas.result.length;
-        resultsCache.dataForQuery[query] = areas.result;
-        // resultsCache.nextPageNumberForQuery[query] = 2;
-
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
-        }
-
-        this.setState({
-          isLoading: false,
-          // dataSource: this.getDataSource(responseData.movies),
-          dataSource: this.getDataSource(areas.result),
-        });
-    } else {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = undefined;
-
-        this.setState({
-          dataSource: this.getDataSource([]),
-          isLoading: false,
-        });
-    }
-    */
-  },
-  navigateToComment: function(areas: object) {
-    // see we need to auto nav to the next page to get to the comment item
-    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() !== "network") {
-      // need to run the sorted data array because it modifies the record slightly
-      var kpi = global.navCommentProps.kpi;
-      var sortedAreas = getSortedDataArray(areas);
-      for (var i=0; i<sortedAreas.length; i++) {
-        var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
-        if (kpi === kpiName) {
-          this.selectKpi(sortedAreas[i]);
+            _this.setState({
+              dataSource: this.getDataSource([]),
+              isLoading: false,
+              isRefreshing: false,
+            });
         }
       }
-    }
+      // go to network directly when loaded
+      if (goToNetwork) {
+        this.navigateToNetwork();
+      }
+    })
+    .catch((ex) => {
+      console.log('response failed', ex)
+      var goToNetwork = !_this.state.isRefreshing;
+      _this.setState({
+        isLoading: false,
+        isRefreshing: false,
+      });
+      // go to network directly when loaded
+      if (goToNetwork) {
+        this.navigateToNetwork();
+      }
+    })
+  },
+  navigateToNetwork: function() {
+    this.props.toRoute({
+      titleComponent: PerfNavTitle,
+      backButtonComponent: BackButton,
+      rightCorner: LogoRight,
+      component: AreaScreen,
+      headerStyle: styles.header,
+      passProps: {
+        entityType: 'network',
+      }
+    });
   },
   getAreas: function(query: string) {
-    this.timeoutID = null;
-
     this.setState({filter: query});
 
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
@@ -287,8 +207,6 @@ var MonthlyTargetScreen = React.createClass({
           isLoading: true,
         });
       }
-      // see we need to auto nav to the next page to get to the comment item
-      this.navigateToComment(cachedResultsForQuery);
       return;
     }
 
@@ -306,75 +224,7 @@ var MonthlyTargetScreen = React.createClass({
     this.fetchData(query, queryString);
   },
 
-  /*
-  hasMore: function(): boolean {
-    var query = this.state.filter;
-    if (!resultsCache.dataForQuery[query]) {
-      return true;
-    }
-    return (
-      resultsCache.totalForQuery[query] !==
-      resultsCache.dataForQuery[query].length
-    );
-  },
-  */
-
   onEndReached: function() {
-  /*
-    var query = this.state.filter;
-    if (!this.hasMore() || this.state.isLoadingTail) {
-      // We're already fetching or have all the elements so noop
-      return;
-    }
-
-    if (LOADING[query]) {
-      return;
-    }
-
-    LOADING[query] = true;
-    this.setState({
-      queryNumber: this.state.queryNumber + 1,
-      isLoadingTail: true,
-    });
-
-    var page = resultsCache.nextPageNumberForQuery[query];
-    invariant(page != null, 'Next page number for "%s" is missing', query);
-    fetch(this._urlForQueryAndPage(query, page))
-      .then((response) => response.json())
-      .catch((error) => {
-        console.error(error);
-        LOADING[query] = false;
-        this.setState({
-          isLoadingTail: false,
-        });
-      })
-      .then((responseData) => {
-        var areasForQuery = resultsCache.dataForQuery[query].slice();
-
-        LOADING[query] = false;
-        // We reached the end of the list before the expected number of results
-        if (!responseData.areas) {
-          resultsCache.totalForQuery[query] = areasForQuery.length;
-        } else {
-          for (var i in responseData.areas) {
-            areasForQuery.push(responseData.areas[i]);
-          }
-          resultsCache.dataForQuery[query] = areasForQuery;
-          resultsCache.nextPageNumberForQuery[query] += 1;
-        }
-
-        if (this.state.filter !== query) {
-          // do not update state if the query is stale
-          return;
-        }
-
-        this.setState({
-          isLoadingTail: false,
-          dataSource: this.getDataSource(resultsCache.dataForQuery[query]),
-        });
-      })
-      .done();
-  */
   },
   // save the KPI names in cloud
   updateKpiNameInCloud: function(areas: Array<any>) {
@@ -392,7 +242,7 @@ var MonthlyTargetScreen = React.createClass({
         }
         // now construct kpiSaveArray
         for (var i = 0; i < areas.length; i++) {
-          var kpiName = areas[i].category.toLowercase()+ "_" + areas[i].kpi.replace(/ /g, "").toLowerCase();
+          var kpiName = areas[i].category.toLowercase()+ "_" + areas[i].kpi.replace(/ /g, "_").toLowerCase();
           var kpiSave = true;
           for (var j = 0; j < kpiArray.length; j++) {
             if (kpiArray[j].indexOf(kpiName) > -1) {
@@ -505,9 +355,6 @@ var MonthlyTargetScreen = React.createClass({
   },
   onSearchChange: function(event: Object) {
     var filter = event.nativeEvent.text.toLowerCase();
-
-    this.clearTimeout(this.timeoutID);
-    this.timeoutID = this.setTimeout(() => this.getAreas(filter), 100);
   },
   mpSelectKpi: function(kpi) {
     mixpanelTrack("Network KPI", {"KPI": kpi}, global.currentUser);
@@ -664,4 +511,3 @@ var NoAreas = React.createClass({
 var styles = getAreaScreenStyles();
 
 module.exports = MonthlyTargetScreen;
-//

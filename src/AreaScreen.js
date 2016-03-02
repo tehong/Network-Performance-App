@@ -15,6 +15,9 @@ var {
 } = React;
 
 
+var cachedAreas = undefined;
+var ROW_HEIGHT = 285;
+var prepareCommentBox = require('./utils/prepareCommentBox');
 var TimerMixin = require('react-timer-mixin');
 var RefreshableListView = require('react-native-refreshable-listview');
 
@@ -79,6 +82,7 @@ var resultsCache = {
   totalForQuery: {},
 };
 
+var COMMENT_BOX_STATUS = [];
 var LOADING = {};
 
 var AreaScreen = React.createClass({
@@ -97,18 +101,24 @@ var AreaScreen = React.createClass({
       isRefreshing: false,  // used for subsequent refresh
       // isLoadingTail: false,
       dataSource: new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2,
+        rowHasChanged: (row1, row2) => {
+          row1 !== row2;
+        }
       }),
       filter: '',
       queryNumber: 0,
-      contentInset: null,
+      closeAllCommentBoxes: false,
     };
   },
   componentWillMount: function() {
+    // this.setScrollToTimeout(); // set scrollToTimeout for feed comments
+    console.log("areas will mount");
     global.refreshFeedCount();
     this.getAreas('area');
   },
   componentDidMount: function() {
+    // this.refreshData();
+    // need to get data again to make sure we have scroll responder set
     if (this.props.entityType) {
       saveEntityTypeInCloud(this.props.entityType);
     }
@@ -122,10 +132,44 @@ var AreaScreen = React.createClass({
     //
     AppStateIOS.addEventListener('change', this._handleAppStateChange);
     AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
+    // see we need to auto nav to the next page to get to the comment item
+    this.navigateToComment(cachedAreas);
   },
   componentWillUnmount: function() {
     AppStateIOS.removeEventListener('change', this._handleAppStateChange);
     AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
+  },
+  // scroll to entity if needed
+  scrollToEntity: function(entity) {
+    if (entity) {
+      var findScrollItem = require('./utils/findScrollItem');
+      var item = findScrollItem(this.state.dataSource, entity);
+      if (item) {
+        var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, COMMENT_BOX_STATUS, item, true, ROW_HEIGHT, false);
+        this.setState({
+          contentInset: contentInset,
+        });
+      }
+    }
+  },
+  setScrollToTimeout: function() {
+    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "network") {
+      var navCommentProps = global.navCommentProps;
+      global.navCommentProps = undefined;
+      // var refValidation = 0;
+      var interval = this.setInterval(
+        () => {
+          // refValidation++;
+          // make sure all the components are loaded, especially the listview
+          if(this.refs.listview) {
+            // console.log("refValidation=", refValidation);
+            this.scrollToEntity(navCommentProps);
+            this.clearInterval(interval);
+          }
+        },
+        100, // trigger scrolling 500 ms later
+      );
+    }
   },
   _handleAppStateChange: function(currentAppState) {
     // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
@@ -140,19 +184,6 @@ var AreaScreen = React.createClass({
   _handleMemoryWarning: function() {
     this.setState({memoryWarnings: this.state.memoryWarnings + 1})
     this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
-  },
-  // Extend the list view bottom inset to accomondate keyboard input
-  onToggleComment: function() {
-    if (this.state.contentInset !== null) {
-      this.setState({
-        contentInset: null,
-      });
-    } else {
-      var inset = {bottom:250};
-      this.setState({
-        contentInset: inset
-      });
-    }
   },
   reloadData: function() {
     global.refreshFeedCount();
@@ -192,6 +223,7 @@ var AreaScreen = React.createClass({
         } else {
           var areas = responseData;
           if (areas) {
+              // Sort by red then yellow then green backgroundImage
               LOADING[query] = false;
               resultsCache.totalForQuery[query] = areas.length;
               resultsCache.dataForQuery[query] = areas;
@@ -206,6 +238,7 @@ var AreaScreen = React.createClass({
                 // dataSource: this.getDataSource(responseData.movies),
                 dataSource: this.getDataSource(areas),
               });
+              this.navigateToComment(areas);
           } else {
               LOADING[query] = false;
               resultsCache.dataForQuery[query] = undefined;
@@ -257,6 +290,7 @@ var AreaScreen = React.createClass({
   },
   navigateToComment: function(areas: object) {
     // see we need to auto nav to the next page to get to the comment item
+    if (!areas) return;  // we need to make sure that this page loaded before navigate to the next page
     if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() !== "network") {
       // need to run the sorted data array because it modifies the record slightly
       var kpi = global.navCommentProps.kpi;
@@ -268,6 +302,7 @@ var AreaScreen = React.createClass({
           if (siteName === "red" || siteName === "grey" || siteName === "green" || siteName === "yellow") {
             this.selectSectorKpi(sortedAreas[i], siteName);
           } else {
+            console.log("network select");
             this.selectKpi(sortedAreas[i]);
           }
         }
@@ -288,12 +323,10 @@ var AreaScreen = React.createClass({
         });
       } else {
         this.setState({
-          contentInset: null,
           isLoading: true,
         });
       }
-      // see we need to auto nav to the next page to get to the comment item
-      this.navigateToComment(cachedResultsForQuery);
+      cachedAreas = cachedResultsForQuery;
       return;
     }
 
@@ -301,7 +334,6 @@ var AreaScreen = React.createClass({
     resultsCache.dataForQuery[query] = null;
     this.setState({
       isLoading: true,
-      contentInset: null,
       queryNumber: this.state.queryNumber + 1,
       // isLoadingTail: false,
     });
@@ -397,7 +429,7 @@ var AreaScreen = React.createClass({
         }
         // now construct kpiSaveArray
         for (var i = 0; i < areas.length; i++) {
-          var kpiName = areas[i].category.toLowercase()+ "_" + areas[i].kpi.replace(/ /g, "").toLowerCase();
+          var kpiName = areas[i].category.toLowercase()+ "_" + areas[i].kpi.replace(/ /g, "_").toLowerCase();
           var kpiSave = true;
           for (var j = 0; j < kpiArray.length; j++) {
             if (kpiArray[j].indexOf(kpiName) > -1) {
@@ -431,7 +463,8 @@ var AreaScreen = React.createClass({
     // save the KPI name in cloud
     // need to be after it is sorted and category is populated!
     this.updateKpiNameInCloud(sortedAreas);  // populate the category name
-    return this.state.dataSource.cloneWithRows(sortedAreas );
+
+    return this.state.dataSource.cloneWithRows(sortedAreas);
   },
   selectKpi: function(area: Object) {
     this.mpSelectKpi(area.category + " " + area.kpi);
@@ -570,6 +603,7 @@ var AreaScreen = React.createClass({
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
+    var isLoading = (this.state.isLoading || this.state.isRefreshing);
     return (
       <PerformanceCell
         key={area.id}
@@ -583,8 +617,15 @@ var AreaScreen = React.createClass({
         geoArea={area}
         areaName={area.name}
         entityType={this.props.entityType}
-        onToggleComment={this.onToggleComment}
+        onToggleComment={(showComment) => {
+          area["isCommentOn"] = showComment;
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, COMMENT_BOX_STATUS, area, showComment, ROW_HEIGHT, true);
+          this.setState({
+            contentInset: contentInset,
+          });
+        }}
         navCommentProps={global.navCommentProps}
+        triggerScroll={this.setScrollToTimeout}
       />
     );
   },
@@ -625,6 +666,8 @@ var AreaScreen = React.createClass({
           refreshDescription="Refreshing Data ..."
           contentInset={this.state.contentInset}
         />
+      // ref={(c) => this._listview = c}
+      // ref={view => this._scrollView = view}
     }
     /*renderSeparator={this.renderSeparator}*/
     return (

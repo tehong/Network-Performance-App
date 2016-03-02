@@ -12,6 +12,10 @@ var {
   View,
 } = React;
 
+var cachedSites = undefined;
+var ROW_HEIGHT = 198;
+var prepareCommentBox = require('./utils/prepareCommentBox');
+
 // memory releasing list view
 // list view with less memory usage
 var SGListView = require('react-native-sglistview');
@@ -90,65 +94,20 @@ var SiteScreen = React.createClass({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
       filter: '',
-      contentInset: null,
       queryNumber: 0,
     };
   },
 
   componentWillMount: function() {
+    this.setScrollToTimeout();
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
     // resultsCache.dataForQuery = {};
+    this.loadData();
   },
   loadData: function() {
     global.refreshFeedCount();
-    /*
-    var uncorrectedKpi = this.props.kpi;
-    var kpi = uncorrectedKpi.replace("Data ", "");
-    kpi = kpi.replace("Uplink ", "");
-    kpi = kpi.replace("Downlink ", "");
-    var cat = this.props.category.toLowerCase();
-    switch(kpi.toLowerCase()) {
-      case "accessibility":
-        if (cat === "data") {
-          var query = "Data Accessibility";
-        } else {
-          var query = "VoLTE Accessibility";
-        }
-        break;
-      case "retainability":
-        if (cat === "data") {
-          var query = "Data Retainability";
-        } else {
-          var query = "VoLTE Retainability";
-        }
-        break;
-      case "throughput":
-        if (cat === "downlink") {
-          var query = "Downlink Throughput";
-        } else {
-          var query = "Uplink Throughput";
-        }
-        break;
-      case "tnol":
-        var query = "Data TNOL";
-        break;
-      case "fallback":
-        var query = "CS Fallback";
-        break;
-    }
-    if (query.indexOf("Throughput") > -1) {
-      var category = "Data";
-      var kpi = query;
-    } else {
-      var category = query.substring(0, query.indexOf(" "));
-      var kpi = query.substring(query.indexOf(" ") + 1, query.length);
-    }
-    */
-
-    // inlcude query name with zoneName
-    // query = "category/" + category + "/kpi/" + kpi + "/";
     var query =  this.props.category + " " + this.props.kpi;
     this.getSites(query);
   },
@@ -161,26 +120,52 @@ var SiteScreen = React.createClass({
     this.setState({isRefreshing: true});
     this.reloadData();
   },
-  // Extend the list view bottom inset to accomondate keyboard input
-  onToggleComment: function() {
-    if (this.state.contentInset !== null) {
-      this.setState({
-        contentInset: null,
-      });
-    } else {
-      var inset = {bottom:250};
-      this.setState({
-        contentInset: inset
-      });
-    }
-  },
   componentDidMount: function() {
     if (this.props.entityType) {
       saveEntityTypeInCloud(this.props.entityType);
     }
-    this.loadData();
+    // see we need to auto nav to the next page to get to the comment item
+    this.navigateToComment(cachedSites);
   },
-
+  // scroll to entity if needed
+  scrollToEntity: function(entity) {
+    if (entity) {
+      var findScrollItem = require('./utils/findScrollItem');
+      var item = findScrollItem(this.state.dataSource, entity);
+      if (item) {
+        var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, item, true, ROW_HEIGHT);
+        this.setState({
+          contentInset: contentInset,
+        });
+      }
+    }
+  },
+  setScrollToTimeout: function() {
+    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "site") {
+      var navCommentProps = global.navCommentProps;
+      global.navCommentProps = undefined;
+      // this.reloadData();
+      // var refValidation = 0;
+      var interval = this.setInterval(
+        () => {
+          // refValidation++;
+          if(this.refs.listview) {
+            // if(refValidation > 1) {
+              this.scrollToEntity(this.state.navCommentProps);
+              this.clearInterval(interval);
+              /*
+              global.navCommentProps = undefined;
+              this.setState({
+                navCommentProps: undefined,
+              })
+              */
+            // }
+          }
+        },
+        100, // trigger scrolling 500 ms later
+      );
+    }
+  },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
     if (query) {
@@ -200,56 +185,56 @@ var SiteScreen = React.createClass({
       },
     })
     // fetch(queryString)
-      .then((response) => response.json())
-      .then((responseData) => {
-        if(responseData.statusCode && responseData.statusCode !== 200) {
-          _this.setState({
-            isLoading: false,
-            isRefreshing: false,
-            statusCode: responseData.statusCode,
-            statusMessage: responseData.statusMessage,
-          });
-        } else {
-          var sites = responseData;
-          if (sites) {
-              LOADING[query] = false;
-              resultsCache.totalForQuery[query] = sites.length;
-              resultsCache.dataForQuery[query] = sites;
-              // resultsCache.nextPageNumberForQuery[query] = 2;
-
-              if (_this.state.filter !== query) {
-                // do not update state if the query is stale
-                return;
-              }
-              _this.setState({
-                isLoading: false,
-                isRefreshing: false,
-                // dataSource: _this.getDataSource(responseData.movies),
-                dataSource: _this.getDataSource(sites),
-              });
-              // see we need to auto nav to the next page to get to the comment item
-              _this.navigateToComment(sites);
-          } else {
-              LOADING[query] = false;
-              resultsCache.dataForQuery[query] = undefined;
-
-              _this.setState({
-                dataSource: _this.getDataSource([]),
-                isLoading: false,
-                isRefreshing: false,
-              });
-          }
-        }
-      })
-      .catch((ex) => {
-        console.log('response failed', ex)
+    .then((response) => response.json())
+    .then((responseData) => {
+      if(responseData.statusCode && responseData.statusCode !== 200) {
         _this.setState({
           isLoading: false,
           isRefreshing: false,
+          statusCode: responseData.statusCode,
+          statusMessage: responseData.statusMessage,
         });
-      })
+      } else {
+        var sites = responseData;
+        if (sites) {
+            LOADING[query] = false;
+            resultsCache.totalForQuery[query] = sites.length;
+            resultsCache.dataForQuery[query] = sites;
+            // resultsCache.nextPageNumberForQuery[query] = 2;
+
+            if (_this.state.filter !== query) {
+              // do not update state if the query is stale
+              return;
+            }
+            _this.setState({
+              isLoading: false,
+              isRefreshing: false,
+              // dataSource: _this.getDataSource(responseData.movies),
+              dataSource: _this.getDataSource(sites),
+            });
+            _this.navigateToComment(sites);
+        } else {
+            LOADING[query] = false;
+            resultsCache.dataForQuery[query] = undefined;
+
+            _this.setState({
+              dataSource: _this.getDataSource([]),
+              isLoading: false,
+              isRefreshing: false,
+            });
+        }
+      }
+    })
+    .catch((ex) => {
+      console.log('response failed', ex)
+      _this.setState({
+        isLoading: false,
+        isRefreshing: false,
+      });
+    })
   },
   navigateToComment: function(sites: object) {
+    if (!sites) return;
     // see if we need to auto nav to the next page to get to the comment item
     if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "sector") {
       // need to run the sorted data array because it modifies the record slightly
@@ -283,19 +268,18 @@ var SiteScreen = React.createClass({
         });
       } else {
         this.setState({
-          contentInset: null,
           isLoading: true,
         });
       }
       // see we need to auto nav to the next page to get to the comment item
-      this.navigateToComment(cachedResultsForQuery);
+      // this.navigateToComment(cachedResultsForQuery);
+      cachedSites = cachedResultsForQuery;
       return;
     }
 
     LOADING[query] = true;
     resultsCache.dataForQuery[query] = null;
     this.setState({
-      contentInset: null,
       isLoading: true,
       queryNumber: this.state.queryNumber + 1,
       isLoadingTail: false,
@@ -311,17 +295,17 @@ var SiteScreen = React.createClass({
   },
 
   getDataSource: function(sites: Array<any>): ListView.DataSource {
-    var sortedMarkets = getSortedDataArray(sites);
+    var sortedSites = getSortedDataArray(sites);
     /*
     var filteredSet = [];
-    for (var i in sortedMarkets) {
-      if (sortedMarkets[i].parentEntityId == this.props.parentEntityId) {
-        filteredSet.push(sortedMarkets[i]);  // save the right ones to the filtered set
+    for (var i in sortedSites) {
+      if (sortedSites[i].parentEntityId == this.props.parentEntityId) {
+        filteredSet.push(sortedSites[i]);  // save the right ones to the filtered set
       }
     }
     return this.state.dataSource.cloneWithRows(filteredSet);
     */
-    return this.state.dataSource.cloneWithRows(sortedMarkets);
+    return this.state.dataSource.cloneWithRows(sortedSites);
   },
 
   selectSite: function(site: Object) {
@@ -366,6 +350,7 @@ var SiteScreen = React.createClass({
     }
     */
     if (Platform.OS === 'ios') {
+      console.log("props: " + this.props);
       this.props.toRoute({
         titleComponent: titleComponent,
         backButtonComponent: BackButton,
@@ -445,7 +430,15 @@ var SiteScreen = React.createClass({
         areaName={this.props.areaName}
         siteName={site.name}
         entityType={this.props.entityType}
-        onToggleComment={this.onToggleComment}
+        onToggleComment={(showComment) => {
+          area["isCommentOn"] = showComment;
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, site, showComment, ROW_HEIGHT);
+          this.setState({
+            contentInset: contentInset,
+          });
+        }}
+        navCommentProps={this.state.navCommentProps}
+        triggerScroll={this.setScrollToTimeout}
       />
     );
   },
@@ -490,15 +483,6 @@ var SiteScreen = React.createClass({
 
     return (
       <View style={styles.container}>
-        {/*
-        <SearchBar
-          onSearchChange={this.onSearchChange}
-          isLoading={this.state.isLoading}
-          onFocus={() =>
-            this.refs.listview && this.refs.listview.getScrollResponder().scrollTo(0, 0)}
-        />
-        <View style={styles.separator} />
-        */}
         {content}
       </View>
     );

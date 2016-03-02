@@ -14,9 +14,13 @@ var {
 } = React;
 
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
+var MonthlyNavTitle = require('./components/icons/areas/MonthlyNavTitle');
 var FeedNavTitle = require('./components/icons/feeds/FeedNavTitle');
 var AreaScreen = require('./AreaScreen');
+var MonthlyTargetScreen = require('./MonthlyTargetScreen');
 var FeedScreen = require('./FeedScreen');
+var ForwardButton = require('./components/icons/ForwardButton');
+var MonthlyTargetButton = require('./components/icons/MonthlyTargetButton');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
@@ -24,12 +28,15 @@ var Parse = require('parse/react-native');
 
 
 var firstPerfRoute = {
+  // titleComponent: MonthlyNavTitle,
   titleComponent: PerfNavTitle,
   rightCorner: LogoRight,
+  // component: MonthlyTargetScreen,
   component: AreaScreen,
   hideNavigationBar: false,
   trans: false,
   passProps: {
+    // entityType: 'monthly',
     entityType: 'network',
   }
 };
@@ -41,7 +48,7 @@ var firstFeedRoute = {
   hideNavigationBar: false,
   trans: false,
   passProps: {
-    entityType: 'deed',
+    entityType: 'feed',
   }
 };
 
@@ -68,7 +75,6 @@ module.exports = React.createClass({
         this.setState({notifCount: 0});
         return;
     }
-    console.log("getFeedCount - ", this.state.feedViewDate.toString());
     var Feed = Parse.Object.extend("Feed");
     // first find all Feeds in the Feed table
     var _this = this;  // always use this to get to the root component
