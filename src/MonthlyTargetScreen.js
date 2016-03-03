@@ -1,4 +1,5 @@
 'use strict';
+var ENTITY_TYPE = "monthly_target";
 
 var React = require('react-native');
 var {
@@ -14,17 +15,19 @@ var {
   Image,
 } = React;
 
-
+var cachedAreas = undefined;
+var ROW_HEIGHT = 198;
+var prepareCommentBox = require('./utils/prepareCommentBox');
+var scrollToByTimeout = require('./utils/scrollToByTimeout');
 var RefreshableListView = require('react-native-refreshable-listview');
 
 var PerformanceCell = require('./components/PerformanceCell');
-var ZoneScreen = require('./ZoneScreen');
+var TimerMixin = require('react-timer-mixin');
 var SiteScreen = require('./SiteScreen');
 var SearchBar = require('./components/SearchBar');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var Parse = require('parse/react-native');
-var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var ShowModalMessage = require('./components/ShowModalMessage');
 var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
@@ -39,10 +42,10 @@ var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var AreaScreen = require('./AreaScreen');
 
-var NETWORK_URL = 'http://52.20.201.145:3010/kpis/v1/network/all/kpi/all';
-// var NETWORK_URL = 'http://localhost:3010/kpis/v1/network/all/kpi/all';
+var MONTHLY_TARGET_URL = 'http://52.20.201.145:3010/kpis/v1/network/all/kpi/all';
+// var MONTHLY_TARGET_URL = 'http://localhost:3010/kpis/v1/network/all/kpi/all';
 // Dev DB access: 54.165.24.76
-// var NETWORK_URL = 'http://54.165.24.76:3010/kpis/v1/network/all/kpi/all';
+// var MONTHLY_TARGET_URL = 'http://54.165.24.76:3010/kpis/v1/network/all/kpi/all';
 
 var resultsCache = {
   dataForQuery: {},
@@ -53,11 +56,12 @@ var resultsCache = {
 var LOADING = {};
 
 var MonthlyTargetScreen = React.createClass({
+  mixins: [TimerMixin],
+
+  timeoutID: (null: any),
 
   getInitialState: function() {
     return {
-      appState: AppStateIOS.currentState,
-      previousAppStates: [],
       statusCode: 408,  // default to request timeout
       statusMessage: "",  // show any result status message if present
       isLoading: false,  // only used for initial load
@@ -66,9 +70,6 @@ var MonthlyTargetScreen = React.createClass({
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
-      filter: '',
-      queryNumber: 0,
-      contentInset: null,
     };
   },
   componentWillMount: function() {
@@ -76,26 +77,10 @@ var MonthlyTargetScreen = React.createClass({
     this.getAreas('area');
   },
   componentDidMount: function() {
-    if (global.navCommentProps) {
-      this.navigateToNetwork();
-    } else if (this.props.entityType) {
-      saveEntityTypeInCloud(this.props.entityType);
-    }
+    saveEntityTypeInCloud(this.props.entityType);
+    this.navigateToComment(cachedAreas);
   },
   componentWillUnmount: function() {
-  },
-  // Extend the list view bottom inset to accomondate keyboard input
-  onToggleComment: function() {
-    if (this.state.contentInset !== null) {
-      this.setState({
-        contentInset: null,
-      });
-    } else {
-      var inset = {bottom:250};
-      this.setState({
-        contentInset: inset
-      });
-    }
   },
   reloadData: function() {
     global.refreshFeedCount();
@@ -104,6 +89,7 @@ var MonthlyTargetScreen = React.createClass({
     this.getAreas('area');
   },
   refreshData: function() {
+    this.props.setScrollIndex();
     this.setState({
       isRefreshing: true,
     });
@@ -112,7 +98,7 @@ var MonthlyTargetScreen = React.createClass({
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
       return (
-        NETWORK_URL
+        MONTHLY_TARGET_URL
       );
   },
   fetchData: function(query, queryString) {
@@ -125,7 +111,7 @@ var MonthlyTargetScreen = React.createClass({
     })
     .then((response) => response.json())
     .then((responseData) => {
-      var goToNetwork = !_this.state.isRefreshing;
+      // var goToNetwork = !_this.state.isRefreshing;
       if(responseData.statusCode && responseData.statusCode !== 200) {
         _this.setState({
           isLoading: false,
@@ -140,16 +126,13 @@ var MonthlyTargetScreen = React.createClass({
             resultsCache.totalForQuery[query] = areas.length;
             resultsCache.dataForQuery[query] = areas;
             // resultsCache.nextPageNumberForQuery[query] = 2;
-            if (this.state.filter !== query) {
-              // do not update state if the query is stale
-              return;
-            }
             _this.setState({
               isLoading: false,
               isRefreshing: false,
               // dataSource: this.getDataSource(responseData.movies),
               dataSource: this.getDataSource(areas),
             });
+            this.navigateToComment(areas);
         } else {
             LOADING[query] = false;
             resultsCache.dataForQuery[query] = undefined;
@@ -161,38 +144,40 @@ var MonthlyTargetScreen = React.createClass({
             });
         }
       }
-      // go to network directly when loaded
-      if (goToNetwork) {
-        this.navigateToNetwork();
-      }
     })
     .catch((ex) => {
       console.log('response failed', ex)
-      var goToNetwork = !_this.state.isRefreshing;
+      // var goToNetwork = !_this.state.isRefreshing;
       _this.setState({
         isLoading: false,
         isRefreshing: false,
       });
-      // go to network directly when loaded
-      if (goToNetwork) {
-        this.navigateToNetwork();
-      }
     })
   },
-  navigateToNetwork: function() {
-    this.props.toRoute({
-      titleComponent: PerfNavTitle,
-      backButtonComponent: BackButton,
-      rightCorner: LogoRight,
-      component: AreaScreen,
-      headerStyle: styles.header,
-      passProps: {
-        entityType: 'network',
+  navigateToComment: function(areas: object) {
+    // see we need to auto nav to the next page to get to the comment item
+    if (!areas) return;  // we need to make sure that this page loaded before navigate to the next page
+    if (global.navCommentProps &&
+      global.navCommentProps.entityType.toLowerCase() !== "network" &&
+      global.navCommentProps.entityType.toLowerCase() !== ENTITY_TYPE) {
+      // need to run the sorted data array because it modifies the record slightly
+      var kpi = global.navCommentProps.kpi;
+      var sortedAreas = getSortedDataArray(areas);
+      for (var i=0; i<sortedAreas.length; i++) {
+        var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
+        var siteName = global.navCommentProps.siteName;
+        if (kpi === kpiName) {
+          if (siteName === "red" || siteName === "grey" || siteName === "green" || siteName === "yellow") {
+            this.selectSectorKpi(sortedAreas[i], siteName);
+          } else {
+            console.log("monthly target select");
+            this.selectKpi(sortedAreas[i]);
+          }
+        }
       }
-    });
+    }
   },
   getAreas: function(query: string) {
-    this.setState({filter: query});
 
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
     if (cachedResultsForQuery) {
@@ -207,6 +192,7 @@ var MonthlyTargetScreen = React.createClass({
           isLoading: true,
         });
       }
+      cachedAreas = cachedResultsForQuery;
       return;
     }
 
@@ -215,7 +201,6 @@ var MonthlyTargetScreen = React.createClass({
     this.setState({
       isLoading: true,
       contentInset: null,
-      queryNumber: this.state.queryNumber + 1,
       // isLoadingTail: false,
     });
 
@@ -354,7 +339,7 @@ var MonthlyTargetScreen = React.createClass({
     }
   },
   onSearchChange: function(event: Object) {
-    var filter = event.nativeEvent.text.toLowerCase();
+    // var filter = event.nativeEvent.text.toLowerCase();
   },
   mpSelectKpi: function(kpi) {
     mixpanelTrack("Network KPI", {"KPI": kpi}, global.currentUser);
@@ -424,8 +409,18 @@ var MonthlyTargetScreen = React.createClass({
         geoArea={area}
         areaName={area.name}
         entityType={this.props.entityType}
-        onToggleComment={this.onToggleComment}
+        scrollIndex={this.props.scrollIndex}
+        setScrollIndex={this.props.setScrollIndex}
+        onToggleComment={(showComment) => {
+          this.props.setScrollIndex();
+          area["isCommentOn"] = showComment;
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, showComment, ROW_HEIGHT, true);
+          this.setState({
+            contentInset: contentInset,
+          });
+        }}
         navCommentProps={global.navCommentProps}
+        triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
   },
@@ -443,7 +438,6 @@ var MonthlyTargetScreen = React.createClass({
     } else {
       var content = this.state.dataSource.getRowCount() === 0 ?
         <ShowModalMessage
-          filter={this.state.filter}
           statusCode={this.state.statusCode}
           statusMessage={this.state.statusMessage}
           isLoading={this.state.isLoading}
@@ -476,38 +470,6 @@ var MonthlyTargetScreen = React.createClass({
   },
 });
 
-var NoAreas = React.createClass({
-  render: function() {
-    var TouchableElement = TouchableOpacity;  // for iOS or Android variation
-    var text = '';
-    if (this.props.statusMessage && this.props.statusMessage !== "") {
-      text = this.props.statusMessage + "\n(Status code: " + this.props.statusCode + ")";
-    } else {
-      // If we're looking at the latest areas, aren't currently loading, and
-      // still have no results, show a message
-      text = 'We have detected a problem with our system, we are working on it so please come back soon.';
-    }
-    /*
-        <TouchableElement
-          style={styles.iconTouch}
-          onPress={this.props.onPressRefresh}
-          underlayColor={"#105D95"}>
-          <Text style={[styles.noResultText, {color: white}]}>Refresh Data</Text>
-        </TouchableElement>
-        */
-    return (
-      <View style={styles.noDataContainer}>
-        <Text style={styles.noResultText}>{text}</Text>
-        <TouchableElement
-          style={styles.iconTouch}
-          onPress={this.props.onPressRefresh}
-          underlayColor={"#105D95"}>
-          <Text style={[styles.pressRefreshText, {color: "white"}]}>Refresh Data</Text>
-        </TouchableElement>
-      </View>
-    );
-  }
-});
 var styles = getAreaScreenStyles();
 
 module.exports = MonthlyTargetScreen;

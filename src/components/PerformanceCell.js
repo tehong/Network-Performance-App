@@ -61,6 +61,11 @@ var PerformanceCell = React.createClass({
     // if((this.props && this.props.navCommentProps && this.props.navCommentProps.entityType === this.props.entityType)) {
     // ||
       if (global.navCommentProps && global.navCommentProps.entityType === this.props.entityType) {
+        /*
+        if (this.props.siteName.toLowerCase() === "930030_brown_city") {
+          debugger;
+        }
+        */
       /*
       if (global.scrollToEntity) {
         global.navCommentProps = global.scrollToEntity;
@@ -70,8 +75,10 @@ var PerformanceCell = React.createClass({
       var kpi = this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.toLowerCase().replace(/ /g, "_");
       var hit = false;
       switch(this.props.entityType) {
+        case "monthly_target":
         case "network":
           if (navCommentProps.kpi === kpi) {
+            this.props.setScrollIndex();
             hit = true;
           }
           break;
@@ -185,13 +192,17 @@ var PerformanceCell = React.createClass({
       TouchableElement = TouchableNativeFeedback;
     }
     var touchContent =
+      this.props.entityType !== "monthly_target"
+      ?
       <TouchableElement style={styles.container}
           onPress={this.props.onSelect}
           onShowUnderlay={this.props.onHighlight}
           activeOpacity={0.5}
           onHideUnderlay={this.props.onUnhighlight}>
           {this.innerContentView()}
-      </TouchableElement>;
+      </TouchableElement>
+      :
+      this.innerContentView();
 
     switch(backgroundImage) {
       case "BG_Red_KPI_Item":
@@ -429,7 +440,7 @@ var PerformanceCell = React.createClass({
     // don't show sector count for sector page
     if (this.props.entityType.toLowerCase() === "sector" ||
         this.props.entityType.toLowerCase() === "site" ||
-        this.props.entityType.toLowerCase() === 'monthly') {
+        this.props.entityType.toLowerCase() === 'monthly_target') {
       return;
     }
     if (this.props.entityType.toLowerCase() === "zone") {

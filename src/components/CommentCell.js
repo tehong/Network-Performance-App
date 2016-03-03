@@ -46,7 +46,7 @@ var CommentCell = React.createClass({
     var diffDays = getDiffInDays(date, new Date());
     // var memontDateString = date.getYear() + "-" + date.getMonth() + "-" + date.getDate() + "T" + date.getHours() + ":" + date.getMinutes();
     if (diffDays >= 7 ) {
-      var dateString = date.getMonth() + "/" + date.getDate() + "/" + date.getYear() + " " + hour + ":" + minutes + strAmPm;
+      var dateString = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " " + hour + ":" + minutes + strAmPm;
     } else {
       var dateString = days[date.getDay().toLocaleString()] + " " + hour + ":" + minutes + strAmPm;
     }

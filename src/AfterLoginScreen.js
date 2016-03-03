@@ -19,12 +19,13 @@ var FeedNavTitle = require('./components/icons/feeds/FeedNavTitle');
 var AreaScreen = require('./AreaScreen');
 var MonthlyTargetScreen = require('./MonthlyTargetScreen');
 var FeedScreen = require('./FeedScreen');
-var ForwardButton = require('./components/icons/ForwardButton');
-var MonthlyTargetButton = require('./components/icons/MonthlyTargetButton');
+// var ForwardButton = require('./components/icons/ForwardButton');
+// var MonthlyTargetButton = require('./components/icons/MonthlyTargetButton');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 var Parse = require('parse/react-native');
+var PerformanceSwipeScreen = require('./PerformanceSwipeScreen');
 
 
 var firstPerfRoute = {
@@ -32,7 +33,8 @@ var firstPerfRoute = {
   titleComponent: PerfNavTitle,
   rightCorner: LogoRight,
   // component: MonthlyTargetScreen,
-  component: AreaScreen,
+  // component: AreaScreen,
+  component: PerformanceSwipeScreen,
   hideNavigationBar: false,
   trans: false,
   passProps: {

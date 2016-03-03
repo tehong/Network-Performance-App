@@ -1,5 +1,7 @@
 'use strict';
 
+var ENTITY_TYPE = "sector";
+
 var React = require('react-native');
 var {
   ActivityIndicatorIOS,
@@ -14,6 +16,7 @@ var {
 
 var ROW_HEIGHT = 198;
 var prepareCommentBox = require('./utils/prepareCommentBox');
+var scrollToByTimeout = require('./utils/scrollToByTimeout');
 // list view with less memory usage
 var SGListView = require('react-native-sglistview');
 
@@ -295,6 +298,7 @@ var SectorScreen = React.createClass({
                 // dataSource: _this.getDataSource(responseData.movies),
                 dataSource: _this.getDataSource(sectors),
               });
+              _this.navigateToComment(sectors);
           } else {
               LOADING[query] = false;
               resultsCache.dataForQuery[query] = undefined;
@@ -457,14 +461,15 @@ var SectorScreen = React.createClass({
         color={this.props.color}
         entityType={this.props.entityType}
         onToggleComment={(showComment) => {
-          area["isCommentOn"] = showComment;
-          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, sector, showComment, ROW_HEIGHT);
+          this.props.setScrollIndex();
+          sector["isCommentOn"] = showComment;
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, sector, showComment, ROW_HEIGHT, true);
           this.setState({
             contentInset: contentInset,
           });
         }}
         navCommentProps={this.state.navCommentProps}
-        triggerScroll={this.setScrollToTimeout}
+        triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
   },

@@ -190,8 +190,9 @@ Release 0.2.3 is on TestFlight:
   (1) Added scrolling up the comment box to avoid obstruction with keyboard.
   (2) Added auto-scroll to the correct comment box from the feed comment touch.
   TODO:
-  - Need to add Mixpanel events for the comment box and feed as well.  Not sure how details that would be.
   - KPI monthly target screen
+  - Need to add comment box and auto-scroll to the correct comment box in the Monthly Target screen.
+  - Need to add Mixpanel events for the comment box and feed as well.  Not sure how details that would be.
 
 - TODO:
 

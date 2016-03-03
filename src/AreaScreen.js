@@ -1,5 +1,7 @@
 'use strict';
 
+var ENTITY_TYPE = "network";
+
 var React = require('react-native');
 var {
   AppStateIOS,
@@ -18,6 +20,7 @@ var {
 var cachedAreas = undefined;
 var ROW_HEIGHT = 285;
 var prepareCommentBox = require('./utils/prepareCommentBox');
+var scrollToByTimeout = require('./utils/scrollToByTimeout');
 var TimerMixin = require('react-timer-mixin');
 var RefreshableListView = require('react-native-refreshable-listview');
 
@@ -82,7 +85,6 @@ var resultsCache = {
   totalForQuery: {},
 };
 
-var COMMENT_BOX_STATUS = [];
 var LOADING = {};
 
 var AreaScreen = React.createClass({
@@ -111,7 +113,6 @@ var AreaScreen = React.createClass({
     };
   },
   componentWillMount: function() {
-    // this.setScrollToTimeout(); // set scrollToTimeout for feed comments
     console.log("areas will mount");
     global.refreshFeedCount();
     this.getAreas('area');
@@ -139,38 +140,6 @@ var AreaScreen = React.createClass({
     AppStateIOS.removeEventListener('change', this._handleAppStateChange);
     AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
   },
-  // scroll to entity if needed
-  scrollToEntity: function(entity) {
-    if (entity) {
-      var findScrollItem = require('./utils/findScrollItem');
-      var item = findScrollItem(this.state.dataSource, entity);
-      if (item) {
-        var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, COMMENT_BOX_STATUS, item, true, ROW_HEIGHT, false);
-        this.setState({
-          contentInset: contentInset,
-        });
-      }
-    }
-  },
-  setScrollToTimeout: function() {
-    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "network") {
-      var navCommentProps = global.navCommentProps;
-      global.navCommentProps = undefined;
-      // var refValidation = 0;
-      var interval = this.setInterval(
-        () => {
-          // refValidation++;
-          // make sure all the components are loaded, especially the listview
-          if(this.refs.listview) {
-            // console.log("refValidation=", refValidation);
-            this.scrollToEntity(navCommentProps);
-            this.clearInterval(interval);
-          }
-        },
-        100, // trigger scrolling 500 ms later
-      );
-    }
-  },
   _handleAppStateChange: function(currentAppState) {
     // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
     var previousAppStates = this.state.previousAppStates.slice();
@@ -192,6 +161,7 @@ var AreaScreen = React.createClass({
     this.getAreas('area');
   },
   refreshData: function() {
+    this.props.setScrollIndex();
     this.setState({
       isRefreshing: true,
     });
@@ -291,7 +261,9 @@ var AreaScreen = React.createClass({
   navigateToComment: function(areas: object) {
     // see we need to auto nav to the next page to get to the comment item
     if (!areas) return;  // we need to make sure that this page loaded before navigate to the next page
-    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() !== "network") {
+    if (global.navCommentProps &&
+      global.navCommentProps.entityType.toLowerCase() !== ENTITY_TYPE &&
+      global.navCommentProps.entityType.toLowerCase() !== "monthly_target") {
       // need to run the sorted data array because it modifies the record slightly
       var kpi = global.navCommentProps.kpi;
       var sortedAreas = getSortedDataArray(areas);
@@ -299,12 +271,14 @@ var AreaScreen = React.createClass({
         var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
         var siteName = global.navCommentProps.siteName;
         if (kpi === kpiName) {
+          /*
           if (siteName === "red" || siteName === "grey" || siteName === "green" || siteName === "yellow") {
             this.selectSectorKpi(sortedAreas[i], siteName);
           } else {
+          */
             console.log("network select");
             this.selectKpi(sortedAreas[i]);
-          }
+          // }
         }
       }
     }
@@ -483,6 +457,7 @@ var AreaScreen = React.createClass({
           category: area.category,
           kpi: area.kpi,
           areaName: area.name,
+          setScrollIndex: this.props.setScrollIndex,
         }
       });
     } else {
@@ -531,6 +506,7 @@ var AreaScreen = React.createClass({
           areaName: area.name,
           color: color,
           siteName: color,
+          setScrollIndex: this.props.setScrollIndex,
         }
       });
     } else {
@@ -617,15 +593,18 @@ var AreaScreen = React.createClass({
         geoArea={area}
         areaName={area.name}
         entityType={this.props.entityType}
+        scrollIndex={this.props.scrollIndex}
+        setScrollIndex={this.props.setScrollIndex}
         onToggleComment={(showComment) => {
+          this.props.setScrollIndex();
           area["isCommentOn"] = showComment;
-          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, COMMENT_BOX_STATUS, area, showComment, ROW_HEIGHT, true);
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, showComment, ROW_HEIGHT, true);
           this.setState({
             contentInset: contentInset,
           });
         }}
         navCommentProps={global.navCommentProps}
-        triggerScroll={this.setScrollToTimeout}
+        triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
   },

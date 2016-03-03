@@ -14,14 +14,15 @@ import InvertibleScrollView from 'react-native-invertible-scroll-view';
 var RefreshableListView = require('react-native-refreshable-listview');
 var Parse = require('parse/react-native');
 var CommentCell = require('./CommentCell');
+// var TimerMixin = require('react-timer-mixin');
 
 // IMPORTANT: we need to use InvertibleScrollView so we need to implement this way:
 //   see https://github.com/exponentjs/react-native-invertible-scroll-view
-class CommentBox extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    _this = this;  // need to save this for the promise processing
-    _this.state = {
+module.exports = React.createClass({
+  // mixins: [TimerMixin],
+
+  getInitialState: function() {
+    return {
       isLoading: false,  // only used for initial load
       isRefreshing: false,  // used for subsequent refresh
       comment: "",
@@ -29,33 +30,65 @@ class CommentBox extends React.Component {
         rowHasChanged: (r1, r2) => r1 !== r2,
       }),
     };
-  }
-  componentWillMount() {
+  },
+  componentWillMount: function() {
     global.refreshFeedCount();
-    _this.getComments();
-  }
-  componentDidMount() {
-  }
-  componentWillUnmount() {
-  }
-  getComments() {
-    _this.setState({isLoading: true});
+    this.getComments();
+  },
+  componentDidUpdate: function() {
+    // scroll to bottom automatically every time the list is rendered
+    if(this.refs.listview) {
+      this._scrollToBottom();
+    }
+  },
+  componentDidMount: function() {
+    /*
+    var refsValidation = 0;
+    var interval = this.setInterval(
+      () => {
+        // make sure all the components are loaded, especially the listview
+        if(this.refs.listview) {
+          if(this.state.listHeight && this.state.footerY){
+            this.clearInterval(interval);
+            this._scrollToBottom();
+          }
+        }
+      },
+      100, // trigger scrolling 500 ms later
+    );
+    */
+  },
+  componentWillUnmount: function() {
+  },
+  _scrollToBottom: function() {
+    // only scroll if footerY is moved beyond listHieght
+    if(this.state.listHeight && this.state.footerY && this.state.footerY > this.state.listHeight){
+      var scrollDistance = this.state.listHeight - this.state.footerY;
+      // this.refs.listview.getScrollResponder().scrollTo(-scrollDistance);
+      // scroll without animation, i.e. "false"
+      this.refs.listview.getScrollResponder().scrollResponderScrollTo(0, -scrollDistance, false);
+    }
+  },
+  getComments: function() {
+    var _this = this; // saved for promise processing
+    this.setState({isLoading: true});
     var Feed = Parse.Object.extend("Feed");
     var feedArray = [];
     // first find all Feeds in the Feed table
     var query = new Parse.Query(Feed);
     query.limit(50);
     query.descending("createdAt");
-    query.equalTo("entityType", _this.props.entityType);
-    query.equalTo("entityName", _this.props.entityName);
-    query.equalTo("kpi", _this.props.kpi);
+    query.equalTo("entityType", this.props.entityType);
+    query.equalTo("entityName", this.props.entityName);
+    query.equalTo("kpi", this.props.kpi);
     query.include('user');  // need to include user pointer relational data
     query.find({
       success(results) {
         var Parse = require('parse/react-native');
         for (var i = 0; i < results.length; i++) {
           var feedObj = results[i];
-          feedArray.push({
+          // use unshift to add to the front of the array since we are doing inveted list view
+          feedArray.unshift({
             postDate: feedObj.get('createdAt'),
             user: feedObj.get('user'),
             entityType: feedObj.get('entityType'),
@@ -79,41 +112,42 @@ class CommentBox extends React.Component {
         });
       }
     });
-  }
-  reloadData() {
-    _this.getComments();
-  }
-  refreshData() {
-    _this.setState({isRefreshing: true});
-    _this.reloadData();
-  }
-  selectComment() {
+  },
+  reloadData: function() {
+    this.getComments();
+  },
+  refreshData: function() {
+    this.setState({isRefreshing: true});
+    this.reloadData();
+  },
+  selectComment: function() {
 
-  }
-  onPressSubmit() {
-    if (_this.state.comment.length === 0) {
+  },
+  onPressSubmit: function() {
+    var _this = this; // saved for promise processing
+    if (this.state.comment.length === 0) {
       return;
     }
     // trim spaces and remove new lines
-    var comment = _this.state.comment.trim();
+    var comment = this.state.comment.trim();
     var Feed = Parse.Object.extend("Feed");
     var feed = new Feed();
     var networkName = ""
-    if (_this.props.areaName) {
-      networkName = _this.props.areaName.toLowerCase();
+    if (this.props.areaName) {
+      networkName = this.props.areaName.toLowerCase();
     }
     var siteName = ""
-    if (_this.props.siteName) {
-      siteName = _this.props.siteName.toLowerCase();
+    if (this.props.siteName) {
+      siteName = this.props.siteName.toLowerCase();
     }
     var sectorName = ""
-    if (_this.props.sectorName) {
-      sectorName = _this.props.sectorName.toLowerCase();
+    if (this.props.sectorName) {
+      sectorName = this.props.sectorName.toLowerCase();
     }
     feed.set('user', global.currentUser);
-    feed.set('entityType', _this.props.entityType);
-    feed.set('entityName', _this.props.entityName);
-    feed.set('kpi', _this.props.kpi);
+    feed.set('entityType', this.props.entityType);
+    feed.set('entityName', this.props.entityName);
+    feed.set('kpi', this.props.kpi);
     feed.set('networkName', networkName);
     feed.set('siteName', siteName);
     feed.set('sectorName', sectorName);
@@ -132,8 +166,22 @@ class CommentBox extends React.Component {
         console.log('post failure with error code: ' + error.message);
       }
     });
-  }
-  renderRow(
+  },
+  renderFooter: function() {
+    // NOTE: see http://stackoverflow.com/questions/29829375/how-to-scroll-to-bottom-in-react-native-listview
+    //  Tried various method to scroll to bottom, the extra footer is the best and more consistent way
+    return (
+      <View style={styles.footer}
+        onLayout={(event)=>{
+          var layout = event.nativeEvent.layout;
+          this.setState({
+            footerY : layout.y
+          });
+        }}>
+      </View>
+    );
+  },
+  renderRow: function(
     comment: Object,
     sectionID: number | string,
     rowID: number | string,
@@ -142,16 +190,16 @@ class CommentBox extends React.Component {
     return (
       <CommentCell
         key={comment.id}
-        onSelect={() => _this.selectComment(comment)}
+        onSelect={() => this.selectComment(comment)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         comment={comment}
       />
     );
-  }
-  render() {
+  },
+  render: function() {
     var TouchableElement = TouchableOpacity;
-    if (_this.state.isLoading && !_this.state.isRefreshing) {
+    if (this.state.isLoading && !this.state.isRefreshing) {
       var content =
       <ActivityIndicatorIOS
         animating={true}
@@ -160,30 +208,36 @@ class CommentBox extends React.Component {
         size="small"
       />;
     } else {
+          // renderScrollComponent={props => <InvertibleScrollView {...props} inverted />}
       var content =
         <ListView
-          renderScrollComponent={props => <InvertibleScrollView {...props} inverted />}
           ref="listview"
           style={styles.listView}
-          dataSource={_this.state.dataSource}
-          renderFooter={_this.renderFooter}
-          renderRow={_this.renderRow}
-          onEndReached={_this.onEndReached}
+          onLayout={(event) => {
+            var layout = event.nativeEvent.layout;
+            this.setState({
+            listHeight : layout.height
+            });
+          }}
+          dataSource={this.state.dataSource}
+          renderFooter={this.renderFooter}
+          renderRow={this.renderRow}
+          onEndReached={this.onEndReached}
           automaticallyAdjustContentInsets={true}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
           showsVerticalScrollIndicator={true}
-          loadData={_this.refreshData}
+          loadData={this.refreshData}
           refreshDescription="Refreshing Data ..."
           renderSeparator={(sectionID, rowID) => <View key={`${sectionID}-${rowID}`} style={styles.separator} />}
         />;
     }
     return (
-        <View style={[_this.props.style, styles.container]}>
+        <View style={[this.props.style, styles.container]}>
           {content}
           <TextInput
-            onChangeText={(text) => _this.setState({comment: text})}
-            value={_this.state.comment}
+            onChangeText={(text) => this.setState({comment: text})}
+            value={this.state.comment}
             style={styles.commentInput}
             placeholder={"Type your comments here..."}
             placeholderTextColor='grey'
@@ -195,13 +249,13 @@ class CommentBox extends React.Component {
           <TouchableElement
             style={styles.submitButton}
             activeOpacity={0.5}
-            onPress={_this.onPressSubmit}>
+            onPress={this.onPressSubmit}>
             <Text style={styles.submitButtonText}>Send</Text>
           </TouchableElement>
         </View>
     );
   }
-}
+});
 
 var styles = StyleSheet.create({
   container: {
@@ -279,6 +333,7 @@ var styles = StyleSheet.create({
     height: 1,
     marginVertical: 0,
   },
+  footer: {
+    height: 0,
+  }
 });
-
-module.exports = CommentBox ;

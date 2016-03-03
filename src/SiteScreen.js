@@ -1,5 +1,7 @@
 'use strict';
 
+var ENTITY_TYPE = "site";
+
 var React = require('react-native');
 var {
   ActivityIndicatorIOS,
@@ -15,6 +17,7 @@ var {
 var cachedSites = undefined;
 var ROW_HEIGHT = 198;
 var prepareCommentBox = require('./utils/prepareCommentBox');
+var scrollToByTimeout = require('./utils/scrollToByTimeout');
 
 // memory releasing list view
 // list view with less memory usage
@@ -99,7 +102,6 @@ var SiteScreen = React.createClass({
   },
 
   componentWillMount: function() {
-    this.setScrollToTimeout();
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
@@ -126,45 +128,6 @@ var SiteScreen = React.createClass({
     }
     // see we need to auto nav to the next page to get to the comment item
     this.navigateToComment(cachedSites);
-  },
-  // scroll to entity if needed
-  scrollToEntity: function(entity) {
-    if (entity) {
-      var findScrollItem = require('./utils/findScrollItem');
-      var item = findScrollItem(this.state.dataSource, entity);
-      if (item) {
-        var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, item, true, ROW_HEIGHT);
-        this.setState({
-          contentInset: contentInset,
-        });
-      }
-    }
-  },
-  setScrollToTimeout: function() {
-    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "site") {
-      var navCommentProps = global.navCommentProps;
-      global.navCommentProps = undefined;
-      // this.reloadData();
-      // var refValidation = 0;
-      var interval = this.setInterval(
-        () => {
-          // refValidation++;
-          if(this.refs.listview) {
-            // if(refValidation > 1) {
-              this.scrollToEntity(this.state.navCommentProps);
-              this.clearInterval(interval);
-              /*
-              global.navCommentProps = undefined;
-              this.setState({
-                navCommentProps: undefined,
-              })
-              */
-            // }
-          }
-        },
-        100, // trigger scrolling 500 ms later
-      );
-    }
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
@@ -271,8 +234,7 @@ var SiteScreen = React.createClass({
           isLoading: true,
         });
       }
-      // see we need to auto nav to the next page to get to the comment item
-      // this.navigateToComment(cachedResultsForQuery);
+      // saved to show data is ready
       cachedSites = cachedResultsForQuery;
       return;
     }
@@ -430,15 +392,17 @@ var SiteScreen = React.createClass({
         areaName={this.props.areaName}
         siteName={site.name}
         entityType={this.props.entityType}
+        setScrollIndex={this.props.setScrollIndex}
         onToggleComment={(showComment) => {
-          area["isCommentOn"] = showComment;
-          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, site, showComment, ROW_HEIGHT);
+          this.props.setScrollIndex();
+          site["isCommentOn"] = showComment;
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, site, showComment, ROW_HEIGHT, true);
           this.setState({
             contentInset: contentInset,
           });
         }}
         navCommentProps={this.state.navCommentProps}
-        triggerScroll={this.setScrollToTimeout}
+        triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
   },
