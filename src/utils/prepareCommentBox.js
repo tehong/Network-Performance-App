@@ -15,19 +15,20 @@ function prepareCommentBox(listView, dataSource, item, showComment, rowHight, in
   var numOnCommentBoxBefore = 0;
   for (var i=0; i<dataSource.getRowCount(); i++) {
     var data = dataSource.getRowData(0,i);
-    if (!data.isCommentOn) {
-      data.isCommentOn = false;
-    }
-    // if (data.kpi === item.kpi && data.category === item.category && data.dailyAverage === item.dailyAverage && data.name === item.name) {
-    if (data === item) {  // due to data refresh, this is no longer the case
+    if (data.kpi === item.kpi && data.category === item.category && data.dailyAverage === item.dailyAverage && data.name === item.name) {
+    // if (data === item) {  // due to data refresh, this is no longer the case
       // scroll to the right comment box
       // console.log("found item = " + item);
       // if (showComment) {
+      // data due to reload dataSounce flags are often out of sync with the item
+      if (data.isCommonOn !== item.isCommentOn) {
+        data.isCommentOn = item.isCommentOn;
+      }
       if (data.isCommentOn) {
-        var y = rowHight*(i+1)+numOnCommentBoxBefore*COMMENT_BOX_HEIGHT - 10;
         if (listView.getScrollResponder()) {
-          console.log("scroll to = ", y);
+          var y = rowHight*(i+1)+numOnCommentBoxBefore*COMMENT_BOX_HEIGHT - 10;
           listView.getScrollResponder().scrollTo(y, 0);
+          console.log("scroll to = ", y);
         } else {
           console.log("ERR - no scroll responder!");
           return;  // something is wrong

@@ -596,9 +596,6 @@ var LoginScreen = React.createClass({
   mpAppLogin: function() {
     mixpanelTrack("App Login", {"App Version": this.props.appVersion}, this.state.currentUser);
   },
-  mpAppMemoryWarning: function() {
-    mixpanelTrack("App Memory Warning", {"App Version": this.props.appVersion}, this.state.currentUser);
-  }
 });
 
 var styles = StyleSheet.create({

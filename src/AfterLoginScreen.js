@@ -28,9 +28,10 @@ var Parse = require('parse/react-native');
 var PerformanceSwipeScreen = require('./PerformanceSwipeScreen');
 
 
+global.perfTitle = PerfNavTitle;
 var firstPerfRoute = {
   // titleComponent: MonthlyNavTitle,
-  titleComponent: PerfNavTitle,
+  titleComponent: global.perfTitle,
   rightCorner: LogoRight,
   // component: MonthlyTargetScreen,
   // component: AreaScreen,

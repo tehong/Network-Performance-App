@@ -116,6 +116,10 @@ var AreaScreen = React.createClass({
     console.log("areas will mount");
     global.refreshFeedCount();
     this.getAreas('area');
+    // now every time the page is visited a new result is retrieved so basically the cache is usless
+    // TODO  => we might have to take the cache out unless it is for paging
+    // resultsCache.totalForQuery = {};
+    // resultsCache.dataForQuery = {};
   },
   componentDidMount: function() {
     // this.refreshData();
@@ -126,10 +130,6 @@ var AreaScreen = React.createClass({
     // never hit, why?
     this.mpAppState('active');
     this.setState({appState: 'active'});
-    // now every time the page is visited a new result is retrieved so basically the cache is usless
-    // TODO  => we might have to take the cache out unless it is for paging
-    // resultsCache.totalForQuery = {};
-    // resultsCache.dataForQuery = {};
     //
     AppStateIOS.addEventListener('change', this._handleAppStateChange);
     AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
@@ -161,6 +161,7 @@ var AreaScreen = React.createClass({
     this.getAreas('area');
   },
   refreshData: function() {
+    // need to make sure we ended up at the right network screen index
     this.props.setScrollIndex();
     this.setState({
       isRefreshing: true,
@@ -262,8 +263,8 @@ var AreaScreen = React.createClass({
     // see we need to auto nav to the next page to get to the comment item
     if (!areas) return;  // we need to make sure that this page loaded before navigate to the next page
     if (global.navCommentProps &&
-      global.navCommentProps.entityType.toLowerCase() !== ENTITY_TYPE &&
-      global.navCommentProps.entityType.toLowerCase() !== "monthly_target") {
+      (global.navCommentProps.entityType.toLowerCase() === "site" ||
+      global.navCommentProps.entityType.toLowerCase() === "sector")) {
       // need to run the sorted data array because it modifies the record slightly
       var kpi = global.navCommentProps.kpi;
       var sortedAreas = getSortedDataArray(areas);
@@ -431,19 +432,25 @@ var AreaScreen = React.createClass({
       }
     });
   },
+  addUtilData: function(areas) {
+    for (var i=0;i<areas.length; i++) {
+      // reset the isCommentOn flag
+      areas[i].isCommentOn = false;
+    }
+    return areas;
+  },
   getDataSource: function(areas: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
     var sortedAreas = getSortedDataArray(areas);
     // save the KPI name in cloud
     // need to be after it is sorted and category is populated!
     this.updateKpiNameInCloud(sortedAreas);  // populate the category name
-
-    return this.state.dataSource.cloneWithRows(sortedAreas);
+    var sortedNetworkAreas = this.addUtilData(sortedAreas);
+    return this.state.dataSource.cloneWithRows(sortedNetworkAreas);
   },
   selectKpi: function(area: Object) {
     this.mpSelectKpi(area.category + " " + area.kpi);
     var titleComponent = SiteNavTitle;
-
     if (Platform.OS === 'ios') {
       this.props.toRoute({
         titleComponent: titleComponent,
@@ -456,7 +463,7 @@ var AreaScreen = React.createClass({
           entityType: 'site',
           category: area.category,
           kpi: area.kpi,
-          areaName: area.name,
+          areaName: area.areaName,
           setScrollIndex: this.props.setScrollIndex,
         }
       });
@@ -470,23 +477,22 @@ var AreaScreen = React.createClass({
     }
   },
   selectKpiRed: function(area: Object) {
-    this.mpSelectSectorColor(area.kpi, "red");
+    this.mpSelectSectorColor(area.category + " " + area.kpi, "red");
     this.selectSectorKpi(area, "red");
   },
   selectKpiYellow: function(area: Object) {
-    this.mpSelectSectorColor(area.kpi, "yellow");
+    this.mpSelectSectorColor(area.category + " " + area.kpi, "yellow");
     this.selectSectorKpi(area, "yellow");
   },
   selectKpiGreen: function(area: Object) {
-    this.mpSelectSectorColor(area.kpi, "green");
+    this.mpSelectSectorColor(area.category + " " + area.kpi, "green");
     this.selectSectorKpi(area, "green");
   },
   selectKpiGrey: function(area: Object) {
-    this.mpSelectSectorColor(area.kpi, "grey");
+    this.mpSelectSectorColor(area.category + " " + area.kpi, "grey");
     this.selectSectorKpi(area, "grey");
   },
   selectSectorKpi(area: Object, color: string) {
-    // this.mpSelectKpi(area.category + " " + area.kpi);
     // use lazy loading, this prevent possible loop require collision
     var SectorScreen = require('./SectorScreen');
     var SectorNavTitle = require('./components/icons/sectors/SectorNavTitle');
@@ -503,7 +509,7 @@ var AreaScreen = React.createClass({
           entityType: 'sector',
           category: area.category,
           kpi: area.kpi,
-          areaName: area.name,
+          areaName: area.areaName,
           color: color,
           siteName: color,
           setScrollIndex: this.props.setScrollIndex,
@@ -541,6 +547,9 @@ var AreaScreen = React.createClass({
     } else if (currentAppState === 'inactive') {
       mixpanelTrack("App Inactive", {"App Version": global.BeeperVersion}, global.currentUser);
     }
+  },
+  mpAppMemoryWarning: function() {
+    mixpanelTrack("App Memory Warning", {"App Version": this.props.appVersion}, this.state.currentUser);
   },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
@@ -591,17 +600,19 @@ var AreaScreen = React.createClass({
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={area}
-        areaName={area.name}
+        areaName={area.areaName}
         entityType={this.props.entityType}
         scrollIndex={this.props.scrollIndex}
         setScrollIndex={this.props.setScrollIndex}
         onToggleComment={(showComment) => {
-          this.props.setScrollIndex();
+          this.props.setScrollIndex();  // always need to the correct index
           area["isCommentOn"] = showComment;
-          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, showComment, ROW_HEIGHT, true);
-          this.setState({
-            contentInset: contentInset,
-          });
+          if (showComment) {
+            var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, showComment, ROW_HEIGHT, true);
+            this.setState({
+              contentInset: contentInset,
+            });
+          }
         }}
         navCommentProps={global.navCommentProps}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}

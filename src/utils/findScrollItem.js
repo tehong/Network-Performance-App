@@ -12,10 +12,11 @@ function findScrollItem(dataSource, entity) {
   for (var i=0; i<dataSource.getRowCount(); i++) {
     var data = dataSource.getRowData(0,i);
     var kpi = data.category.toLowerCase() + "_" + data.kpi.toLowerCase().replace(/ /g, "_");
-    var entityName = entity.networkName;
+    var entityName = entity.entityName;
     if (entity.siteName != "") entityName = entity.siteName;
     if (entity.sectorName != "") entityName = entity.sectorName;
-    if (data.areaName.toLowerCase() === entity.networkName && kpi === entity.kpi && data.name.toLowerCase() === entityName) {
+    var name = data.name.toLowerCase().replace(/ /g, "_");
+    if (data.areaName.toLowerCase() === entity.networkName && kpi === entity.kpi && name === entityName) {
       return data;
     }
   }

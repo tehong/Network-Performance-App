@@ -128,6 +128,8 @@ var SiteScreen = React.createClass({
     }
     // see we need to auto nav to the next page to get to the comment item
     this.navigateToComment(cachedSites);
+    // see if we need to scroll to bottom for auto-nav of the comments
+    this.scrollToBottom();
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
@@ -196,6 +198,28 @@ var SiteScreen = React.createClass({
       });
     })
   },
+  scrollToBottom: function() {
+    // see if we need to auto scroll to bottom
+    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === ENTITY_TYPE) {
+      // use timer to check if listview loaded
+      var refValidation = 0;
+      var interval = this.setInterval(
+        () => {
+          refValidation++;
+          // make sure all the components are loaded, especially the listview
+          if(this.refs.listview) {
+            console.log("site refValidation=", refValidation);
+            this.refs.listview.getScrollResponder().scrollTo(10000, 0);
+            this.clearInterval(interval);
+          } else if (refValidation > 100) {
+            console.log("site refValidation stopped at ", refValidation);
+            this.clearInterval(interval);
+          }
+        },
+        50, // trigger scrolling 500 ms later
+      );
+    }
+  },
   navigateToComment: function(sites: object) {
     if (!sites) return;
     // see if we need to auto nav to the next page to get to the comment item
@@ -255,7 +279,13 @@ var SiteScreen = React.createClass({
 
   onEndReached: function() {
   },
-
+  addUtilData: function(sites) {
+    for (var i=0;i<sites.length; i++) {
+      // reset the isCommentOn flag
+      sites[i].isCommentOn = false;
+    }
+    return sites;
+  },
   getDataSource: function(sites: Array<any>): ListView.DataSource {
     var sortedSites = getSortedDataArray(sites);
     /*
@@ -267,7 +297,8 @@ var SiteScreen = React.createClass({
     }
     return this.state.dataSource.cloneWithRows(filteredSet);
     */
-    return this.state.dataSource.cloneWithRows(sortedSites);
+    var sortedModSites = this.addUtilData(sortedSites);
+    return this.state.dataSource.cloneWithRows(sortedModSites);
   },
 
   selectSite: function(site: Object) {
@@ -325,6 +356,7 @@ var SiteScreen = React.createClass({
           kpi: site.kpi,
           areaName: this.props.areaName,
           siteName: site.name,
+          setScrollIndex: this.props.setScrollIndex,
         }
       });
     } else {
@@ -394,17 +426,28 @@ var SiteScreen = React.createClass({
         entityType={this.props.entityType}
         setScrollIndex={this.props.setScrollIndex}
         onToggleComment={(showComment) => {
-          this.props.setScrollIndex();
-          site["isCommentOn"] = showComment;
-          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, site, showComment, ROW_HEIGHT, true);
-          this.setState({
-            contentInset: contentInset,
-          });
+          if (site) {
+            site["isCommentOn"] = showComment;
+            if (showComment) {
+              var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, site, showComment, ROW_HEIGHT, true);
+              this.setState({
+                contentInset: contentInset,
+              });
+            }
+          }
         }}
         navCommentProps={this.state.navCommentProps}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
+    /*
+        onUnmount={(site) => {
+          // since this is a SGListView, unmounting is often so we need to reset flags
+          if (site) {
+            site["isCommentOn"] = false;
+          }
+        }}
+        */
   },
 
   render: function() {

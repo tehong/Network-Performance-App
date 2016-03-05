@@ -14,8 +14,14 @@ function scrollToByTimeout(_this, entityType, rowHeight) {
         refValidation++;
         // make sure all the components are loaded, especially the listview
         if(_this.refs.listview) {
+          // first we need scroll up all the way to make sure that everything is reset
+          //   (this is especially for site/sector using SGListView that unmount listview cells)
+          // this.refs.listview.getScrollResponder().scrollTo(0, 0);
           console.log("refValidation=", refValidation);
           scrollToEntity(_this, navCommentProps, rowHeight);
+          _this.clearInterval(interval);
+        } else if (refValidation > 100) {
+          console.log("refValidation stopped at =", refValidation);
           _this.clearInterval(interval);
         }
       },

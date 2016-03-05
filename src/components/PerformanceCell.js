@@ -43,8 +43,15 @@ var PerformanceCell = React.createClass({
       isShowComment: false,  // used for show comment extension
     };
   },
-  componentDidMount() {
+  componentDidMount: function() {
     this.goToComment();
+    // this.isLoading();
+  },
+  componentWillUnmount: function() {
+    if (this.props.onUnmount) {
+      console.log("calling unMount!");
+      this.props.onUnmount(this.props.geoArea);
+    }
     // this.isLoading();
   },
   /*
@@ -75,11 +82,17 @@ var PerformanceCell = React.createClass({
       var kpi = this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.toLowerCase().replace(/ /g, "_");
       var hit = false;
       switch(this.props.entityType) {
-        case "monthly_target":
         case "network":
           if (navCommentProps.kpi === kpi) {
+            if (this.props.entityName) { // if at montly_target screen
+              hit = (navCommentProps.entityName === this.props.entityName)?true:false;
+            } else { // at the network daily screen
+              entityName = this.props.geoArea.areaName.toLowerCase().replace(/ /g, "_");
+              hit = (navCommentProps.entityName === entityName)?true:false;
+            }
+          }
+          if (hit) {
             this.props.setScrollIndex();
-            hit = true;
           }
           break;
         case "site":
@@ -122,7 +135,7 @@ var PerformanceCell = React.createClass({
         <CommentBox
           style={styles.commentExtensionContainer}
           entityType={this.props.entityType}
-          entityName={this.props.geoArea.name.toLowerCase()}
+          entityName={this.props.geoArea.name.toLowerCase().replace(/ /g, "_")}
           kpi={kpiName}
           geoArea={this.props.geoArea}
           areaName={this.props.areaName}
@@ -191,8 +204,9 @@ var PerformanceCell = React.createClass({
     if (Platform.OS === 'android') {
       TouchableElement = TouchableNativeFeedback;
     }
+    var entityName = this.props.entityName ? this.props.entityName : "";
     var touchContent =
-      this.props.entityType !== "monthly_target"
+      entityName !== "monthly_target"
       ?
       <TouchableElement style={styles.container}
           onPress={this.props.onSelect}
@@ -206,24 +220,28 @@ var PerformanceCell = React.createClass({
 
     switch(backgroundImage) {
       case "BG_Red_KPI_Item":
+        // red color = e21f26
         return(
           <Image style={styles.backgroundImage} source={require("../assets/images/BG_Red_KPI_Item.png")}>
             {touchContent}
           </Image>
         );
       case "BG_Green_KPI_Item":
+        // green color = 629d34
         return(
           <Image style={styles.backgroundImage} source={require("../assets/images/BG_Green_KPI_Item.png")}>
             {touchContent}
           </Image>
         );
       case "BG_Yellow_KPI_Item":
+        // yellow color = fdbe0e
         return(
           <Image style={styles.backgroundImage} source={require("../assets/images/BG_Yellow_KPI_Item.png")}>
             {touchContent}
           </Image>
         );
       case "BG_Grey_KPI_Item":
+        // grey color = d5d6d8
         return(
           <Image style={styles.backgroundImage} source={require("../assets/images/BG_Grey_KPI_Item.png")}>
             {touchContent}
@@ -232,6 +250,11 @@ var PerformanceCell = React.createClass({
     }
   },
   getData() {
+    /*
+    if (this.props.entityType === "monthly_target") {
+      debugger;
+    }
+    */
     var dataArray = this.props.geoArea.data;
     var newDataArray = [];
     for (var i=0; i < dataArray.length; i++) {
@@ -437,10 +460,11 @@ var PerformanceCell = React.createClass({
   sectorCounterView: function(dailyAverage, redThreshold, greenThreshold) {
     var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     var totalNumSectors = 9;  // default sectors per zone
+    var entityName = this.props.entityName ? this.props.entityName : "";
     // don't show sector count for sector page
     if (this.props.entityType.toLowerCase() === "sector" ||
         this.props.entityType.toLowerCase() === "site" ||
-        this.props.entityType.toLowerCase() === 'monthly_target') {
+        entityName === 'monthly_target') {
       return;
     }
     if (this.props.entityType.toLowerCase() === "zone") {

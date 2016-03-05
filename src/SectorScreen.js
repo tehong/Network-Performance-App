@@ -98,8 +98,6 @@ var SectorScreen = React.createClass({
   },
 
   componentWillMount: function() {
-    // this.setScrollToTimeout();
-
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
@@ -108,6 +106,12 @@ var SectorScreen = React.createClass({
       saveEntityTypeInCloud(this.props.entityType);
     }
     this.loadData();
+  },
+  componentWillUnmount: function() {
+    // now every time the page is visited a new result is retrieved so basically the cache is usless
+    // TODO  => we might have to take the cache out unless it is for paging
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
   },
   loadData: function() {
     global.refreshFeedCount();
@@ -359,9 +363,15 @@ var SectorScreen = React.createClass({
 
   onEndReached: function() {
   },
-
+  addUtilData: function(sectors) {
+    for (var i=0;i<sectors.length; i++) {
+      // reset the isCommentOn flag
+      sectors[i].isCommentOn = false;
+    }
+    return sectors;
+  },
   getDataSource: function(sectors: Array<any>): ListView.DataSource {
-    var sortedSites = getSortedDataArray(sectors);
+    var sortedSectors = getSortedDataArray(sectors);
     /*
     var filteredSet = [];
     for (var i in sortedSites) {
@@ -371,7 +381,8 @@ var SectorScreen = React.createClass({
     }
     return this.state.dataSource.cloneWithRows(filteredSet);
     */
-    return this.state.dataSource.cloneWithRows(sortedSites);
+    var sortedModSectors = this.addUtilData(sortedSectors);
+    return this.state.dataSource.cloneWithRows(sortedModSectors);
   },
 
   selectSector: function(sector: Object) {
@@ -461,17 +472,29 @@ var SectorScreen = React.createClass({
         color={this.props.color}
         entityType={this.props.entityType}
         onToggleComment={(showComment) => {
-          this.props.setScrollIndex();
-          sector["isCommentOn"] = showComment;
-          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, sector, showComment, ROW_HEIGHT, true);
-          this.setState({
-            contentInset: contentInset,
-          });
+          if (sector) {
+            sector["isCommentOn"] = showComment;
+            if (showComment) {
+              var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, sector, showComment, ROW_HEIGHT, true);
+              this.setState({
+                contentInset: contentInset,
+              });
+            }
+          }
         }}
         navCommentProps={this.state.navCommentProps}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
+    /*
+        onUnmount={(sector) => {
+          // since this is a SGListView, unmounting is often so we need to reset flags
+          if(sector) {
+            console.log("comment off on sector");
+            sector["isCommentOn"] = false;
+          }
+        }}
+        */
   },
 
   render: function() {

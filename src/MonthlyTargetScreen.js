@@ -1,5 +1,4 @@
 'use strict';
-var ENTITY_TYPE = "monthly_target";
 
 var React = require('react-native');
 var {
@@ -42,10 +41,10 @@ var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var AreaScreen = require('./AreaScreen');
 
-var MONTHLY_TARGET_URL = 'http://52.20.201.145:3010/kpis/v1/network/all/kpi/all';
-// var MONTHLY_TARGET_URL = 'http://localhost:3010/kpis/v1/network/all/kpi/all';
 // Dev DB access: 54.165.24.76
-// var MONTHLY_TARGET_URL = 'http://54.165.24.76:3010/kpis/v1/network/all/kpi/all';
+// var MONTHLY_TARGET_URL = 'http://54.165.24.76:3010/kpis/v1/monthly/target/kpi/all';
+var MONTHLY_TARGET_URL = 'http://52.20.201.145:3010/kpis/v1/monthly/target/kpi/all';
+// var MONTHLY_TARGET_URL = 'http://localhost:3010/kpis/v1/monthly/target/kpi/all';
 
 var resultsCache = {
   dataForQuery: {},
@@ -73,12 +72,16 @@ var MonthlyTargetScreen = React.createClass({
     };
   },
   componentWillMount: function() {
+    // now every time the page is visited a new result is retrieved so basically the cache is usless
+    // TODO  => we might have to take the cache out unless it is for paging
+    // resultsCache.totalForQuery = {};
+    // resultsCache.dataForQuery = {};
     global.refreshFeedCount();
     this.getAreas('area');
   },
   componentDidMount: function() {
     saveEntityTypeInCloud(this.props.entityType);
-    this.navigateToComment(cachedAreas);
+    // this.navigateToComment(cachedAreas);
   },
   componentWillUnmount: function() {
   },
@@ -89,6 +92,7 @@ var MonthlyTargetScreen = React.createClass({
     this.getAreas('area');
   },
   refreshData: function() {
+    // need to make sure we ended up at the right network screen index
     this.props.setScrollIndex();
     this.setState({
       isRefreshing: true,
@@ -102,7 +106,7 @@ var MonthlyTargetScreen = React.createClass({
       );
   },
   fetchData: function(query, queryString) {
-    console.log("queryString = " + queryString);
+    console.log("monthly target queryString = " + queryString);
     var _this = this;  // ready for promise processing
     fetch(queryString, {
       headers: {
@@ -132,7 +136,7 @@ var MonthlyTargetScreen = React.createClass({
               // dataSource: this.getDataSource(responseData.movies),
               dataSource: this.getDataSource(areas),
             });
-            this.navigateToComment(areas);
+            // this.navigateToComment(areas);
         } else {
             LOADING[query] = false;
             resultsCache.dataForQuery[query] = undefined;
@@ -154,12 +158,13 @@ var MonthlyTargetScreen = React.createClass({
       });
     })
   },
+  /* can't navigate downwards since this screen can't drill down to lower layers
   navigateToComment: function(areas: object) {
     // see we need to auto nav to the next page to get to the comment item
     if (!areas) return;  // we need to make sure that this page loaded before navigate to the next page
     if (global.navCommentProps &&
       global.navCommentProps.entityType.toLowerCase() !== "network" &&
-      global.navCommentProps.entityType.toLowerCase() !== ENTITY_TYPE) {
+      global.navCommentProps.entityType.toLowerCase() !== this.props.entityType) {
       // need to run the sorted data array because it modifies the record slightly
       var kpi = global.navCommentProps.kpi;
       var sortedAreas = getSortedDataArray(areas);
@@ -167,16 +172,12 @@ var MonthlyTargetScreen = React.createClass({
         var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
         var siteName = global.navCommentProps.siteName;
         if (kpi === kpiName) {
-          if (siteName === "red" || siteName === "grey" || siteName === "green" || siteName === "yellow") {
-            this.selectSectorKpi(sortedAreas[i], siteName);
-          } else {
-            console.log("monthly target select");
-            this.selectKpi(sortedAreas[i]);
-          }
+          this.selectKpi(sortedAreas[i]);
         }
       }
     }
   },
+  */
   getAreas: function(query: string) {
 
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
@@ -255,13 +256,32 @@ var MonthlyTargetScreen = React.createClass({
       }
     });
   },
+  addUtilData: function(areas) {
+    var getThreshold = require('./utils/getThreshold');
+    for (var i=0;i<areas.length; i++) {
+      // FIXME: temporary patches to make the feed navigation work correctly with the old monthly target service API
+      if (!areas[i].name) {
+        areas[i].name = "Monthly Target";
+        areas[i].areaName = "Thumb";
+        areas[i].parentEntityName = "Thumb";
+      }
+      // populate the last array element [x,y] with fake end of month data that's equal to green target so it is not visible
+      if (areas[i].data.length < 30) {
+        areas[i].data.push([31,areas[i].thresholds.green]);
+      }
+      // reset the isCommentOn flag
+      areas[i].isCommentOn = false;
+    }
+    return areas;
+  },
   getDataSource: function(areas: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
     var sortedAreas = getSortedDataArray(areas);
     // save the KPI name in cloud
     // need to be after it is sorted and category is populated!
-    this.updateKpiNameInCloud(sortedAreas);  // populate the category name
-    return this.state.dataSource.cloneWithRows(sortedAreas );
+    // this.updateKpiNameInCloud(sortedAreas);  // populate the category name
+    var sortedMonthlyAreas = this.addUtilData(sortedAreas);
+    return this.state.dataSource.cloneWithRows(sortedMonthlyAreas);
   },
   selectKpi: function(area: Object) {
     this.mpSelectKpi(area.category + " " + area.kpi);
@@ -279,7 +299,7 @@ var MonthlyTargetScreen = React.createClass({
           entityType: 'site',
           category: area.category,
           kpi: area.kpi,
-          areaName: area.name,
+          areaName: area.areaName,
         }
       });
     } else {
@@ -325,7 +345,7 @@ var MonthlyTargetScreen = React.createClass({
           entityType: 'Sector',
           category: area.category,
           kpi: area.kpi,
-          areaName: area.name,
+          areaName: area.areaName,
           color: color,
         }
       });
@@ -396,23 +416,31 @@ var MonthlyTargetScreen = React.createClass({
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
-    return (
-      <PerformanceCell
-        key={area.id}
+    /*
         onSelect={() => this.selectKpi(area)}
         onSelectRed={() => this.selectKpiRed(area)}
         onSelectYellow={() => this.selectKpiYellow(area)}
         onSelectGreen={() => this.selectKpiGreen(area)}
         onSelectGrey={() => this.selectKpiGrey(area)}
+        */
+    return (
+      <PerformanceCell
+        key={area.id}
+        onSelect={() => {}}
+        onSelectRed={() => {}}
+        onSelectYellow={() => {}}
+        onSelectGreen={() => {}}
+        onSelectGrey={() => {}}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={area}
-        areaName={area.name}
+        areaName={area.areaName}
         entityType={this.props.entityType}
+        entityName={this.props.entityName}
         scrollIndex={this.props.scrollIndex}
         setScrollIndex={this.props.setScrollIndex}
         onToggleComment={(showComment) => {
-          this.props.setScrollIndex();
+          this.props.setScrollIndex();  // always need to the correct index
           area["isCommentOn"] = showComment;
           var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, showComment, ROW_HEIGHT, true);
           this.setState({
@@ -420,7 +448,7 @@ var MonthlyTargetScreen = React.createClass({
           });
         }}
         navCommentProps={global.navCommentProps}
-        triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
+        triggerScroll={() => scrollToByTimeout(this, this.props.entityType, ROW_HEIGHT)}
       />
     );
   },
@@ -437,12 +465,11 @@ var MonthlyTargetScreen = React.createClass({
       />;
     } else {
       var content = this.state.dataSource.getRowCount() === 0 ?
-        <ShowModalMessage
-          statusCode={this.state.statusCode}
-          statusMessage={this.state.statusMessage}
-          isLoading={this.state.isLoading}
-          onPressRefresh={this.reloadData}
-          buttonText={'Try Again'}
+        <ActivityIndicatorIOS
+          animating={true}
+          style={[styles.centering, {height: 100}]}
+          color={"#00A9E9"}
+          size="large"
         />
         :
         <RefreshableListView

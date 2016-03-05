@@ -6,7 +6,7 @@
 
 // Split the kpi into category and kpi fields using the first word of kpi field as the category
 function massageCategoryKpi(kpiRecord) {
-  if (kpiRecord["category"] === null) {
+  if (!kpiRecord['category'] || kpiRecord["category"] === null) {
     var indexSpace = kpiRecord["kpi"].indexOf(" ");
     if (indexSpace >= 0) {
       kpiRecord["category"] = kpiRecord["kpi"].substring(0, indexSpace);

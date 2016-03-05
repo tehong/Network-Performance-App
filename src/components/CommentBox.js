@@ -145,7 +145,12 @@ module.exports = React.createClass({
       sectorName = this.props.sectorName.toLowerCase();
     }
     feed.set('user', global.currentUser);
-    feed.set('entityType', this.props.entityType);
+    if (this.props.entityName === "monthly_target") {
+      feed.set('entityType', "network");
+    } else {
+      feed.set('entityType', this.props.entityType);
+    }
+
     feed.set('entityName', this.props.entityName);
     feed.set('kpi', this.props.kpi);
     feed.set('networkName', networkName);

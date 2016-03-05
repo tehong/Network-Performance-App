@@ -116,8 +116,9 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     var i = dataArray.count - 1  // count down to 0
     for item in dataArray {
       let xValue = (item[0] as! NSString).doubleValue
-      let yValue = (item[1] as! Double)
-      plotData.append(["x":xValue, "y":yValue])
+      if let yValue = (item[1] as? Double) {
+        plotData.append(["x":xValue, "y":yValue])
+      }
       // let dateStr:NSString = NSString(string: item.0).substringFromIndex(5)
       let dateStr:NSString = NSString(string: String(xValue)).substringFromIndex(0)
       
@@ -482,7 +483,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
     // Dispose of any resources that can be recreated.
-    print("ERR: SparklineView - memory wwarning")
+    print("ERR: SparklineView - memory warning")
   }
   
 }
