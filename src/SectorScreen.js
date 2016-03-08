@@ -94,6 +94,7 @@ var SectorScreen = React.createClass({
       }),
       filter: '',
       queryNumber: 0,
+      contentInset: {bottom: 25},
     };
   },
 
@@ -202,12 +203,6 @@ var SectorScreen = React.createClass({
     if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "sector") {
       var navCommentProps = global.navCommentProps;
       global.navCommentProps = undefined;
-      /*
-      var refValidation = 0;
-      this.setState({
-        navCommentProps: navCommentProps,
-      });
-      */
       var interval = this.setInterval(
         () => {
           // refValidation++;
@@ -302,7 +297,6 @@ var SectorScreen = React.createClass({
                 // dataSource: _this.getDataSource(responseData.movies),
                 dataSource: _this.getDataSource(sectors),
               });
-              _this.navigateToComment(sectors);
           } else {
               LOADING[query] = false;
               resultsCache.dataForQuery[query] = undefined;
@@ -482,7 +476,6 @@ var SectorScreen = React.createClass({
             }
           }
         }}
-        navCommentProps={this.state.navCommentProps}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );

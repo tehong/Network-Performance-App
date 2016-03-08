@@ -30,6 +30,13 @@ function mixpanelTrack(trackPoint: string, trackProperties: object, user: object
     properties["username"] = username;
   }
   */
+  if (global.currentUser) {
+    Mixpanel.peopleSet(
+      {
+        "Last Event Seen": trackPoint,
+      }
+    );
+  }
   Mixpanel.track(trackPoint, properties);
 }
 

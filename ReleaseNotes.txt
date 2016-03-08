@@ -192,10 +192,17 @@ Release 0.2.3 is on TestFlight:
   (3) Added KPI monthly target screen
   (4) Added comment box and auto-scroll to the correct comment box in the Monthly Target screen.
   (5) Several bug fixes associated with app crashes.
+  (6) New list view for the comment box to eliminate some nasty bugs.
   Bugs:
   - Site comment box scrolling can get out of sync when too many comment boxes opened and many scroll-ups. Work around is to go back to network and back to site page.
-  TODO:
-  - Need to add Mixpanel events for the comment box and feed as well.  Not sure how details that would be.
+
+- Beeper iOS 0.4.4 Internal Release Note
+  (1) Eliminate white space under site/sector pages.
+  (2) Reduced the size of the text entry area in comment box by 50%.
+  (3) Fixed incorrect month and year local date formats on Feed and comment box.
+  (4) Added <key>ITSAppUsesNonExemptEncryption</key><false/> to Info.plist to signify no cryptography for Apple's export compliance.
+  (5) Added Mixpanel people set "Last Event Seen" event on every mixpanel event.
+  (6) Added Mixpanel events for the comment box and feed as well.  Have not found any hook for Monthly Target screen besides its comment box.
 
 - TODO:
 

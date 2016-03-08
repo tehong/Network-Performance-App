@@ -14,6 +14,7 @@ import InvertibleScrollView from 'react-native-invertible-scroll-view';
 var RefreshableListView = require('react-native-refreshable-listview');
 var Parse = require('parse/react-native');
 var CommentCell = require('./CommentCell');
+var mixpanelTrack = require('../utils/mixpanelTrack');
 // var TimerMixin = require('react-timer-mixin');
 
 // IMPORTANT: we need to use InvertibleScrollView so we need to implement this way:
@@ -146,11 +147,18 @@ module.exports = React.createClass({
     }
     feed.set('user', global.currentUser);
     if (this.props.entityName === "monthly_target") {
-      feed.set('entityType', "network");
+      var entityType = "network";
     } else {
-      feed.set('entityType', this.props.entityType);
+      var entityType = this.props.entityType;
     }
-
+    mixpanelTrack("Enter Comment",
+    {
+      "Entity": "#" + entityType,
+      "Name": "#" + this.props.entityName,
+      "KPI": "#" + this.props.kpi,
+      "Comment Text": comment,
+    }, global.currentUser);
+    feed.set('entityType', entityType);
     feed.set('entityName', this.props.entityName);
     feed.set('kpi', this.props.kpi);
     feed.set('networkName', networkName);
@@ -160,10 +168,10 @@ module.exports = React.createClass({
     feed.save(null, {
       success(feed) {
         // Execute any logic that should take place after the object is saved.
+        global.refreshFeedCount();
         _this.setState({comment: ""});
         console.log('New object created with objectId: ' + feed.id);
         _this.reloadData();
-        global.refreshFeedCount();
       },
       error(feed, error) {
         // Execute any logic that should take place if the save fails.
@@ -283,12 +291,12 @@ var styles = StyleSheet.create({
   },
   commentInput: {
     flex: 3,
-    height: 100,
+    height: 50,
     marginRight: 20,
     marginLeft: 20,
     marginBottom: 10,
     marginTop: 10,
-    paddingTop: 5,
+    paddingTop: 3,
     paddingLeft: 15,
     paddingRight: 15,
     color: 'black',

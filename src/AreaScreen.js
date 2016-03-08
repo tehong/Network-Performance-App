@@ -4,7 +4,6 @@ var ENTITY_TYPE = "network";
 
 var React = require('react-native');
 var {
-  AppStateIOS,
   ActivityIndicatorIOS,
   ListView,
   Platform,
@@ -32,7 +31,6 @@ var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
 var Parse = require('parse/react-native');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
-var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var ShowModalMessage = require('./components/ShowModalMessage');
 var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
 
@@ -95,8 +93,6 @@ var AreaScreen = React.createClass({
 
   getInitialState: function() {
     return {
-      appState: AppStateIOS.currentState,
-      previousAppStates: [],
       statusCode: 408,  // default to request timeout
       statusMessage: "",  // show any result status message if present
       isLoading: false,  // only used for initial load
@@ -110,6 +106,7 @@ var AreaScreen = React.createClass({
       filter: '',
       queryNumber: 0,
       closeAllCommentBoxes: false,
+      contentInset: {bottom: 25},
     };
   },
   componentWillMount: function() {
@@ -122,37 +119,17 @@ var AreaScreen = React.createClass({
     // resultsCache.dataForQuery = {};
   },
   componentDidMount: function() {
-    // this.refreshData();
+    // if not auto-nav to comment box, then do all of these
+    if (!global.navCommentProps) {
     // need to get data again to make sure we have scroll responder set
-    if (this.props.entityType) {
-      saveEntityTypeInCloud(this.props.entityType);
+      if (this.props.entityType) {
+        saveEntityTypeInCloud(this.props.entityType);
+      }
     }
-    // never hit, why?
-    this.mpAppState('active');
-    this.setState({appState: 'active'});
-    //
-    AppStateIOS.addEventListener('change', this._handleAppStateChange);
-    AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
     // see we need to auto nav to the next page to get to the comment item
     this.navigateToComment(cachedAreas);
   },
   componentWillUnmount: function() {
-    AppStateIOS.removeEventListener('change', this._handleAppStateChange);
-    AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
-  },
-  _handleAppStateChange: function(currentAppState) {
-    // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
-    var previousAppStates = this.state.previousAppStates.slice();
-    previousAppStates.push(this.state.appState);
-    this.setState({
-      appState: currentAppState,
-      previousAppStates: previousAppStates,
-    });
-    this.mpAppState(currentAppState);
-  },
-  _handleMemoryWarning: function() {
-    this.setState({memoryWarnings: this.state.memoryWarnings + 1})
-    this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
   },
   reloadData: function() {
     global.refreshFeedCount();
@@ -278,7 +255,7 @@ var AreaScreen = React.createClass({
           } else {
           */
             console.log("network select");
-            this.selectKpi(sortedAreas[i]);
+            this.selectKpi(sortedAreas[i], false);
           // }
         }
       }
@@ -448,8 +425,8 @@ var AreaScreen = React.createClass({
     var sortedNetworkAreas = this.addUtilData(sortedAreas);
     return this.state.dataSource.cloneWithRows(sortedNetworkAreas);
   },
-  selectKpi: function(area: Object) {
-    this.mpSelectKpi(area.category + " " + area.kpi);
+  selectKpi: function(area: Object, isMixpanel: bool) {
+    if (isMixpanel) this.mpSelectKpi(area.category + " " + area.kpi);
     var titleComponent = SiteNavTitle;
     if (Platform.OS === 'ios') {
       this.props.toRoute({
@@ -536,21 +513,6 @@ var AreaScreen = React.createClass({
   mpSelectSectorColor: function(kpi, color) {
     mixpanelTrack("Sector Count", {"KPI": kpi, "Color": color}, global.currentUser);
   },
-  mpAppState: function(currentAppState) {
-    if (currentAppState === 'active') {
-      global.refreshFeedCount();
-      mixpanelTrack("App Active", {"App Version": global.BeeperVersion}, global.currentUser);
-      Mixpanel.timeEvent("App Inactive");
-      Mixpanel.timeEvent("App Background");
-    } else if (currentAppState === 'background') {
-      mixpanelTrack("App Background", {"App Version": global.BeeperVersion}, global.currentUser);
-    } else if (currentAppState === 'inactive') {
-      mixpanelTrack("App Inactive", {"App Version": global.BeeperVersion}, global.currentUser);
-    }
-  },
-  mpAppMemoryWarning: function() {
-    mixpanelTrack("App Memory Warning", {"App Version": this.props.appVersion}, this.state.currentUser);
-  },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
       return <View style={styles.scrollSpinner} />;
@@ -592,7 +554,7 @@ var AreaScreen = React.createClass({
     return (
       <PerformanceCell
         key={area.id}
-        onSelect={() => this.selectKpi(area)}
+        onSelect={() => this.selectKpi(area, true)}
         onSelectRed={() => this.selectKpiRed(area)}
         onSelectYellow={() => this.selectKpiYellow(area)}
         onSelectGreen={() => this.selectKpiGreen(area)}
@@ -614,7 +576,6 @@ var AreaScreen = React.createClass({
             });
           }
         }}
-        navCommentProps={global.navCommentProps}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );

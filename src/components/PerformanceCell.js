@@ -32,6 +32,7 @@ var getThreshold = require('../utils/getThreshold');
 var SparklineView= require('./SparklineView');
 var isDataEmpty = require('../utils/isDataEmpty');
 var CommentBox = require('./CommentBox');
+var mixpanelTrack = require('../utils/mixpanelTrack');
 
 var PerformanceCell = React.createClass({
   propTypes: {
@@ -65,19 +66,8 @@ var PerformanceCell = React.createClass({
   },
   */
   goToComment: function() {
-    // if((this.props && this.props.navCommentProps && this.props.navCommentProps.entityType === this.props.entityType)) {
     // ||
       if (global.navCommentProps && global.navCommentProps.entityType === this.props.entityType) {
-        /*
-        if (this.props.siteName.toLowerCase() === "930030_brown_city") {
-          debugger;
-        }
-        */
-      /*
-      if (global.scrollToEntity) {
-        global.navCommentProps = global.scrollToEntity;
-      }
-      */
       var navCommentProps = global.navCommentProps;
       var kpi = this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.toLowerCase().replace(/ /g, "_");
       var hit = false;
@@ -116,12 +106,27 @@ var PerformanceCell = React.createClass({
       }
     }
   },
+  mpCommentBox: function() {
+    var kpi = "#" + this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.replace(/ /g, "_").toLowerCase();
+    var entityType = "#" + this.props.entityType;
+    var entityName = "#" + this.props.geoArea.name.toLowerCase().replace(/ /g, "_");
+    mixpanelTrack("Show Comment",
+    {
+      "Entity": entityType,
+      "Name": entityName,
+      "KPI": kpi,
+    }, global.currentUser);
+  },
   toggleComment: function() {
     global.refreshFeedCount();
+    var isShowComment = !this.state.isShowComment;
     if (typeof this.props.onToggleComment === 'function') {
-      this.props.onToggleComment(!this.state.isShowComment); // scroll correctly
+      this.props.onToggleComment(isShowComment); // scroll correctly
+      if (isShowComment) {
+        this.mpCommentBox();
+      }
     }
-    this.setState({isShowComment: !this.state.isShowComment});
+    this.setState({isShowComment: isShowComment});
   },
   render: function() {
     var kpi = this.props.geoArea.kpi;
@@ -250,11 +255,6 @@ var PerformanceCell = React.createClass({
     }
   },
   getData() {
-    /*
-    if (this.props.entityType === "monthly_target") {
-      debugger;
-    }
-    */
     var dataArray = this.props.geoArea.data;
     var newDataArray = [];
     for (var i=0; i < dataArray.length; i++) {

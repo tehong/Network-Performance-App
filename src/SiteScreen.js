@@ -98,6 +98,7 @@ var SiteScreen = React.createClass({
       }),
       filter: '',
       queryNumber: 0,
+      contentInset: {bottom: 25},
     };
   },
 
@@ -232,7 +233,7 @@ var SiteScreen = React.createClass({
         var kpiName = sortedSites[i].category.toLowerCase()+ "_" + sortedSites[i].kpi.replace(/ /g, "_").toLowerCase();
         var siteName = sortedSites[i].name.toLowerCase();
         if (site === siteName && kpi === kpiName) {
-          this.selectSite(sortedSites[i]);
+          this.selectSite(sortedSites[i], false);
         }
       }
     }
@@ -301,8 +302,8 @@ var SiteScreen = React.createClass({
     return this.state.dataSource.cloneWithRows(sortedModSites);
   },
 
-  selectSite: function(site: Object) {
-    this.mpSelectSite(site.name);
+  selectSite: function(site: Object, isMixpanel: bool) {
+    if (isMixpanel) this.mpSelectSite(site.name);
     /*
     var uncorrectedKpi = site.kpi;
     var kpi = uncorrectedKpi.replace("Data ", "");
@@ -417,7 +418,7 @@ var SiteScreen = React.createClass({
     return (
       <PerformanceCell
         key={site.id}
-        onSelect={() => this.selectSite(site)}
+        onSelect={() => this.selectSite(site, true)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={site}
@@ -436,7 +437,6 @@ var SiteScreen = React.createClass({
             }
           }
         }}
-        navCommentProps={this.state.navCommentProps}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );

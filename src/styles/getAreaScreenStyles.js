@@ -23,7 +23,7 @@ function getAreaScreenStyles(): StyleSheet {
   var styles = StyleSheet.create({
     listView: {
       backgroundColor: '#f3f3f3',
-      marginBottom: 70,
+      marginBottom: 49,
     },
     container: {
       flex: 1,

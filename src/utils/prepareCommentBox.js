@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var COMMENT_BOX_HEIGHT = 317;
+var COMMENT_BOX_HEIGHT = 266;
 // This assumes there is a dataSource and listView from teh caller
 function prepareCommentBox(listView, dataSource, item, showComment, rowHight, includePriorCommentBox) {
   if (!listView || !dataSource) {

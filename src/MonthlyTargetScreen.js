@@ -35,7 +35,6 @@ var SiteNavTitle = require('./components/icons/sites/SiteNavTitle');
 
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./utils/getSortedAreaDataArray');
-var mixpanelTrack = require('./utils/mixpanelTrack');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var BackButton = require('./components/icons/BackButton');
 var LogoRight = require('./components/icons/LogoRight');
@@ -69,6 +68,7 @@ var MonthlyTargetScreen = React.createClass({
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
+      contentInset: {bottom: 25},
     };
   },
   componentWillMount: function() {
@@ -81,7 +81,6 @@ var MonthlyTargetScreen = React.createClass({
   },
   componentDidMount: function() {
     saveEntityTypeInCloud(this.props.entityType);
-    // this.navigateToComment(cachedAreas);
   },
   componentWillUnmount: function() {
   },
@@ -136,7 +135,6 @@ var MonthlyTargetScreen = React.createClass({
               // dataSource: this.getDataSource(responseData.movies),
               dataSource: this.getDataSource(areas),
             });
-            // this.navigateToComment(areas);
         } else {
             LOADING[query] = false;
             resultsCache.dataForQuery[query] = undefined;
@@ -158,26 +156,6 @@ var MonthlyTargetScreen = React.createClass({
       });
     })
   },
-  /* can't navigate downwards since this screen can't drill down to lower layers
-  navigateToComment: function(areas: object) {
-    // see we need to auto nav to the next page to get to the comment item
-    if (!areas) return;  // we need to make sure that this page loaded before navigate to the next page
-    if (global.navCommentProps &&
-      global.navCommentProps.entityType.toLowerCase() !== "network" &&
-      global.navCommentProps.entityType.toLowerCase() !== this.props.entityType) {
-      // need to run the sorted data array because it modifies the record slightly
-      var kpi = global.navCommentProps.kpi;
-      var sortedAreas = getSortedDataArray(areas);
-      for (var i=0; i<sortedAreas.length; i++) {
-        var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
-        var siteName = global.navCommentProps.siteName;
-        if (kpi === kpiName) {
-          this.selectKpi(sortedAreas[i]);
-        }
-      }
-    }
-  },
-  */
   getAreas: function(query: string) {
 
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
@@ -189,7 +167,6 @@ var MonthlyTargetScreen = React.createClass({
         });
       } else {
         this.setState({
-          contentInset: null,
           isLoading: true,
         });
       }
@@ -201,7 +178,6 @@ var MonthlyTargetScreen = React.createClass({
     resultsCache.dataForQuery[query] = null;
     this.setState({
       isLoading: true,
-      contentInset: null,
       // isLoadingTail: false,
     });
 
@@ -282,102 +258,6 @@ var MonthlyTargetScreen = React.createClass({
     // this.updateKpiNameInCloud(sortedAreas);  // populate the category name
     var sortedMonthlyAreas = this.addUtilData(sortedAreas);
     return this.state.dataSource.cloneWithRows(sortedMonthlyAreas);
-  },
-  selectKpi: function(area: Object) {
-    this.mpSelectKpi(area.category + " " + area.kpi);
-    var titleComponent = SiteNavTitle;
-
-    if (Platform.OS === 'ios') {
-      this.props.toRoute({
-        titleComponent: titleComponent,
-        backButtonComponent: BackButton,
-        rightCorner: LogoRight,
-        // component: ZoneScreen,
-        component: SiteScreen,
-        headerStyle: styles.header,
-        passProps: {
-          entityType: 'site',
-          category: area.category,
-          kpi: area.kpi,
-          areaName: area.areaName,
-        }
-      });
-    } else {
-      dismissKeyboard();
-      this.props.navigator.push({
-        title: area.title,
-        name: 'area',
-        area: area,
-      });
-    }
-  },
-  selectKpiRed: function(area: Object) {
-    this.mpSelectSectorColor(area.kpi, "red");
-    this.selectSectorKpi(area, "red");
-  },
-  selectKpiYellow: function(area: Object) {
-    this.mpSelectSectorColor(area.kpi, "yellow");
-    this.selectSectorKpi(area, "yellow");
-  },
-  selectKpiGreen: function(area: Object) {
-    this.mpSelectSectorColor(area.kpi, "green");
-    this.selectSectorKpi(area, "green");
-  },
-  selectKpiGrey: function(area: Object) {
-    this.mpSelectSectorColor(area.kpi, "grey");
-    this.selectSectorKpi(area, "grey");
-  },
-  selectSectorKpi(area: Object, color: string) {
-    // this.mpSelectKpi(area.category + " " + area.kpi);
-    // use lazy loading, this prevent possible loop require collision
-    var SectorScreen = require('./SectorScreen');
-    var SectorNavTitle = require('./components/icons/sectors/SectorNavTitle');
-    var titleComponent = SectorNavTitle;
-    if (Platform.OS === 'ios') {
-      this.props.toRoute({
-        titleComponent: titleComponent,
-        backButtonComponent: BackButton,
-        rightCorner: LogoRight,
-        // component: ZoneScreen,
-        component: SectorScreen,
-        headerStyle: styles.header,
-        passProps: {
-          entityType: 'Sector',
-          category: area.category,
-          kpi: area.kpi,
-          areaName: area.areaName,
-          color: color,
-        }
-      });
-    } else {
-      dismissKeyboard();
-      this.props.navigator.push({
-        title: area.title,
-        name: 'area',
-        area: area,
-      });
-    }
-  },
-  onSearchChange: function(event: Object) {
-    // var filter = event.nativeEvent.text.toLowerCase();
-  },
-  mpSelectKpi: function(kpi) {
-    mixpanelTrack("Network KPI", {"KPI": kpi}, global.currentUser);
-  },
-  mpSelectSectorColor: function(kpi, color) {
-    mixpanelTrack("Sector Count", {"KPI": kpi, "Color": color}, global.currentUser);
-  },
-  mpAppState: function(currentAppState) {
-    if (currentAppState === 'active') {
-      global.refreshFeedCount();
-      mixpanelTrack("App Active", {"App Version": global.BeeperVersion}, global.currentUser);
-      Mixpanel.timeEvent("App Inactive");
-      Mixpanel.timeEvent("App Background");
-    } else if (currentAppState === 'background') {
-      mixpanelTrack("App Background", {"App Version": global.BeeperVersion}, global.currentUser);
-    } else if (currentAppState === 'inactive') {
-      mixpanelTrack("App Inactive", {"App Version": global.BeeperVersion}, global.currentUser);
-    }
   },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {

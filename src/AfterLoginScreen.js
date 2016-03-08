@@ -8,6 +8,7 @@ var React = require('react-native');
 var Router = require('gb-native-router');
 
 var {
+  AppStateIOS,
   TabBarIOS,
   StyleSheet,
   Text,
@@ -26,6 +27,8 @@ var LogoRight = require('./components/icons/LogoRight');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 var Parse = require('parse/react-native');
 var PerformanceSwipeScreen = require('./PerformanceSwipeScreen');
+var Mixpanel = require('react-native').NativeModules.RNMixpanel;
+var mixpanelTrack = require('./utils/mixpanelTrack');
 
 
 global.perfTitle = PerfNavTitle;
@@ -58,20 +61,67 @@ var firstFeedRoute = {
 module.exports = React.createClass({
   getInitialState: function() {
     return {
+      appState: AppStateIOS.currentState,
+      previousAppStates: [],
       feedViewDate: undefined,
       selectedTab: 'performance',
       notifCount: 0,
     }
   },
   componentDidMount: function() {
+    // do not do the following if we're in comment navgiation mode
+    //
+    AppStateIOS.addEventListener('change', this._handleAppStateChange);
+    AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
   },
   componentWillMount: function() {
     global.refreshFeedCount = this._getFeedCount;
     this._loadFeedInfoFromStorage();
     this._getAppBadgeValue();
+    if (!global.navCommentProps) {
+      this.mpAppState('active');
+    }
   },
   componentWillUnmount: function() {
     global.refreshFeedCount = undefined;  // we are unmounting this, so better set this global to undefined
+    AppStateIOS.removeEventListener('change', this._handleAppStateChange);
+    AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
+  },
+  _handleAppStateChange: function(currentAppState) {
+    // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
+    var previousAppStates = this.state.previousAppStates.slice();
+    previousAppStates.push(this.state.appState);
+    this.setState({
+      appState: currentAppState,
+      previousAppStates: previousAppStates,
+    });
+    if (!global.navCommentProps) {
+      this.mpAppState(currentAppState);
+    }
+  },
+  _handleMemoryWarning: function() {
+    this.setState({memoryWarnings: this.state.memoryWarnings + 1})
+    this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
+  },
+  mpAppState: function(currentAppState) {
+    if (currentAppState === 'active') {
+      global.refreshFeedCount();
+      // save the last app state
+      Mixpanel.timeEvent("App Inactive");
+      Mixpanel.timeEvent("App Background");
+      mixpanelTrack("App Active", {"App Version": global.BeeperVersion}, global.currentUser);
+    } else if (currentAppState === 'background') {
+      // save the last app state
+      this.setState({lastSaveAppState: currentAppState});
+      mixpanelTrack("App Background", {"App Version": global.BeeperVersion}, global.currentUser);
+    } else if (currentAppState === 'inactive') {
+      // save the last app state
+      this.setState({lastSaveAppState: currentAppState});
+      mixpanelTrack("App Inactive", {"App Version": global.BeeperVersion}, global.currentUser);
+    }
+  },
+  mpAppMemoryWarning: function() {
+    mixpanelTrack("App Memory Warning", {"App Version": this.props.appVersion}, this.state.currentUser);
   },
   _getFeedCount: function() {
     if (!this.state.feedViewDate) {
@@ -160,6 +210,9 @@ module.exports = React.createClass({
       />
     );
   },
+  mpSelectFeed: function() {
+    mixpanelTrack("Show Feed", null, global.currentUser);
+  },
   render: function() {
           // icon={require('./assets/icons/Toolbar_Performance.png')}
           // icon={require('./assets/icons/Toolbar_Feed.png')}
@@ -190,6 +243,7 @@ module.exports = React.createClass({
           title=''
           selected={this.state.selectedTab === 'feed'}
           onPress={() => {
+            this.mpSelectFeed();
             if (global.refreshFeed) {
               global.refreshFeed();
             }

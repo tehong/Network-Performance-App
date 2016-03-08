@@ -41,9 +41,9 @@ var FeedCell = React.createClass({
     var minutes = date.getMinutes();
     minutes = minutes < 10 ? ("0" + minutes) : minutes;
     var diffDays = getDiffInDays(date, new Date());
-    // var memontDateString = date.getYear() + "-" + date.getMonth() + "-" + date.getDate() + "T" + date.getHours() + ":" + date.getMinutes();
+    // var memontDateString = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + "T" + date.getHours() + ":" + date.getMinutes();
     if (diffDays >= 7 ) {
-      var dateString = date.getMonth() + "/" + date.getDate() + "/" + date.getYear() + " " + hour + ":" + minutes + strAmPm;
+      var dateString = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + hour + ":" + minutes + strAmPm;
     } else {
       var dateString = days[date.getDay().toLocaleString()] + " " + hour + ":" + minutes + strAmPm;
     }

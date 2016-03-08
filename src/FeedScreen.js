@@ -32,7 +32,8 @@ var LOADING = {};
 var _this = null;
 
 // var FeedScreen = React.createClass({
-// IMPORTANT: we need to use InvertibleScrollView so we need to implement this way:
+// IMPORTANT: we need to use InvertibleScrollView so we need to implement the more foundamental
+//   React component way:
 //   see https://github.com/exponentjs/react-native-invertible-scroll-view
 class FeedScreen extends React.Component {
   constructor(props, context) {
@@ -177,6 +178,9 @@ class FeedScreen extends React.Component {
   }
 
   selectComment(comment: Object) {
+    // track which comment is selected
+    // set up comment navigation properties
+    // IMPORTANT: Need to be set first to signal nav to comment box is in progres
     global.navCommentProps = {
       entityType: comment.entityType,
       entityName: comment.entityName,
@@ -185,6 +189,15 @@ class FeedScreen extends React.Component {
       sectorName: comment.sectorName,
       kpi:  comment.kpi,
     };
+    mixpanelTrack("Touch Feed Comment",
+    {
+      "Entity": "#" + comment.entityType,
+      "Name": "#" + comment.entityName,
+      "KPI": "#" + comment.kpi,
+      "Post Date": comment.postDate,
+      "Poster": "@" + comment.user.get("friendlyName"),
+      "Comment Text": comment.commentText,
+    }, global.currentUser);
     if (Platform.OS === 'ios') {
       // need lazy loading to get the global.currentUser
       var AfterLoginScreen = require('./AfterLoginScreen');
