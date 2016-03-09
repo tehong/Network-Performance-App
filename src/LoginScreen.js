@@ -98,6 +98,44 @@ var LoginScreen = React.createClass({
       this.initParseApp(masterUsername, masterPassword, false, true);
     }
   },
+  getRestService: function(user) {
+    var query = new Parse.Query("RestService");
+    query.equalTo("application", user);
+    query.find({
+      success: function(results) {
+        global.restService = {};
+        for (var i = 0; i < results.length; i++) {
+          var serviceObj = results[i];
+          switch(serviceObj.get('entityType')) {
+            case 'network_perf':
+              global.restService.networkPerfUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
+            case 'monthly_target':
+              global.restService.monthlyTargetUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
+            case 'site_perf':
+              global.restService.sitePerfUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
+            case 'sector_perf':
+              global.restService.sectorPerfUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
+            case 'sector_color':
+              global.restService.sectorColorUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
+            case 'sector_detail':
+              global.restService.sectorDetailUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
+            case 'sector_location':
+              global.restService.sectorLocationUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
+          }
+        }
+      },
+      error: function(error) {
+        console.log('get REST service failure with error code: ' + error.message);
+      }
+    });
+  },
   // this function log in to the Beeper - Master Control and get the actual Parse AppId and JsKey
   initParseApp: function(controlUsername, controlPassword, isLoadLoginFromStorage, isEnteringAppKeys) {
       // hook into the parse master control App
@@ -124,6 +162,7 @@ var LoginScreen = React.createClass({
               ],
             );
           }
+          this.getRestService(user);
           // get the Parse App ID and JS Key and save it right away
           this.setState({
             appID: user.get('ParseAppId'),

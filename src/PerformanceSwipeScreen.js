@@ -26,7 +26,7 @@ var MonthlyNavTitle = require('./components/icons/areas/MonthlyNavTitle');
 module.exports = React.createClass({
   getInitialState: function() {
     return {
-      currentIndex: 1,
+      currentIndex: 0,
     }
   },
   componentDidMount: function() {
@@ -69,13 +69,7 @@ module.exports = React.createClass({
         // <InViewPort onChange={this.isAreaPerfVisible}>
           // <InViewPort style={styles.inViewPort} onChange={this.isMonthlyTargetVisible}>
     return (
-      <Swiper
-        style={styles.wrapper}
-        showsButtons={false}
-        loop={false}
-        index={this.state.currentIndex}
-        removeClippedSubviews={false}
-        >
+      /*
           <MonthlyTargetScreen
             style={styles.slide2}
             entityType={"network"}
@@ -88,6 +82,14 @@ module.exports = React.createClass({
               console.log("setScrollIndex: 0");
               }}
             />
+            */
+      <Swiper
+        style={styles.wrapper}
+        showsButtons={false}
+        loop={false}
+        index={this.state.currentIndex}
+        removeClippedSubviews={false}
+        >
           <AreaScreen
             style={styles.slide1}
             entityType={"network"}

@@ -62,7 +62,7 @@ var MonthlyTargetScreen = React.createClass({
     return {
       statusCode: 408,  // default to request timeout
       statusMessage: "",  // show any result status message if present
-      isLoading: false,  // only used for initial load
+      isLoading: true,  // only used for initial load
       isRefreshing: false,  // used for subsequent refresh
       // isLoadingTail: false,
       dataSource: new ListView.DataSource({
@@ -71,13 +71,32 @@ var MonthlyTargetScreen = React.createClass({
       contentInset: {bottom: 25},
     };
   },
+  getRestEndPoint: function() {
+    if (!(global.restService && global.restService.monthlyTargetUrl)) {
+      // periodic check if the service URL is retrieved
+      var interval = this.setInterval(
+        () => {
+          if (global.restService && global.restService.monthlyTargetUrl) {
+            MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
+            this.clearInterval(interval);
+            // now we can get data
+            this.getAreas('area');
+          }
+        },
+        50, // checking every 50 ms
+      );
+    } else {
+      MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
+      this.getAreas('area');
+    }
+  },
   componentWillMount: function() {
+    this.getRestEndPoint();
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
     // resultsCache.dataForQuery = {};
     global.refreshFeedCount();
-    this.getAreas('area');
   },
   componentDidMount: function() {
     saveEntityTypeInCloud(this.props.entityType);
@@ -335,7 +354,7 @@ var MonthlyTargetScreen = React.createClass({
 
   render: function() {
     // initial loading => show the activity indicator.  Subsequent refreshing of the ListView => do not unload the ListView
-    if (this.state.isLoading && !this.state.isRefreshing) {
+    if ((this.state.isLoading && !this.state.isRefreshing) || (!global.restService)) {
       var content =
       <ActivityIndicatorIOS
         animating={true}

@@ -28,10 +28,10 @@ PROTOCOL_HTTPS = "https"
 
 # entityType (UI entity Type)
 ENTITY_MONTHLY_TARGET = "monthly_target"
-ENTITY_NETWORK_PERF = "network"
-ENTITY_SITE_PERF = "site"
-ENTITY_SECTOR_PERF = "sector"
-ENTITY_SECTOR_PERF = "sector_color"
+ENTITY_NETWORK_PERF = "network_perf"
+ENTITY_SITE_PERF = "site_perf"
+ENTITY_SECTOR_PERF = "sector_perf"
+ENTITY_SECTOR_COLOR = "sector_color"
 ENTITY_SECTOR_DETAIL = "sector_detail"
 ENTITY_SECTOR_LOCATION = "sector_location"
 
@@ -83,7 +83,22 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_DEV,
                    "entityType": ENTITY_SITE_PERF,
-                   "serviceUrl": "/kpis/v2/site/all/kpi"
+                   "serviceUrl": "/kpis/v2/site/all/kpi/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_DEVELOPMENT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_DEV,
+                   "entityType": ENTITY_SECTOR_COLOR,
+                   "serviceUrl": "/kpis/v2/sector/all/"
                 }
             },
             {
@@ -98,7 +113,7 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_DEV,
                    "entityType": ENTITY_SECTOR_PERF,
-                   "serviceUrl": "/kpis/v2/sectors/site"
+                   "serviceUrl": "/kpis/v2/sectors/site/"
                 }
             },
             {
@@ -113,7 +128,7 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_DEV,
                    "entityType": ENTITY_SECTOR_DETAIL,
-                   "serviceUrl": "/kpis/v1/sector"
+                   "serviceUrl": "/kpis/v1/sector/"
                 }
             },
             {
@@ -174,7 +189,22 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_PROD,
                    "entityType": ENTITY_SITE_PERF,
-                   "serviceUrl": "/kpis/v2/site/all/kpi"
+                   "serviceUrl": "/kpis/v2/site/all/kpi/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB_SUPPORT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
+                   "entityType": ENTITY_SECTOR_COLOR,
+                   "serviceUrl": "/kpis/v2/sector/all/"
                 }
             },
             {
@@ -189,7 +219,7 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_PROD,
                    "entityType": ENTITY_SECTOR_PERF,
-                   "serviceUrl": "/kpis/v2/sectors/site"
+                   "serviceUrl": "/kpis/v2/sectors/site/"
                 }
             },
             {
@@ -204,7 +234,7 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_PROD,
                    "entityType": ENTITY_SECTOR_DETAIL,
-                   "serviceUrl": "/kpis/v1/sector"
+                   "serviceUrl": "/kpis/v1/sector/"
                 }
             },
             {
@@ -265,7 +295,22 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_PROD,
                    "entityType": ENTITY_SITE_PERF,
-                   "serviceUrl": "/kpis/v2/site/all/kpi"
+                   "serviceUrl": "/kpis/v2/site/all/kpi/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
+                   "entityType": ENTITY_SECTOR_COLOR,
+                   "serviceUrl": "/kpis/v2/sector/all/"
                 }
             },
             {
@@ -280,7 +325,7 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_PROD,
                    "entityType": ENTITY_SECTOR_PERF,
-                   "serviceUrl": "/kpis/v2/sectors/site"
+                   "serviceUrl": "/kpis/v2/sectors/site/"
                 }
             },
             {
@@ -295,7 +340,7 @@ connection.request('POST', '/1/batch', json.dumps({
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_PROD,
                    "entityType": ENTITY_SECTOR_DETAIL,
-                   "serviceUrl": "/kpis/v1/sector"
+                   "serviceUrl": "/kpis/v1/sector/"
                 }
             },
             {

@@ -58,7 +58,8 @@ var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
  * create an account at http://developer.rottentomatoes.com/
  */
 //  var SITE_URL = 'http://52.20.201.145:3010/kpis/v1/site/all/'; // v1
-var SITE_URL = 'http://52.20.201.145:3010/kpis/v2/site/all/kpi/'; // v2
+// var SITE_URL = 'http://52.20.201.145:3010/kpis/v2/site/all/kpi/'; // v2
+var SITE_URL = null;
 // var SITE_URL = 'http://54.165.24.76:3010/kpis/v2/site/all/kpi/'; // v2
 // var SITE_URL = 'http://localhost:3010/kpis/v2/site/all/kpi/';  // localhost
  /*
@@ -103,6 +104,7 @@ var SiteScreen = React.createClass({
   },
 
   componentWillMount: function() {
+    SITE_URL = global.restService.sitePerfUrl ? global.restService.sitePerfUrl : SITE_URL;
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};

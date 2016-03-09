@@ -95,7 +95,7 @@ var AreaScreen = React.createClass({
     return {
       statusCode: 408,  // default to request timeout
       statusMessage: "",  // show any result status message if present
-      isLoading: false,  // only used for initial load
+      isLoading: true,  // only used for initial load
       isRefreshing: false,  // used for subsequent refresh
       // isLoadingTail: false,
       dataSource: new ListView.DataSource({
@@ -109,10 +109,29 @@ var AreaScreen = React.createClass({
       contentInset: {bottom: 25},
     };
   },
+  getRestEndPoint: function() {
+    // periodic check if the URL is retrieved
+    if (!(global.restService && global.restService.networkPerfUrl)) {
+      var interval = this.setInterval(
+        () => {
+          if (global.restService && global.restService.networkPerfUrl) {
+            debugger;
+            NETWORK_URL = global.restService.networkPerfUrl;
+            this.clearInterval(interval);
+            // now we can get data
+            this.getAreas('area');
+          }
+        },
+        50, // checking every 50 ms
+      );
+    } else {
+      NETWORK_URL = global.restService.networkPerfUrl;
+      this.getAreas('area');
+    }
+  },
   componentWillMount: function() {
-    console.log("areas will mount");
+    this.getRestEndPoint();
     global.refreshFeedCount();
-    this.getAreas('area');
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
@@ -254,7 +273,6 @@ var AreaScreen = React.createClass({
             this.selectSectorKpi(sortedAreas[i], siteName);
           } else {
           */
-            console.log("network select");
             this.selectKpi(sortedAreas[i], false);
           // }
         }
@@ -583,7 +601,7 @@ var AreaScreen = React.createClass({
 
   render: function() {
     // initial loading => show the activity indicator.  Subsequent refreshing of the ListView => do not unload the ListView
-    if (this.state.isLoading && !this.state.isRefreshing) {
+    if ((this.state.isLoading && !this.state.isRefreshing) || !global.restService) {
       var content =
       <ActivityIndicatorIOS
         animating={true}

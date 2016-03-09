@@ -99,6 +99,8 @@ var SectorScreen = React.createClass({
   },
 
   componentWillMount: function() {
+    SECTOR_URL = global.restService.sectorPerfUrl ? global.restService.sectorPerfUrl : SECTOR_URL;
+    SECTOR_COLOR_URL = global.restService.sectorColorUrl ? global.restService.sectorColorUrl: SECTOR_COLOR_URL;
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};

@@ -10,7 +10,7 @@ var CustomerReleaseNotes = "\
 (4) Added push notification and Feed badge number for new comments.\n\
 (5) Added auto scrolling on comment box.\n\
 (6) Added auto navigation from Feed screen to comment box.\n\
-(7) Added Monthly KPI Target screen.\
+(7) Miscenllenous bug fixes.\
 ";
 
 import Storage from 'react-native-storage';

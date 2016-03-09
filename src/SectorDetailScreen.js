@@ -35,7 +35,7 @@ var SECTOR_LOC_URL = 'http://52.20.201.145:3010/kpis/v1/location/sectors/all';
 // var SECTOR_URL = 'http://52.20.201.145:3000/kpis/v1/sectors/zone/name/';
 // var SECTOR_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/sectors/zone/';
 
-var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/all/';
+var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/all';
 // var ZONE_LOC_URL = 'http://52.20.201.145:3000/kpis/v1/location/zones/zone/';
 var NUM_CACHE_ENTRY = 2;  // 5 kpis and two locations
 // var numEntryProcessed = 0;
@@ -85,11 +85,28 @@ var SectorDetailScreen = React.createClass({
     };
   },
   componentWillMount: function() {
+    SECTOR_URL = global.restService.sectorDetailUrl? global.restService.sectorDetailUrl: SECTOR_URL;
+    SECTOR_LOC_URL = global.restService.sectorLocationUrl ? global.restService.sectorLocationUrl: SECTOR_LOC_URL;
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
-    // resultsCache.totalForQuery = {};
-    // resultsCache.dataForQuery = {};
+    resultsCache.totalForQuery = {};
+    resultsCache.dataForQuery = {};
     this.loadData();
+  },
+  componentDidMount: function() {
+    if (this.props.entityType) {
+      saveEntityTypeInCloud(this.props.entityType);
+    }
+    // this.loadData();
+  },
+  componentWillUnmount: function() {
+    /*
+    Orientation.getOrientation((err,orientation)=> {
+        console.log("Current Device Orientation: ", orientation);
+    });
+    */
+    Orientation.removeOrientationListener(this._orientationDidChange);
+    Orientation.lockToPortrait(); //this will lock the view to Portrait
   },
   /**
   * Returns a random number between min (inclusive) and max (exclusive)
@@ -170,21 +187,6 @@ var SectorDetailScreen = React.createClass({
     this.setState({isRefreshing: true});
     this.reloadData();
   },
-  componentDidMount: function() {
-    if (this.props.entityType) {
-      saveEntityTypeInCloud(this.props.entityType);
-    }
-    // this.loadData();
-  },
-  componentWillUnmount: function() {
-    /*
-    Orientation.getOrientation((err,orientation)=> {
-        console.log("Current Device Orientation: ", orientation);
-    });
-    */
-    Orientation.removeOrientationListener(this._orientationDidChange);
-    Orientation.lockToPortrait(); //this will lock the view to Portrait
-  },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     if (query.indexOf("zonelocation") > -1) {
       return ZONE_LOC_URL + this.props.zoneName;
@@ -230,8 +232,8 @@ var SectorDetailScreen = React.createClass({
             // this gets the right data from the results
             this.findData(query, sectors);
 
-            // get the data in the kpi query
-            if (query.indexOf('kpi') > -1) {
+            // get the data in the kpi query, not the location
+            if (query.indexOf('location') === -1) {
               this.setState({
                 dataSource: this.getDataSource(sectors),
               });
@@ -689,6 +691,11 @@ var SectorDetailScreen = React.createClass({
 });
 
 var SectorDetails = React.createClass({
+  getInitialState: function() {
+    return {
+      contentInset: {bottom: 25},
+    };
+  },
   renderRow: function(
     sector: Object,
     sectionID: number | string,
@@ -726,8 +733,9 @@ var SectorDetails = React.createClass({
             onPressRefresh={this.props.reloadData}
           />
           :
-          <RefreshableListView
+          <ListView
             ref="sectorListview"
+            style={styles.listView}
             dataSource={this.props.dataSource}
             renderRow={this.renderRow}
             automaticallyAdjustContentInsets={false}
@@ -737,6 +745,7 @@ var SectorDetails = React.createClass({
             loadData={this.props.reloadData}
             refreshDescription="Refreshing Data ..."
             renderSeparator={(sectionID, rowID) => <View key={`${sectionID}-${rowID}`} style={styles.separator} />}
+            contentInset={this.state.contentInset}
           />
         return (
           <View style={styles.container}>
@@ -1308,10 +1317,10 @@ var styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   listView: {
-    paddingTop: 5,
-    marginLeft: 15,
-    marginRight: 15,
-    backgroundColor: 'transparent',
+    marginBottom: 10,
+    // marginLeft: 15,
+    // marginRight: 15,
+    // backgroundColor: 'transparent',
     // borderColor: "violet",
     // borderWidth: 2,
   },

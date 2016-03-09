@@ -204,6 +204,14 @@ Release 0.2.3 is on TestFlight:
   (5) Added Mixpanel people set "Last Event Seen" event on every mixpanel event.
   (6) Added Mixpanel events for the comment box and feed as well.  Have not found any hook for Monthly Target screen besides its comment box.
 
+- Beeper iOS 0.4.5 Internal Release Note
+
+  (1) Added app space to DEV/PROD backend separation mapping.
+    - The "Beeper - Development" app space is mapped to backend DEV services
+    - The "Beeper - Thumb Support" and "Beeper - Thumb" app spaces are mapped to backend PROD services
+  (2) Hid the Monthly Target page for now.
+  (3) Fixed the list view cells sometimes not display problem in the Sector Details by swapping out the refreshable list view to regular list view and always reload data upon loading that page.
+
 - TODO:
 
   (1) Changed the header dates to the actual date instead of just the day before.
