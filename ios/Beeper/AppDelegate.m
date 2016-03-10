@@ -128,7 +128,7 @@
    * on the same Wi-Fi network.
    */
   
-  // sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
+  sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
   
   /**
    * OPTION 2
@@ -156,7 +156,7 @@
    */
   
   AHBuild *build = [[AppHub buildManager] currentBuild];
-  sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
+  // sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
   
   return sourceURL;
 }

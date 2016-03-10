@@ -212,7 +212,16 @@ Release 0.2.3 is on TestFlight:
   (2) Hid the Monthly Target page for now.
   (3) Fixed the list view cells sometimes not display problem in the Sector Details by swapping out the refreshable list view to regular list view and always reload data upon loading that page.
 
+- Beeper iOS 0.4.6 Internal Release Note
+  (1) Set up "Beeper - Demo" app space in Parse and Mixpanel.
+  (2) Set up master control in Parse to route correctly to the Parse and Mixpanel.
+  - TODO:
+    - Set up backend to host a separate endpoint for Beeper Demo services.
+    - Create the demo data sets in Jason to be used in the Beeper Demo Servcies.
+
+- Beeper iOS 0.4.5 Internal Release Note
+
 - TODO:
 
-  (1) Changed the header dates to the actual date instead of just the day before.
-  (1) KPI sector colors are displayed on the map's sectors' leaves.
+  - Changed the header dates to the actual date instead of just the day before.
+  - KPI sector colors are displayed on the map's sectors' leaves.
