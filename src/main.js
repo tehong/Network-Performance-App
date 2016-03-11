@@ -20,7 +20,6 @@ var Parse = require('parse/react-native');
 // var Router = require('./Router');
 var Router = require('gb-native-router');
 var BackButton = require('./components/icons/BackButton');
-var RemotePushIOS = require("react-native-remote-push");
 var InfoPlist = require('react-native').NativeModules.InfoPlist;
 
 var {
