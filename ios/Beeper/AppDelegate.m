@@ -33,38 +33,38 @@
 
 - (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  
+
   // Initialize Intercom
   [Intercom setApiKey:@"ios_sdk-7ae58685589f103d3d3f713d1321839ae6c1cdd8" forAppId:@"vhbvbnbs"];
-  
+
   // TODO: replace "123" with your Application ID from the AppHub dashboard.
   [AppHub setApplicationID:@"gREWH9HMWMVUHfqb7MaH"];
-  
+
   _bridge = [[RCTBridge alloc] initWithDelegate:self
                                   launchOptions:launchOptions];
-  
+
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:_bridge
                                                    moduleName:@"Beeper"
                                             initialProperties:nil];
-  
+
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  
+
   // manually set the TextField tintColor to white
   [[UITextField appearance] setTintColor:[UIColor whiteColor]];
 
-  
+
   // Register a callback for when a new build becomes available.
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(newBuildDidBecomeAvailable:)
                                                name:AHBuildManagerDidMakeBuildAvailableNotification
                                              object:nil];
-  
+
   // iOS push notification registration - see ParseInit!!!
-  
+
     return YES;
 }
 
@@ -89,11 +89,11 @@
   [installation setDeviceTokenFromData:deviceToken];
   installation.channels = @[ @"global" ];
   [installation saveInBackground];
-  
+
   // Mixpanel token
   Mixpanel *mixpanel = [Mixpanel sharedInstance];
   [mixpanel.people addPushDeviceToken:deviceToken];
-  
+
   [RCTPushNotificationManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 
 }
@@ -112,8 +112,8 @@
 
 - (NSURL *)sourceURLForBridge:(__unused RCTBridge *)bridge
 {
-  NSURL *sourceURL;
-  
+  NSURL *jsCodeLocation;
+
   /**
    * Loading JavaScript code - uncomment the one you want.
    *
@@ -127,9 +127,9 @@
    * `inet` value under `en0:`) and make sure your computer and iOS device are
    * on the same Wi-Fi network.
    */
-  
-  sourceURL = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
-  
+
+  jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
+
   /**
    * OPTION 2
    * Load from pre-bundled file on disk. To re-generate the static bundle
@@ -139,8 +139,8 @@
    *
    * see http://facebook.github.io/react-native/docs/runningondevice.html
    */
-  
-  // sourceURL = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+
+  // jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 
   /**
    * OPTION 3 - AppHub
@@ -154,11 +154,11 @@
    * $ react-native bundle --entry-file index.ios.js --platform ios --dev true --bundle-output iOS/main.jsbundle
    *
    */
-  
+
   AHBuild *build = [[AppHub buildManager] currentBuild];
-  // sourceURL = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
-  
-  return sourceURL;
+  // jsCodeLocation = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
+
+  return jsCodeLocation;
 }
 
 
@@ -174,17 +174,17 @@
 -(void) newBuildDidBecomeAvailable:(NSNotification *)notification {
   // Show an alert view when a new build becomes available. The user can choose to "Update" the app, or "Cancel".
   // If the user presses "Cancel", their app will update when they close the app.
-  
+
   AHBuild *build = notification.userInfo[AHBuildManagerBuildKey];
   NSString *alertMessage = [NSString stringWithFormat:@"There's a new update available.\n\nUpdate description:\n\n %@", build.buildDescription];
-  
+
   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Great news!"
                                                   message:alertMessage
                                                  delegate:self
                                         cancelButtonTitle:@"Cancel"
                                         otherButtonTitles:@"Update", nil];
-  
-  
+
+
   dispatch_async(dispatch_get_main_queue(), ^{
     // Show the alert on the main thread.
     [alert show];
