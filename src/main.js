@@ -4,13 +4,9 @@
 'use strict';
 // Program version number and customer visible release notes
 var CustomerReleaseNotes = "\
-(1) Added new tab bar navigation.\n\
-(2) Added new Feed screen.\n\
-(3) Added new comment box on each KPI list item.\n\
-(4) Added push notification and Feed badge number for new comments.\n\
-(5) Added auto scrolling on comment box.\n\
-(6) Added auto navigation from Feed screen to comment box.\n\
-(7) Miscenllenous bug fixes.\
+(1) New Tab Bar.\n\
+(2) New scene transition for User Profile Scene\n\
+(3) Miscenllenous bug fixes.\
 ";
 
 import Storage from 'react-native-storage';
