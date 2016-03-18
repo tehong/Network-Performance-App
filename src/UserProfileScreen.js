@@ -3,6 +3,7 @@ var React = require('react-native');
 var {
   Alert,
   AlertIOS,
+  Button,
   Text,
   TextInput,
   View,
@@ -11,18 +12,24 @@ var {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicatorIOS,
+  Animated,
+  Dimensions,
 } = React;
 
 var Parse = require('parse/react-native');
 var Intercom = require('react-native-intercom');
 var mixpanelTrack = require('./utils/mixpanelTrack');
 var SectorScreen = require('./SectorScreen');
-var BackButton = require('./components/icons/BackButton');
-var main = require('./main');
 var LogoRight = require('./components/icons/LogoRight');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var UIImagePickerManager = require('NativeModules').UIImagePickerManager;
+var BackButton = require('./components/icons/BackButton');
+var UserProfileLogoRight = require('./components/icons/UserProfileLogoRight');
+var Actions = require('react-native-router-flux').Actions;
 
+var {
+  height: deviceHeight
+} = Dimensions.get('window');
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -31,16 +38,27 @@ module.exports = React.createClass({
       appKey: global.appKey,
       avatarSource: global.DEFAULT_PROFILE_IMAGE,
       isLoading: false,
+      offset: new Animated.Value(deviceHeight),
     }
   },
   componentWillMount: function() {
-    global.refreshFeedCount();
     //Parse.User.currentAsync()
     // .then((user) => {this.setState({currentUser: user});});
     this.loadProfilePhoto();
   },
   componentDidMount: function() {
     this.mpUserProfile();
+    Animated.timing(this.state.offset, {
+        duration: 150,
+        toValue: 0
+    }).start();
+  },
+  closeModal: function() {
+    Animated.timing(this.state.offset, {
+        duration: 150,
+        toValue: deviceHeight
+    }).start(Actions.dismiss);
+      // Actions.dismiss();
   },
   saveAppKeysToStorage: function() {
     global.storage.save({
@@ -218,16 +236,18 @@ module.exports = React.createClass({
   },
   logout: function() {
     Parse.User.logOut();
-    // IMPORTANT:  Need to load the LoginScreen on a lazy loading,
-    //   can't load the LoginScreen in the beginning since LoginScreen loads other first
     this.removeLoginStorage()  // remove the login storage so no login info is saved
-    var LoginScreen = require('./LoginScreen')
+    Actions.dismiss(); // dismiss this scenen
     // need to reset the top most route to the login screen!
+    Actions.login();
+    /*
+    var LoginScreen = require('./LoginScreen')
     global.resetToRoute({
       component: LoginScreen,
       trans: true,
       hideNavigationBar: true,
     });
+    */
 /*
     this.props.toRoute({
       titleComponent: PerfNavTitle,
@@ -265,15 +285,33 @@ module.exports = React.createClass({
     var boxStyle = {borderColor: '#bcbec0', borderWidth: StyleSheet.hairlineWidth};
     // var boxStyle = {borderColor: '#bcbec0', borderWidth: 1};
 
+          // <Button style={styles.backButton} onPress={() => {this.closeModal()}}>Close</Button>
+          /* TEST
+          <TouchableElement style={styles.backButton} onPress={this.closeModal}>
+            <Text>Close</Text>
+          </TouchableElement>
+            */
     var title =
       <View style={styles.headingContainer}>
         <View style={styles.profileImageBackground}>
+          <BackButton
+            style={styles.backButton}
+            action={() => {
+              this.closeModal();
+              }
+            }
+            underlayColor={"#105D95"}
+            />
           <TouchableElement
             style={styles.iconTouch}
             onPress={this.onPressImagePick}
             underlayColor={"#105D95"}>
             <Image style={styles.editIcon} source={require('./assets/icons/Icon_Edit.png')}/>
           </TouchableElement>
+          <UserProfileLogoRight
+            style={styles.logoRight}
+            underlayColor={"#105D95"}>
+          </UserProfileLogoRight>
         </View>
           <TouchableElement
             style={styles.profileImageContainer}
@@ -368,33 +406,43 @@ module.exports = React.createClass({
       </View>;
 
     return (
-      <View style={styles.container}>
-        {title}
-        <View style={styles.spacer}/>
-        <ScrollView style={styles.scrollViewContainer}>
-          <View style={styles.contentContainer}>
-            {loginDetails}
-            {personalDetails}
-            {officeDetails}
-            {appDetails}
-          </View>
-        </ScrollView>
-      </View>
+      <Animated.View style={[styles.container, {transform: [{translateY: this.state.offset}]}]}>
+        <View style={styles.container}>
+          {title}
+          <View style={styles.spacer}></View>
+          <ScrollView style={styles.scrollViewContainer}>
+            <View style={styles.contentContainer}>
+              {loginDetails}
+              {personalDetails}
+              {officeDetails}
+              {appDetails}
+            </View>
+          </ScrollView>
+        </View>
+      </Animated.View>
     );
   }
 });
 
+// var StyleSheet = require('react-native-debug-stylesheet');
+
 var styles = StyleSheet.create({
 	container: {
+    position: 'absolute',
+    top:0,
+    bottom:0,
+    left:0,
+    right:0,
     flex: 1,
     flexDirection: 'column',
 		justifyContent: 'flex-start',
 		alignItems: 'stretch',
+    backgroundColor: 'white',
     // borderColor: "black",
     // borderWidth: 2,
 	},
 	headingContainer: {
-    height: 140,
+    height: 170,
     flexDirection: "column",
 		justifyContent: 'center',
     alignSelf: 'stretch',
@@ -407,8 +455,11 @@ var styles = StyleSheet.create({
 	profileImageBackground: {
     flex: 6,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 20,
+    paddingRight: 5,
+    paddingLeft: 5,
     // resizeMode: 'stretch',
     alignSelf: 'stretch',
     height: null,
@@ -416,17 +467,37 @@ var styles = StyleSheet.create({
     // borderColor: "red",
     // borderWidth: 2,
 	},
-	iconTouch: {
-    flexDirection: 'column',
+	backButton: {
+    flex: 2,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    marginLeft: 100,
-    marginBottom: 20,
+    height: 20,
+    width: 40,
+    backgroundColor: 'transparent',
+    // borderColor: "red",
+    // borderWidth: 2,
+  },
+	iconTouch: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 170,
+    marginRight: 80,
     height: 20,
     width: 40,
     backgroundColor: 'transparent',
     // borderColor: "red",
     // borderWidth: 1,
+  },
+	logoRight: {
+    flex: 2,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    height: 20,
+    width: 40,
+    backgroundColor: 'transparent',
+    // borderColor: "red",
+    // borderWidth: 2,
   },
 	editIcon: {
     flex: 2,
@@ -447,7 +518,7 @@ var styles = StyleSheet.create({
     borderRadius: 45,
   },
 	nameHeading: {
-    flex: 3,
+    flex: 2,
     textAlign: 'center',
     fontSize: 18,
     fontFamily: 'Helvetica Neue',
@@ -458,7 +529,7 @@ var styles = StyleSheet.create({
     // borderWidth: 1,
   },
 	emailHeading: {
-    flex: 2,
+    flex: 1,
     textAlign: 'center',
     fontSize: 9,
     fontFamily: 'Helvetica Neue',

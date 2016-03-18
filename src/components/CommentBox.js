@@ -15,12 +15,12 @@ var RefreshableListView = require('react-native-refreshable-listview');
 var Parse = require('parse/react-native');
 var CommentCell = require('./CommentCell');
 var mixpanelTrack = require('../utils/mixpanelTrack');
-// var TimerMixin = require('react-timer-mixin');
+var TimerMixin = require('react-timer-mixin');
 
 // IMPORTANT: we need to use InvertibleScrollView so we need to implement this way:
 //   see https://github.com/exponentjs/react-native-invertible-scroll-view
 module.exports = React.createClass({
-  // mixins: [TimerMixin],
+  mixins: [TimerMixin],
 
   getInitialState: function() {
     return {
@@ -33,7 +33,6 @@ module.exports = React.createClass({
     };
   },
   componentWillMount: function() {
-    global.refreshFeedCount();
     this.getComments();
   },
   componentDidUpdate: function() {
@@ -43,21 +42,6 @@ module.exports = React.createClass({
     }
   },
   componentDidMount: function() {
-    /*
-    var refsValidation = 0;
-    var interval = this.setInterval(
-      () => {
-        // make sure all the components are loaded, especially the listview
-        if(this.refs.listview) {
-          if(this.state.listHeight && this.state.footerY){
-            this.clearInterval(interval);
-            this._scrollToBottom();
-          }
-        }
-      },
-      100, // trigger scrolling 500 ms later
-    );
-    */
   },
   componentWillUnmount: function() {
   },
@@ -67,7 +51,7 @@ module.exports = React.createClass({
       var scrollDistance = this.state.listHeight - this.state.footerY;
       // this.refs.listview.getScrollResponder().scrollTo(-scrollDistance);
       // scroll without animation, i.e. "false"
-      this.refs.listview.getScrollResponder().scrollResponderScrollTo(0, -scrollDistance, false);
+      this.refs.listview.getScrollResponder().scrollResponderScrollTo({x: 0, y: -scrollDistance, animated: false});
     }
   },
   getComments: function() {
@@ -151,13 +135,6 @@ module.exports = React.createClass({
     } else {
       var entityType = this.props.entityType;
     }
-    mixpanelTrack("Enter Comment",
-    {
-      "Entity": "#" + entityType,
-      "Name": "#" + this.props.entityName,
-      "KPI": "#" + this.props.kpi,
-      "Comment Text": comment,
-    }, global.currentUser);
     feed.set('entityType', entityType);
     feed.set('entityName', this.props.entityName);
     feed.set('kpi', this.props.kpi);
@@ -168,10 +145,24 @@ module.exports = React.createClass({
     feed.save(null, {
       success(feed) {
         // Execute any logic that should take place after the object is saved.
-        global.refreshFeedCount();
         _this.setState({comment: ""});
-        console.log('New object created with objectId: ' + feed.id);
         _this.reloadData();
+        mixpanelTrack("Enter Comment",
+        {
+          "Entity": "#" + entityType,
+          "Name": "#" + _this.props.entityName,
+          "KPI": "#" + _this.props.kpi,
+          "Comment Text": comment,
+        }, global.currentUser);
+        _this.setTimeout(
+          () => {
+            // refresh the Feed badge count
+            global.refreshFeedCount && global.refreshFeedCount();
+            // refresh the Feed screen
+            global.refreshFeed && global.refreshFeed();
+          },
+          1000
+        );
       },
       error(feed, error) {
         // Execute any logic that should take place if the save fails.

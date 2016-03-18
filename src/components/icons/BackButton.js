@@ -3,30 +3,29 @@
 var React = require('react-native');
 var {
   StyleSheet,
+  TouchableOpacity,
   // TouchableHighlight,
   View,
   Image,
 } = React;
 
+var Actions = require('react-native-router-flux').Actions;
 var BackButton = React.createClass({
-
-/*
   backToPrevious: function() {
-    this.props.customAction("onBack");
-    // this.props.toRoute({
-    //   name: "Login",
-    //   component: this.props.goBackwards(),
-    // });
-  // },
-*/
-
+    // allows parent to override the default pop() action
+    if (this.props.action) {
+      this.props.action();
+    } else {
+      Actions.pop();
+    }
+  },
   render() {
     return (
-      // <TouchableHighlight  underlayColor="transparent" onPress={this.backToPrevious}>
-      <View style={styles.container}>
-        <Image style={styles.icon} underlayColor="transparent" source={require("../../assets/icons/BTN_Back.png")} />
-      </View>
-      // </TouchableHighlight>
+      <TouchableOpacity underlayColor="transparent" onPress={this.backToPrevious}>
+        <View style={styles.container}>
+          <Image style={styles.icon} underlayColor="transparent" source={require("../../assets/icons/BTN_Back.png")} />
+        </View>
+      </TouchableOpacity>
     );
   }
 });

@@ -96,7 +96,6 @@ var MonthlyTargetScreen = React.createClass({
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
     // resultsCache.dataForQuery = {};
-    global.refreshFeedCount();
   },
   componentDidMount: function() {
     saveEntityTypeInCloud(this.props.entityType);
@@ -104,7 +103,6 @@ var MonthlyTargetScreen = React.createClass({
   componentWillUnmount: function() {
   },
   reloadData: function() {
-    global.refreshFeedCount();
     resultsCache.totalForQuery = {};
     resultsCache.dataForQuery = {};
     this.getAreas('area');

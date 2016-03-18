@@ -131,7 +131,6 @@ var SectorDetailScreen = React.createClass({
     }
   },
   loadData: function() {
-    global.refreshFeedCount();
     // set default region first to remove warnings
     this.setState({
       tabNumber: 0,
@@ -748,7 +747,7 @@ var SectorDetails = React.createClass({
             contentInset={this.state.contentInset}
           />
         return (
-          <View style={styles.container}>
+          <View style={styles.listContainer}>
             {content}
           </View>
         );
@@ -1096,6 +1095,14 @@ var NoSectors = React.createClass({
 
 var styles = StyleSheet.create({
   container: {
+    marginTop: 62,
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "stretch",
+    // borderColor: "yellow",
+    // borderWidth: 2,
+  },
+  listContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "stretch",

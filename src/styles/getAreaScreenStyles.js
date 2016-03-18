@@ -22,8 +22,8 @@ var {
 function getAreaScreenStyles(): StyleSheet {
   var styles = StyleSheet.create({
     listView: {
+      marginTop: 62,
       backgroundColor: '#f3f3f3',
-      marginBottom: 49,
     },
     container: {
       flex: 1,
@@ -90,7 +90,7 @@ function getAreaScreenStyles(): StyleSheet {
       backgroundColor: '#eeeeee',
     },
     scrollSpinner: {
-      marginVertical: 20,
+      marginVertical: 0,
     },
     rowSeparator: {
       backgroundColor: 'rgba(0, 0, 0, 0.1)',

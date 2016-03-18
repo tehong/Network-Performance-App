@@ -5,7 +5,7 @@
 
 var COMMENT_BOX_HEIGHT = 266;
 // This assumes there is a dataSource and listView from teh caller
-function prepareCommentBox(listView, dataSource, item, showComment, rowHight, includePriorCommentBox) {
+function prepareCommentBox(listView, dataSource, item, rowHight, includePriorCommentBox, forced = false) {
   if (!listView || !dataSource) {
     console.log("no listView");
     return;
@@ -16,25 +16,21 @@ function prepareCommentBox(listView, dataSource, item, showComment, rowHight, in
   for (var i=0; i<dataSource.getRowCount(); i++) {
     var data = dataSource.getRowData(0,i);
     if (data.kpi === item.kpi && data.category === item.category && data.dailyAverage === item.dailyAverage && data.name === item.name) {
-    // if (data === item) {  // due to data refresh, this is no longer the case
       // scroll to the right comment box
-      // console.log("found item = " + item);
-      // if (showComment) {
       // data due to reload dataSounce flags are often out of sync with the item
       if (data.isCommonOn !== item.isCommentOn) {
         data.isCommentOn = item.isCommentOn;
       }
-      if (data.isCommentOn) {
+      if (data.isCommentOn || forced) {
         if (listView.getScrollResponder()) {
           var y = rowHight*(i+1)+numOnCommentBoxBefore*COMMENT_BOX_HEIGHT - 10;
-          listView.getScrollResponder().scrollTo(y, 0);
-          console.log("scroll to = ", y);
+          listView.getScrollResponder().scrollTo({x:0, y: y, animated: false});
+          console.log("prepareCommentBox scroll to = ", y);
         } else {
           console.log("ERR - no scroll responder!");
           return;  // something is wrong
         }
       }
-      console.log("numOnCommentBoxBefore = " + numOnCommentBoxBefore);
       break;
     }
     if (includePriorCommentBox && data.isCommentOn) {
@@ -42,9 +38,17 @@ function prepareCommentBox(listView, dataSource, item, showComment, rowHight, in
     }
   }
   // adds a inset when there is a at lease one comment box open
-  var newInset = numOnCommentBoxBefore > 0 ? 250 : 0;
+  var addInset = false;
+  for (var i=0; i<dataSource.getRowCount(); i++) {
+    var data = dataSource.getRowData(0,i);
+    if (data.isCommentOn) {
+      addInset = true;
+      break;
+    }
+  }
+  var newInset = addInset ? 400 : 0;
   if (newInset === 0) {
-    return undefined;
+    return global.contentInset;
   }
   return {bottom: newInset};
 }

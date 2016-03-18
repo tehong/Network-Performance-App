@@ -212,16 +212,36 @@ Release 0.2.3 is on TestFlight:
   (2) Hid the Monthly Target page for now.
   (3) Fixed the list view cells sometimes not display problem in the Sector Details by swapping out the refreshable list view to regular list view and always reload data upon loading that page.
 
-- Beeper iOS 0.4.6 Internal Release Note
-  (1) Set up "Beeper - Demo" app space in Parse and Mixpanel.
-  (2) Set up master control in Parse to route correctly to the Parse and Mixpanel.
-  - TODO:
-    - Set up backend to host a separate endpoint for Beeper Demo services.
-    - Create the demo data sets in Jason to be used in the Beeper Demo Servcies.
+- Beeper iOS 0.4.6 - Internal Release Note
+  (1) Set up master control in Parse to route correctly to the Parse and Mixpanel.
+  (2) New UI changes:
+    - New Tab Bar.
+    - New badgeCount for the TabBar
+    - Changed UserProfile scene from routable scene to a modal scene.
+  (3) Swapped out the Refreshable List View for feed scene to use the more reliable ListView
+  (4) Swapped out the navigator to use the new react-native-router-flux.
+  (5) Many changes associated with the new router.
+    - Enhanced comment routing and scrolling
+    - Fixed logging out
+  (6) Miscenllenous bug fixes
 
-- Beeper iOS 0.4.5 Internal Release Note
+  - TODO:
+  - (Replacing current listview?) Checkout react-native-tableview for IOS tableview support: https://github.com/aksonov/react-native-tableview
 
 - TODO:
+  - Set up "Beeper - Demo" app space in Parse and Mixpanel.
+  - Set up backend to host a separate endpoint for Beeper Demo services.
+  - Create the demo data sets in Jason to be used in the Beeper Demo Service.
 
+  - (lot of works - create branch!) replace tab bar and gb-native-router with react-native-router-flux: https://github.com/aksonov/react-native-router-flux
   - Changed the header dates to the actual date instead of just the day before.
   - KPI sector colors are displayed on the map's sectors' leaves.
+  - Swap out current mixpanel with react native mixpanel - https://github.com/davodesign84/react-native-mixpanel
+  - (later when needed) Swap out current MapView with react-native-maps - https://github.com/lelandrichardson/react-native-maps
+  - Check out react-native-communications: https://github.com/anarchicknight/react-native-communications
+  - Check out react-native-debug-stylesheet for layout: https://github.com/brentvatne/react-native-debug-stylesheet
+  - Check out react-native-viewpager: https://github.com/race604/react-native-viewpager  (Seems to simple)
+  - check out react-native-activity-view: https://github.com/naoufal/react-native-activity-view for sharing on IOS only
+  - check out react-native-navbar for nav bar component: https://github.com/react-native-fellowship/react-native-navbar
+  - OTA update via https://github.com/aerofs/react-native-auto-updater
+  - (No support of multi-line!) Swap out coreplot chart with react native chart: https://github.com/tomauty/react-native-chart

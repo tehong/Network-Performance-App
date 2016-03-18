@@ -1,6 +1,7 @@
 'use strict';
 
 var ENTITY_TYPE = "sector";
+var ROW_HEIGHT = 198;
 
 var React = require('react-native');
 var {
@@ -14,7 +15,7 @@ var {
   View,
 } = React;
 
-var ROW_HEIGHT = 198;
+var Actions = require('react-native-router-flux').Actions;
 var prepareCommentBox = require('./utils/prepareCommentBox');
 var scrollToByTimeout = require('./utils/scrollToByTimeout');
 // list view with less memory usage
@@ -94,7 +95,7 @@ var SectorScreen = React.createClass({
       }),
       filter: '',
       queryNumber: 0,
-      contentInset: {bottom: 25},
+      contentInset: global.contentInset,
     };
   },
 
@@ -116,8 +117,16 @@ var SectorScreen = React.createClass({
     resultsCache.totalForQuery = {};
     resultsCache.dataForQuery = {};
   },
+  componentDidMount: function() {
+    this.scrollToRightListItem();
+  },
+  scrollToRightListItem: function() {
+    // see if we need to auto scroll to the right site first
+    // We need pre-scroll to the right item for comment auto-nav
+    //  because we are using the SGListView's dynamic loading of the list item
+    scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT, true);
+  },
   loadData: function() {
-    global.refreshFeedCount();
     /*
     var uncorrectedKpi = this.props.kpi;
     var kpi = uncorrectedKpi.replace("Data ", "");
@@ -184,38 +193,6 @@ var SectorScreen = React.createClass({
   refreshData: function() {
     this.setState({isRefreshing: true});
     this.reloadData();
-  },
-  componentDidMount: function() {
-  },
-  // scroll to entity if needed
-  scrollToEntity: function(entity) {
-    if (entity) {
-      var findScrollItem = require('./utils/findScrollItem');
-      var item = findScrollItem(this.state.dataSource, entity);
-      if (item) {
-        console.log("item found");
-        var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, item, true, ROW_HEIGHT);
-        this.setState({
-          contentInset: contentInset,
-        });
-      }
-    }
-  },
-  setScrollToTimeout: function() {
-    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "sector") {
-      var navCommentProps = global.navCommentProps;
-      global.navCommentProps = undefined;
-      var interval = this.setInterval(
-        () => {
-          // refValidation++;
-          if(this.refs.listview) {
-            this.scrollToEntity(this.state.navCommentProps);
-            this.clearInterval(interval);
-          }
-        },
-        100, // trigger scrolling x ms later
-      );
-    }
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
@@ -385,20 +362,15 @@ var SectorScreen = React.createClass({
     this.mpSelectSector(sector.name);
     var titleComponent = SectorDetailTitle;
     if (Platform.OS === 'ios') {
-      this.props.toRoute({
-        titleComponent: titleComponent,
-        backButtonComponent: BackButton,
-        rightCorner: LogoRight,
-        component: SectorDetailScreen,
-        headerStyle: styles.header,
-        passProps: {
-          entityType: 'sector_detail',
+      Actions.sectorDetail(
+        {
+          dispatch: this.props.dispatch,   // need this to re-route to comments
           title: sector.title,
           sector: sector,
           areaName: this.props.areaName,
           siteName: this.props.siteName,
         }
-      });
+      );
     } else {
       dismissKeyboard();
       this.props.navigator.push({
@@ -470,12 +442,10 @@ var SectorScreen = React.createClass({
         onToggleComment={(showComment) => {
           if (sector) {
             sector["isCommentOn"] = showComment;
-            if (showComment) {
-              var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, sector, showComment, ROW_HEIGHT, true);
-              this.setState({
-                contentInset: contentInset,
-              });
-            }
+            var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, sector, ROW_HEIGHT, true);
+            this.setState({
+              contentInset: contentInset,
+            });
           }
         }}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}

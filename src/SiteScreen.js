@@ -14,6 +14,7 @@ var {
   View,
 } = React;
 
+var Actions = require('react-native-router-flux').Actions;
 var cachedSites = undefined;
 var ROW_HEIGHT = 198;
 var prepareCommentBox = require('./utils/prepareCommentBox');
@@ -99,7 +100,7 @@ var SiteScreen = React.createClass({
       }),
       filter: '',
       queryNumber: 0,
-      contentInset: {bottom: 25},
+      contentInset: global.contentInset,  // leave room for the tab bar
     };
   },
 
@@ -112,7 +113,6 @@ var SiteScreen = React.createClass({
     this.loadData();
   },
   loadData: function() {
-    global.refreshFeedCount();
     var query =  this.props.category + " " + this.props.kpi;
     this.getSites(query);
   },
@@ -126,13 +126,13 @@ var SiteScreen = React.createClass({
     this.reloadData();
   },
   componentDidMount: function() {
+    // see we need to auto nav to the next page to get to the comment item
+    this.checkNavToComment(cachedSites);
     if (this.props.entityType) {
       saveEntityTypeInCloud(this.props.entityType);
     }
-    // see we need to auto nav to the next page to get to the comment item
-    this.navigateToComment(cachedSites);
-    // see if we need to scroll to bottom for auto-nav of the comments
-    this.scrollToBottom();
+    // see if we need to scroll to the right place for auto-nav of the comments
+    this.scrollToRightListItem();
   },
   _urlForQueryAndPage: function(query: string, pageNumber: number): string {
     // var apiKey = API_KEYS[this.state.queryNumber % API_KEYS.length];
@@ -180,7 +180,7 @@ var SiteScreen = React.createClass({
               // dataSource: _this.getDataSource(responseData.movies),
               dataSource: _this.getDataSource(sites),
             });
-            _this.navigateToComment(sites);
+            _this.checkNavToComment(sites);
         } else {
             LOADING[query] = false;
             resultsCache.dataForQuery[query] = undefined;
@@ -201,30 +201,32 @@ var SiteScreen = React.createClass({
       });
     })
   },
-  scrollToBottom: function() {
-    // see if we need to auto scroll to bottom
-    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === ENTITY_TYPE) {
-      // use timer to check if listview loaded
-      var refValidation = 0;
+  scrollToRightListItem: function() {
+    // see if we need to auto scroll to the right site first
+    // We need pre-scroll to the right item for comment auto-nav
+    //  because we are using the SGListView's dynamic loading of the list item
+    scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT, true);
+  },
+  checkNavToComment: function(sites: object) {
+    // see we need to auto nav to the next page to get to the comment item
+    // we need to make sure that this page loaded and routing is done before navigate to the next page
+    // do periodic checking
+    if (!sites|| global.siteRouting) {
       var interval = this.setInterval(
         () => {
-          refValidation++;
-          // make sure all the components are loaded, especially the listview
-          if(this.refs.listview) {
-            console.log("site refValidation=", refValidation);
-            this.refs.listview.getScrollResponder().scrollTo(10000, 0);
+          if (sites && !global.siteRouting) {
             this.clearInterval(interval);
-          } else if (refValidation > 100) {
-            console.log("site refValidation stopped at ", refValidation);
-            this.clearInterval(interval);
+            // now we can get data
+            this.navigateToComment(sites);
           }
         },
-        50, // trigger scrolling 500 ms later
+        25, // checking every 25 ms
       );
+    } else {
+      this.navigateToComment(sites);
     }
   },
   navigateToComment: function(sites: object) {
-    if (!sites) return;
     // see if we need to auto nav to the next page to get to the comment item
     if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "sector") {
       // need to run the sorted data array because it modifies the record slightly
@@ -346,22 +348,16 @@ var SiteScreen = React.createClass({
     }
     */
     if (Platform.OS === 'ios') {
-      console.log("props: " + this.props);
-      this.props.toRoute({
-        titleComponent: titleComponent,
-        backButtonComponent: BackButton,
-        rightCorner: LogoRight,
-        component: SectorScreen,
-        headerStyle: styles.header,
-        passProps: {
-          entityType: 'sector',
+      Actions.sector(
+        {
+          dispatch: this.props.dispatch,   // need this to re-route to comments
           category: site.category,
           kpi: site.kpi,
           areaName: this.props.areaName,
           siteName: site.name,
-          setScrollIndex: this.props.setScrollIndex,
+          // setScrollIndex: this.props.setScrollIndex,
         }
-      });
+      );
     } else {
       dismissKeyboard();
       this.props.navigator.push({
@@ -417,6 +413,7 @@ var SiteScreen = React.createClass({
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
+        /* setScrollIndex={this.props.setScrollIndex} */
     return (
       <PerformanceCell
         key={site.id}
@@ -427,16 +424,13 @@ var SiteScreen = React.createClass({
         areaName={this.props.areaName}
         siteName={site.name}
         entityType={this.props.entityType}
-        setScrollIndex={this.props.setScrollIndex}
         onToggleComment={(showComment) => {
           if (site) {
             site["isCommentOn"] = showComment;
-            if (showComment) {
-              var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, site, showComment, ROW_HEIGHT, true);
-              this.setState({
-                contentInset: contentInset,
-              });
-            }
+            var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, site, ROW_HEIGHT, true);
+            this.setState({
+              contentInset: contentInset,
+            });
           }
         }}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}

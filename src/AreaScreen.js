@@ -4,6 +4,7 @@ var ENTITY_TYPE = "network";
 
 var React = require('react-native');
 var {
+  AppStateIOS,
   ActivityIndicatorIOS,
   ListView,
   Platform,
@@ -15,7 +16,7 @@ var {
   Image,
 } = React;
 
-
+var Actions = require('react-native-router-flux').Actions;
 var cachedAreas = undefined;
 var ROW_HEIGHT = 285;
 var prepareCommentBox = require('./utils/prepareCommentBox');
@@ -24,6 +25,7 @@ var TimerMixin = require('react-timer-mixin');
 var RefreshableListView = require('react-native-refreshable-listview');
 
 var PerformanceCell = require('./components/PerformanceCell');
+var RefreshScreen = require('./RefreshScreen');
 var ZoneScreen = require('./ZoneScreen');
 var SiteScreen = require('./SiteScreen');
 var SearchBar = require('./components/SearchBar');
@@ -61,6 +63,7 @@ var TNOLNavTitle = require('./components/icons/sites/TNOLNavTitle');
 
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var getSortedDataArray = require('./utils/getSortedAreaDataArray');
+var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var mixpanelTrack = require('./utils/mixpanelTrack');
 
 /**
@@ -106,7 +109,7 @@ var AreaScreen = React.createClass({
       filter: '',
       queryNumber: 0,
       closeAllCommentBoxes: false,
-      contentInset: {bottom: 25},
+      contentInset: global.contentInset,  // leave room for the tab bar
     };
   },
   getRestEndPoint: function() {
@@ -115,7 +118,6 @@ var AreaScreen = React.createClass({
       var interval = this.setInterval(
         () => {
           if (global.restService && global.restService.networkPerfUrl) {
-            debugger;
             NETWORK_URL = global.restService.networkPerfUrl;
             this.clearInterval(interval);
             // now we can get data
@@ -131,7 +133,10 @@ var AreaScreen = React.createClass({
   },
   componentWillMount: function() {
     this.getRestEndPoint();
-    global.refreshFeedCount();
+    this._getAppBadgeValue();
+    if (!global.navCommentProps) {
+      this.mpAppState('active');
+    }
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
@@ -146,19 +151,71 @@ var AreaScreen = React.createClass({
       }
     }
     // see we need to auto nav to the next page to get to the comment item
-    this.navigateToComment(cachedAreas);
+    this.checkNavToComment(cachedAreas);
+    AppStateIOS.addEventListener('change', this._handleAppStateChange);
+    AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
   },
   componentWillUnmount: function() {
+    AppStateIOS.removeEventListener('change', this._handleAppStateChange);
+    AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
+  },
+  _handleAppStateChange: function(currentAppState) {
+    // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
+    var previousAppStates = this.state.previousAppStates.slice();
+    previousAppStates.push(this.state.appState);
+    this.setState({
+      appState: currentAppState,
+      previousAppStates: previousAppStates,
+    });
+    if (!global.navCommentProps) {
+      this.mpAppState(currentAppState);
+    }
+  },
+  _handleMemoryWarning: function() {
+    this.setState({memoryWarnings: this.state.memoryWarnings + 1})
+    this.mpAppMemoryWarning(this.state.memoryWarnings + 1);
+  },
+  mpAppState: function(currentAppState) {
+    if (currentAppState === 'active') {
+      // save the last app state
+      Mixpanel.timeEvent("App Inactive");
+      Mixpanel.timeEvent("App Background");
+      mixpanelTrack("App Active", {"App Version": global.BeeperVersion}, global.currentUser);
+    } else if (currentAppState === 'background') {
+      // save the last app state
+      this.setState({lastSaveAppState: currentAppState});
+      mixpanelTrack("App Background", {"App Version": global.BeeperVersion}, global.currentUser);
+    } else if (currentAppState === 'inactive') {
+      // save the last app state
+      this.setState({lastSaveAppState: currentAppState});
+      mixpanelTrack("App Inactive", {"App Version": global.BeeperVersion}, global.currentUser);
+    }
+  },
+  mpAppMemoryWarning: function() {
+    mixpanelTrack("App Memory Warning", {"App Version": global.BeeperVersion}, this.state.currentUser);
+  },
+  _getAppBadgeValue: async function() {
+    try {
+      var badgeValue = await ParseInitIOS.getBadgeValue();
+      if (badgeValue > 0) {
+        ParseInitIOS.clearBadge();
+        Actions.feed();
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  },
+  mpSelectFeed: function() {
+    mixpanelTrack("Show Feed", null, global.currentUser);
   },
   reloadData: function() {
-    global.refreshFeedCount();
     resultsCache.totalForQuery = {};
     resultsCache.dataForQuery = {};
     this.getAreas('area');
   },
   refreshData: function() {
     // need to make sure we ended up at the right network screen index
-    this.props.setScrollIndex();
+    // FIXME: this.props.setScrollIndex();
     this.setState({
       isRefreshing: true,
     });
@@ -205,7 +262,7 @@ var AreaScreen = React.createClass({
                 // dataSource: this.getDataSource(responseData.movies),
                 dataSource: this.getDataSource(areas),
               });
-              this.navigateToComment(areas);
+              this.checkNavToComment(areas);
           } else {
               LOADING[query] = false;
               resultsCache.dataForQuery[query] = undefined;
@@ -255,9 +312,26 @@ var AreaScreen = React.createClass({
     }
     */
   },
-  navigateToComment: function(areas: object) {
+  checkNavToComment: function(areas: object) {
     // see we need to auto nav to the next page to get to the comment item
-    if (!areas) return;  // we need to make sure that this page loaded before navigate to the next page
+    // we need to make sure that this page loaded and routing is done before navigate to the next page
+    // do periodic checking
+    if (!areas || global.networkRouting) {
+      var interval = this.setInterval(
+        () => {
+          if (areas && !global.networkRouting) {
+            this.clearInterval(interval);
+            // now we can get data
+            this.navigateToComment(areas);
+          }
+        },
+        25, // checking every 25 ms
+      );
+    } else {
+      this.navigateToComment(areas);
+    }
+  },
+  navigateToComment: function(areas: object) {
     if (global.navCommentProps &&
       (global.navCommentProps.entityType.toLowerCase() === "site" ||
       global.navCommentProps.entityType.toLowerCase() === "sector")) {
@@ -266,6 +340,7 @@ var AreaScreen = React.createClass({
       var sortedAreas = getSortedDataArray(areas);
       for (var i=0; i<sortedAreas.length; i++) {
         var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
+if (!global.navCommentProps.siteName) debugger;
         var siteName = global.navCommentProps.siteName;
         if (kpi === kpiName) {
           /*
@@ -447,21 +522,15 @@ var AreaScreen = React.createClass({
     if (isMixpanel) this.mpSelectKpi(area.category + " " + area.kpi);
     var titleComponent = SiteNavTitle;
     if (Platform.OS === 'ios') {
-      this.props.toRoute({
-        titleComponent: titleComponent,
-        backButtonComponent: BackButton,
-        rightCorner: LogoRight,
-        // component: ZoneScreen,
-        component: SiteScreen,
-        headerStyle: styles.header,
-        passProps: {
-          entityType: 'site',
+      Actions.site(
+        {
+          // dispatch: this.props.dispatch,   // need this to re-route to comments
           category: area.category,
           kpi: area.kpi,
           areaName: area.areaName,
-          setScrollIndex: this.props.setScrollIndex,
+          // setScrollIndex: this.props.setScrollIndex,
         }
-      });
+      );
     } else {
       dismissKeyboard();
       this.props.navigator.push({
@@ -493,23 +562,17 @@ var AreaScreen = React.createClass({
     var SectorNavTitle = require('./components/icons/sectors/SectorNavTitle');
     var titleComponent = SectorNavTitle;
     if (Platform.OS === 'ios') {
-      this.props.toRoute({
-        titleComponent: titleComponent,
-        backButtonComponent: BackButton,
-        rightCorner: LogoRight,
-        // component: ZoneScreen,
-        component: SectorScreen,
-        headerStyle: styles.header,
-        passProps: {
-          entityType: 'sector',
+      Actions.sector (
+        {
+          // dispatch: this.props.dispatch,   // need this to re-route to comments
           category: area.category,
           kpi: area.kpi,
           areaName: area.areaName,
           color: color,
           siteName: color,
-          setScrollIndex: this.props.setScrollIndex,
+          // setScrollIndex: this.props.setScrollIndex,
         }
-      });
+      );
     } else {
       dismissKeyboard();
       this.props.navigator.push({
@@ -569,6 +632,7 @@ var AreaScreen = React.createClass({
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
     var isLoading = (this.state.isLoading || this.state.isRefreshing);
+        // FIXME: setScrollIndex={this.props.setScrollIndex}
     return (
       <PerformanceCell
         key={area.id}
@@ -583,16 +647,13 @@ var AreaScreen = React.createClass({
         areaName={area.areaName}
         entityType={this.props.entityType}
         scrollIndex={this.props.scrollIndex}
-        setScrollIndex={this.props.setScrollIndex}
         onToggleComment={(showComment) => {
-          this.props.setScrollIndex();  // always need to the correct index
+          /* this.props.setScrollIndex(); */ // always need to the correct index
           area["isCommentOn"] = showComment;
-          if (showComment) {
-            var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, showComment, ROW_HEIGHT, true);
-            this.setState({
-              contentInset: contentInset,
-            });
-          }
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, ROW_HEIGHT, true);
+          this.setState({
+            contentInset: contentInset,
+          });
         }}
         triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
@@ -601,7 +662,7 @@ var AreaScreen = React.createClass({
 
   render: function() {
     // initial loading => show the activity indicator.  Subsequent refreshing of the ListView => do not unload the ListView
-    if ((this.state.isLoading && !this.state.isRefreshing) || !global.restService) {
+    if ((this.state.isLoading && !this.state.isRefreshing) || !global.restService ) {
       var content =
       <ActivityIndicatorIOS
         animating={true}

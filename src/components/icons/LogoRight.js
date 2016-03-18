@@ -12,22 +12,15 @@ var {
 var UserProfileTitle = require('./UserProfileTitle');
 var BackButton = require('./BackButton');
 var UserProfileScreen = require('../../UserProfileScreen');
+var RefreshScreen = require('../../RefreshScreen');
 var UserProfileLogoRight = require('./UserProfileLogoRight')
 var getRightLogoStyles = require('../../styles/getRightLogoStyles');
 var styles = getRightLogoStyles();
+var Actions = require('react-native-router-flux').Actions;
 
 module.exports = React.createClass({
   onPressLogo: function() {
-    this.props.toRoute({
-      titleComponent: UserProfileTitle,
-      backButtonComponent: BackButton,
-      rightCorner: UserProfileLogoRight,
-      component: UserProfileScreen,
-      headerStyle: styles.header,
-      passProps: {
-      }
-    });
-    // Intercom.displayMessageComposer();
+    Actions.userProfile();
   },
   componentWillMount: function() {
     this.loadProfilePhoto();

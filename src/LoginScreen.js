@@ -30,6 +30,7 @@ var {
   ActivityIndicatorIOS,
 } = React;
 
+var Actions = require('react-native-router-flux').Actions;
 import Storage from 'react-native-storage';
 var AfterLoginScreen = require('./AfterLoginScreen');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
@@ -140,6 +141,7 @@ var LoginScreen = React.createClass({
   initParseApp: function(controlUsername, controlPassword, isLoadLoginFromStorage, isEnteringAppKeys) {
       // hook into the parse master control App
       Parse.initialize(PARSE_MASTER_APP_ID, PARSE_MASTER_JS_KEY);
+      Parse.User.logOut();
       // login with the control Username and Password entered by the user
       Parse.User.logIn(controlUsername, controlPassword, {
         success: (user) => {
@@ -447,9 +449,11 @@ var LoginScreen = React.createClass({
       loginButtonLabel: DEFAULT_LOGIN_BUTTON_TEXT,
     });
     // save this route reset to use with loging out
-    global.resetToRoute = this.props.resetToRoute;
+    // global.resetToRoute = this.props.resetToRoute;
     if (Platform.OS === 'ios') {
       this.mpAppLogin();
+      Actions.tabbar();
+      /*
       // need lazy loading to get the global.currentUser
       var LogoRight = require('./components/icons/LogoRight');
       this.props.resetToRoute({
@@ -463,6 +467,7 @@ var LoginScreen = React.createClass({
         passProps: {
         }
       });
+      */
     } else {  // for android, no op for now
       dismissKeyboard();
     }
@@ -630,10 +635,10 @@ var LoginScreen = React.createClass({
     );
   },
   mpForgotten: function(name) {
-    mixpanelTrack("Forgotten username/password", {"App Version": this.props.appVersion}, name);
+    mixpanelTrack("Forgotten username/password", {"App Version": global.BeeperVersion}, name);
   },
   mpAppLogin: function() {
-    mixpanelTrack("App Login", {"App Version": this.props.appVersion}, this.state.currentUser);
+    mixpanelTrack("App Login", {"App Version": global.BeeperVersion}, this.state.currentUser);
   },
 });
 

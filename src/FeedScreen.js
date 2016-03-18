@@ -14,6 +14,7 @@ var {
   Image,
 } = React;
 
+var Actions = require('react-native-router-flux').Actions;
 import InvertibleScrollView from 'react-native-invertible-scroll-view';
 
 var RefreshableListView = require('react-native-refreshable-listview');
@@ -26,38 +27,66 @@ var LogoRight = require('./components/icons/LogoRight');
 var Parse = require('parse/react-native');
 var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var mixpanelTrack = require('./utils/mixpanelTrack');
+var TimerMixin = require('react-timer-mixin');
 
 var LOADING = {};
-
-var _this = null;
 
 // var FeedScreen = React.createClass({
 // IMPORTANT: we need to use InvertibleScrollView so we need to implement the more foundamental
 //   React component way:
 //   see https://github.com/exponentjs/react-native-invertible-scroll-view
-class FeedScreen extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    _this = this;
-    _this.state = {
+module.exports = React.createClass({
+  mixins: [TimerMixin],
+
+  getInitialState: function() {
+    return {
       isLoading: false,  // only used for initial load
       isRefreshing: false,  // used for subsequent refresh
       dataSource: new ListView.DataSource({
         rowHasChanged: (r1, r2) => r1 !== r2,
       }),
-    };
-  }
-  componentWillMount() {
-    _this.getComments();
-    global.refreshFeed = _this.reloadData;
-  }
-  componentDidMount() {
-  }
-  componentWillUnmount() {
+    }
+  },
+  componentWillMount: function() {
+    this.getComments();
+    global.refreshFeed = this.reloadData;
+  },
+  componentDidMount: function() {
+  },
+  componentWillUnmount: function() {
     global.refreshFeed = undefined; // we are unmounting this so better set the global to undefined;
-  }
-  getComments() {
-    _this.setState({isLoading: true});
+  },
+  componentDidUpdate: function() {
+    // scroll to bottom automatically every time the list is rendered
+    if(this.refs.listview) {
+      this._scrollToBottom();
+    }
+  },
+  _scrollToBottom: function() {
+    // only scroll if footerY is moved beyond listHieght
+    if(this.state.listHeight && this.state.footerY && this.state.footerY > this.state.listHeight){
+      var scrollDistance = this.state.listHeight - this.state.footerY;
+      // this.refs.listview.getScrollResponder().scrollTo(-scrollDistance);
+      // scroll without animation, i.e. "false"
+      // for some reason that this didn't scroll all the way to the bottom, thus added 50 below
+      this.refs.listview.getScrollResponder().scrollResponderScrollTo({x: 0, y: -scrollDistance+50, animated: false});
+    }
+  },
+  navToNetwork: function() {
+    // periodic check if the network can be navigated to
+    var interval = this.setInterval(
+      () => {
+        if (Actions.network) {
+          this.clearInterval(interval);
+          Actions.network();
+        }
+      },
+      50, // checking every 50 ms
+    );
+    Actions.perf();  // first go to the perf tab
+  },
+  getComments: function() {
+    this.setState({isLoading: true});
     var Feed = Parse.Object.extend("Feed");
     var feedArray = [];
     // first find all Feeds in the Feed table
@@ -65,11 +94,13 @@ class FeedScreen extends React.Component {
     query.limit(100);
     query.descending("createdAt");
     query.include('user');  // need to include user pointer relational data
+    var _this = this;
     query.find({
       success: function(results) {
         for (var i = 0; i < results.length; i++) {
           var feedObj = results[i];
-          feedArray.push({
+          // add each new one to the front of the array since we are doing inverted list view
+          feedArray.unshift({
             postDate: feedObj.get('createdAt'),
             user: feedObj.get('user'),
             entityType: feedObj.get('entityType'),
@@ -96,17 +127,16 @@ class FeedScreen extends React.Component {
         });
       }
     });
-  }
-  reloadData() {
-    _this.getComments();
-  }
-  refreshData() {
-    _this.setState({isRefreshing: true});
-    _this.reloadData();
-  }
-
-  render() {
-    if (_this.state.isLoading && !_this.state.isRefreshing) {
+  },
+  reloadData: function() {
+    this.getComments();
+  },
+  refreshData: function() {
+    this.setState({isRefreshing: true});
+    this.reloadData();
+  },
+  render: function() {
+    if (this.state.isLoading && !this.state.isRefreshing) {
       var content =
       <ActivityIndicatorIOS
         animating={true}
@@ -115,20 +145,26 @@ class FeedScreen extends React.Component {
         size="large"
       />;
     } else {
+          // renderScrollComponent={props => <InvertibleScrollView {...props} inverted />}
       var content =
         <ListView
-          renderScrollComponent={props => <InvertibleScrollView {...props} inverted />}
           ref="listview"
           style={styles.listView}
-          dataSource={_this.state.dataSource}
-          renderFooter={_this.renderFooter}
-          renderRow={_this.renderRow}
-          onEndReached={_this.onEndReached}
+          onLayout={(event) => {
+            var layout = event.nativeEvent.layout;
+            this.setState({
+            listHeight : layout.height
+            });
+          }}
+          dataSource={this.state.dataSource}
+          renderFooter={this.renderFooter}
+          renderRow={this.renderRow}
+          onEndReached={this.onEndReached}
           automaticallyAdjustContentInsets={false}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={true}
           showsVerticalScrollIndicator={true}
-          loadData={_this.refreshData}
+          loadData={this.refreshData}
           refreshDescription="Refreshing Data ..."
           renderSeparator={(sectionID, rowID) => <View key={`${sectionID}-${rowID}`} style={styles.separator} />}
         />;
@@ -139,13 +175,23 @@ class FeedScreen extends React.Component {
         {content}
       </View>
     );
-  }
-
-  renderFooter() {
-      return <View style={styles.scrollSpinner} />;
-  }
-
-  renderSeparator(
+  },
+  renderFooter: function() {
+    // NOTE: see http://stackoverflow.com/questions/29829375/how-to-scroll-to-bottom-in-react-native-listview
+    //  Tried various method to scroll to bottom, the extra footer is the best and more consistent way
+    return (
+      <View style={styles.footer}
+        onLayout={(event)=>{
+          var layout = event.nativeEvent.layout;
+          this.setState({
+            footerY : layout.y
+          });
+        }}>
+      </View>
+    );
+    //   return <View style={styles.scrollSpinner} />;
+  },
+  renderSeparator: function(
     sectionID: number | string,
     rowID: number | string,
     adjacentRowHighlighted: boolean
@@ -157,9 +203,8 @@ class FeedScreen extends React.Component {
     return (
       <View key={'SEP_' + sectionID + '_' + rowID}  style={style}/>
     );
-  }
-
-  renderRow(
+  },
+  renderRow: function(
     comment: Object,
     sectionID: number | string,
     rowID: number | string,
@@ -168,16 +213,15 @@ class FeedScreen extends React.Component {
     return (
       <FeedCell
         key={comment.id}
-        onSelect={() => _this.selectComment(comment)}
+        onSelect={() => this.selectComment(comment)}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         comment={comment}
         entityType="Feed"
       />
     );
-  }
-
-  selectComment(comment: Object) {
+  },
+  selectComment: function(comment: Object) {
     // track which comment is selected
     // set up comment navigation properties
     // IMPORTANT: Need to be set first to signal nav to comment box is in progres
@@ -189,6 +233,7 @@ class FeedScreen extends React.Component {
       sectorName: comment.sectorName,
       kpi:  comment.kpi,
     };
+console.log(global.navCommentProps);
     mixpanelTrack("Touch Feed Comment",
     {
       "Entity": "#" + comment.entityType,
@@ -200,34 +245,24 @@ class FeedScreen extends React.Component {
     }, global.currentUser);
     if (Platform.OS === 'ios') {
       // need lazy loading to get the global.currentUser
-      var AfterLoginScreen = require('./AfterLoginScreen');
-      global.resetToRoute({
-        // titleComponent: PerfNavTitle,
-        // rightCorner: LogoRight,
-        component: AfterLoginScreen,
-        // headerStyle: styles.header,
-        // hideNavigationBar: true,
-        hideNavigationBar: true,
-        trans: true,
-        // passprops to nevigate to the right entityType, entityName and kpi
-        passProps: {
-        }
-      });
+      global.isPerfTabOn = true;
+      this.navToNetwork();
     } else {  // for android, no op for now
       dismissKeyboard();
     }
-  }
-  mpSelectKpi(kpi) {
+  },
+  mpSelectKpi: function(kpi) {
     mixpanelTrack("Network KPI", {"KPI": kpi}, global.currentUser);
-  }
-  mpSelectSectorColor(kpi, color) {
+  },
+  mpSelectSectorColor: function(kpi, color) {
     mixpanelTrack("Sector Count", {"KPI": kpi, "Color": color}, global.currentUser);
   }
-
-}
+});
 
 var styles = StyleSheet.create({
   listView: {
+    marginTop: 13, // account for the header
+    marginBottom: 49, // account for the tab bar
     paddingTop: 50,
     paddingLeft: 10,
     paddingRight: 10,
@@ -263,7 +298,7 @@ var styles = StyleSheet.create({
     width: null,
     backgroundColor: '#f3f3f3',
   },
+  footer: {
+    height: 0,
+  }
 });
-
-module.exports = FeedScreen;
-//

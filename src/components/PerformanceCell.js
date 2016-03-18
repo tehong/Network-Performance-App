@@ -82,7 +82,7 @@ var PerformanceCell = React.createClass({
             }
           }
           if (hit) {
-            this.props.setScrollIndex();
+            // this.props.setScrollIndex();
           }
           break;
         case "site":
@@ -118,15 +118,14 @@ var PerformanceCell = React.createClass({
     }, global.currentUser);
   },
   toggleComment: function() {
-    global.refreshFeedCount();
-    var isShowComment = !this.state.isShowComment;
     if (typeof this.props.onToggleComment === 'function') {
+      var isShowComment = !this.state.isShowComment;
       this.props.onToggleComment(isShowComment); // scroll correctly
       if (isShowComment) {
         this.mpCommentBox();
       }
+      this.setState({isShowComment: isShowComment});
     }
-    this.setState({isShowComment: isShowComment});
   },
   render: function() {
     var kpi = this.props.geoArea.kpi;
