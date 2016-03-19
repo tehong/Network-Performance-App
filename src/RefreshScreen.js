@@ -20,7 +20,7 @@ module.exports = React.createClass({
 
   getInitialState: function() {
     return {
-      offset: new Animated.Value(deviceHeight),
+      offset: new Animated.Value(deviceHeight/100),
     }
   },
   componentWillMount: function() {
@@ -42,7 +42,7 @@ module.exports = React.createClass({
           Actions.dismiss();
         }
       },
-      50, // checking every 50 ms
+      1, // checking every 1 ms
     );
   },
   render: function() {

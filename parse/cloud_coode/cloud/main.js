@@ -35,7 +35,7 @@ Parse.Cloud.afterSave("Feed", function(request) {
     }
   }, {
     success: function() {
-      console.log("Beeper morning reminder sent!");
+      // console.log("Beeper morning reminder sent!");
     },
     error: function(error) {
       console.error("Beeper Feed aftersave send failure");

@@ -42,6 +42,7 @@ var SectorScreen = require('./SectorScreen');
 var SectorDetailScreen = require('./SectorDetailScreen');
 var LogoRight = require('./components/icons/LogoRight');
 var BackButton = require('./components/icons/BackButton');
+var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 
 var perfImageSrc_selected = require('./assets/icons/Toolbar_Performance_o.png');
 var perfImageSrc_unselected = require('./assets/icons/Toolbar_Performance.png');
@@ -54,7 +55,7 @@ import { Provider, connect } from 'react-redux'
 function reducer(state = {}, action) {
     switch (action.type) {
         case Actions.BEFORE_ROUTE:
-            console.log("BEFORE_ROUTE:", action);
+            // console.log("BEFORE_ROUTE:", action);
             if (action.name === "network") {
               global.networkRouting = true;
             }
@@ -63,7 +64,7 @@ function reducer(state = {}, action) {
             }
             return state;
         case Actions.AFTER_ROUTE:
-            console.log("AFTER_ROUTE:", action);
+            // console.log("AFTER_ROUTE:", action);
             var isRefreshScreen = false;
             switch(action.name) {
               case 'refreshScreen':
@@ -85,6 +86,7 @@ function reducer(state = {}, action) {
               case "feed":
                 if (global.saveFeedInfo) {
                   global.saveFeedInfo(new Date());
+                  ParseInitIOS.clearBadge();
                 }
                 break;
             }
@@ -93,19 +95,19 @@ function reducer(state = {}, action) {
             }
             return state;
         case Actions.AFTER_POP:
-            console.log("AFTER_POP:", action);
+            // console.log("AFTER_POP:", action);
             if (!global.isRefreshBadgeCount && global.refreshFeedCount) {
               global.refreshFeedCount(); // refresh feed count
             }
             return state;
         case Actions.BEFORE_POP:
-            console.log("BEFORE_POP:", action);
+            // console.log("BEFORE_POP:", action);
             return state;
         case Actions.AFTER_DISMISS:
-            console.log("AFTER_DISMISS:", action);
+            // console.log("AFTER_DISMISS:", action);
             return state;
         case Actions.BEFORE_DISMISS:
-            console.log("BEFORE_DISMISS:", action);
+            // console.log("BEFORE_DISMISS:", action);
             return state;
         default:
             return state;
