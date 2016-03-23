@@ -15,11 +15,28 @@
  */
 'use strict';
 
-function getImageFromAverage(dailyAverage: number, redThreshold: number, greenThreshold: number): string {
+function getImageFromAverage(dailyAverage: number, redThreshold: number, greenThreshold: number, statusColor: string): string {
   // check for no data
   if (dailyAverage === "No Data") {
     return "BG_Grey_KPI_Item";
   }
+
+  // for now, just use the backend statusColor
+  switch(statusColor) {
+    case 'green':
+      var backgroundImage = "BG_Green_KPI_Item";
+      break;
+    case 'red':
+      var backgroundImage = "BG_Red_KPI_Item";
+      break;
+    case 'yellow':
+      var backgroundImage = "BG_Yellow_KPI_Item";
+      break;
+    case 'grey':
+      var backgroundImage = "BG_Grey_KPI_Item";
+      break;
+  }
+  /*
   var backgroundImage = "BG_Yellow_KPI_Item";
   if(redThreshold < greenThreshold) {
     if (dailyAverage < redThreshold) {
@@ -38,6 +55,7 @@ function getImageFromAverage(dailyAverage: number, redThreshold: number, greenTh
       backgroundImage = "BG_Red_KPI_Item";
     }
   }
+  */
   return backgroundImage;
 }
 

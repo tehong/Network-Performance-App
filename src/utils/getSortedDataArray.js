@@ -8,6 +8,7 @@ var getThreshold = require('./getThreshold');
 var getDailyAverage = require('./getDailyAverage');
 var isDataEmpty = require('./isDataEmpty');
 var massageCategoryKpi = require('../utils/massageCategoryKpi');
+var addUtilData = require('./addUtilData');
 
 
 function getSortedDataArray(dataArray: Array<any>): Array<any> {
@@ -16,12 +17,14 @@ function getSortedDataArray(dataArray: Array<any>): Array<any> {
     // if dataArrays are not there, return an empty array;
     return [];
   }
+  var newDataArray = addUtilData(dataArray);
+
   // if only on element, sort is not call, still need to massage the category and kpi fields.
-  if (dataArray.length === 1) {
-    dataArray[0] = massageCategoryKpi(dataArray[0]);
-    return dataArray;
+  if (newDataArray.length === 1) {
+    newDataArray[0] = massageCategoryKpi(newDataArray[0]);
+    return newDataArray;
   }
-  dataArray.sort(
+  newDataArray.sort(
     function(a,b) {
       // first separate the category and the kpi field
       a = massageCategoryKpi(a);
@@ -63,7 +66,7 @@ function getSortedDataArray(dataArray: Array<any>): Array<any> {
       // get the relevant thresholds and dailyAverage
       var a_redThreshold = getThreshold(a["thresholds"], "red", kpi);
       var a_greenThreshold = getThreshold(a["thresholds"], "green", kpi);
-      var a_dailyAverage = getDailyAverage(a["dailyAverage"]);
+      var a_dailyAverage = getDailyAverage(kpi, a["dailyAverage"], a["kpiDecimalPrecision"]);
 
       // modify the threhsold to remove the signs
       a["thresholds"]['red'] = a_redThreshold;
@@ -88,7 +91,7 @@ function getSortedDataArray(dataArray: Array<any>): Array<any> {
       // get the relevant thresholds and dailyAverage
       var b_redThreshold = getThreshold(b["thresholds"], "red", kpi);
       var b_greenThreshold = getThreshold(b["thresholds"], "green", kpi);
-      var b_dailyAverage = getDailyAverage(b["dailyAverage"]);
+      var b_dailyAverage = getDailyAverage(kpi, b["dailyAverage"], b["kpiDecimalPrecision"]);
       // modify the threhsold to the correct one
       b["thresholds"]['red'] = b_redThreshold;
       b["thresholds"]['green'] = b_greenThreshold;
@@ -109,7 +112,7 @@ function getSortedDataArray(dataArray: Array<any>): Array<any> {
       return result;
     },
   )
-  return dataArray;
+  return newDataArray;
 }
 
 module.exports = getSortedDataArray;

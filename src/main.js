@@ -6,7 +6,10 @@
 var CustomerReleaseNotes = "\
 (1) New Tab Bar.\n\
 (2) New scene transition for User Profile Scene\n\
-(3) Miscenllenous bug fixes.\
+(3) Simplified push notifications\n\
+(4) Show four decimal points for Data Availability\n\
+(5) Able to show six 9s in the green and yellow thresholds\n\
+(6) Miscenllenous bug fixes.\
 ";
 
 import Storage from 'react-native-storage';
@@ -15,7 +18,7 @@ var React = require('react-native');
 var Moment = require('moment');
 var Parse = require('parse/react-native');
 // var Router = require('./Router');
-var Router = require('gb-native-router');
+// var Router = require('gb-native-router');
 var InfoPlist = require('react-native').NativeModules.InfoPlist;
 var TimerMixin = require('react-timer-mixin');
 
@@ -34,7 +37,7 @@ var {Route, Schema, Animations, Actions, TabBar} = RNRF;
 var LoginScreen = require('./LoginScreen');
 var UserProfileScreen = require('./UserProfileScreen');
 var RefreshScreen = require('./RefreshScreen');
-var AfterLoginScreen = require('./AfterLoginScreen');
+// var AfterLoginScreen = require('./AfterLoginScreen');
 var FeedScreen = require('./FeedScreen');
 var AreaScreen = require('./AreaScreen');
 var SiteScreen = require('./SiteScreen');
@@ -207,7 +210,7 @@ module.exports = React.createClass({
     global.CONTROL_KEYS_STORAGE_TOKEN = 'controlKeys';
     global.LOGIN_STORAGE_TOKEN = 'loginInfo';
     global.FEED_STORAGE_TOKEN = 'feedInfo';
-    global.CONTROL_KEY_LENGTH = 10;
+    global.CONTROL_KEY_LENGTH = 6;
     global.CustomerReleaseNotes = CustomerReleaseNotes;
     // no event listener
     PushNotificationIOS.addEventListener('notification', this._onNotification);
@@ -222,7 +225,8 @@ module.exports = React.createClass({
     PushNotificationIOS.removeEventListener('notification', this._onNotification);
   },
   _getFeedCount: function() {
-    if (!this.state.feedViewDate) {
+    // don't use parse if no feedViewDate or no current user
+    if (!this.state.feedViewDate || !global.currentUser) {
         global.feedBadgeCount = 0;
         return;
     }

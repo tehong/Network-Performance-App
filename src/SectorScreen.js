@@ -336,26 +336,9 @@ var SectorScreen = React.createClass({
 
   onEndReached: function() {
   },
-  addUtilData: function(sectors) {
-    for (var i=0;i<sectors.length; i++) {
-      // reset the isCommentOn flag
-      sectors[i].isCommentOn = false;
-    }
-    return sectors;
-  },
   getDataSource: function(sectors: Array<any>): ListView.DataSource {
     var sortedSectors = getSortedDataArray(sectors);
-    /*
-    var filteredSet = [];
-    for (var i in sortedSites) {
-      if (sortedSites[i].parentEntityId == this.props.parentEntityId) {
-        filteredSet.push(sortedSites[i]);  // save the right ones to the filtered set
-      }
-    }
-    return this.state.dataSource.cloneWithRows(filteredSet);
-    */
-    var sortedModSectors = this.addUtilData(sortedSectors);
-    return this.state.dataSource.cloneWithRows(sortedModSectors);
+    return this.state.dataSource.cloneWithRows(sortedSectors);
   },
 
   selectSector: function(sector: Object) {
@@ -448,7 +431,6 @@ var SectorScreen = React.createClass({
             });
           }
         }}
-        triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
     /*

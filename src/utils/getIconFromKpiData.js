@@ -22,7 +22,7 @@ var getImageFromAverage = require('./getImageFromAverage');
 function getIconFromKpiData(kpiKey:string, kpiData:{}): string {
   var redThreshold = getThreshold(kpiData.thresholds, "red", kpiData.kpi);
   var greenThreshold = getThreshold(kpiData.thresholds, "green", kpiData.kpi);
-  var dailyAverage = getDailyAverage(kpiData.dailyAverage);
+  var dailyAverage = getDailyAverage(kpiData.kpi, kpiData.dailyAverage, kpiData.kpiDecimalPrecision);
   switch(kpiKey) {
     case "data-accessibility":
       var kpiImage = "Icon_DA";
@@ -49,7 +49,7 @@ function getIconFromKpiData(kpiKey:string, kpiData:{}): string {
       var kpiImage = "Icon_CS";
       break;
   }
-  var colorBackground = (getImageFromAverage(dailyAverage, redThreshold, greenThreshold)).toLowerCase();
+  var colorBackground = (getImageFromAverage(dailyAverage, redThreshold, greenThreshold, kpiData.statusData)).toLowerCase();
   if (colorBackground.indexOf("red") > -1) {
     kpiImage = kpiImage + "_Red";
   } else if (colorBackground.indexOf("yellow") > -1) {

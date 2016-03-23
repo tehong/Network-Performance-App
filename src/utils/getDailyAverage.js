@@ -15,27 +15,41 @@
  */
 'use strict';
 
-function getDailyAverage(dailyAverage: string) {
+function getDailyAverage(kpi: string, dailyAverage: string, kpiDecimalPrecision: int) {
   if (dailyAverage !== 'No Data' && dailyAverage !== null) {
+    // treat data availability as a special case
     var newDailyAverage = dailyAverage.toString();
-    // Limit the number of total digits to 3 non-leading-zero digits
     var indexDecimal = newDailyAverage.indexOf('.');
-    if (indexDecimal >= 0) {
-      var decimal_digits = newDailyAverage.length - indexDecimal - 1;
-      var integer_digits = newDailyAverage.length - decimal_digits - 1;
-      // default the numDecimalDigit to 1 unless decimal_digits is 0;
-      var numDecimalDigit = 1 < decimal_digits ? 1 : decimal_digits;
-      // show max three non-zero digits or at least one decimal if more than three digits
-      if (integer_digits === 1) {
-        if (newDailyAverage.charAt(0) === "0") {
-          numDecimalDigit = 3 < decimal_digits?3:decimal_digits;
-        } else {
-          numDecimalDigit = 2 < decimal_digits?2:decimal_digits;
-        }
-      }
-      newDailyAverage = newDailyAverage.substring(0, indexDecimal + numDecimalDigit + 1)
+    if (indexDecimal > -1 && parseFloat(dailyAverage) === 100) {
+      return newDailyAverage.toString().substring(0, indexDecimal);
     }
-    newDailyAverage = parseFloat(newDailyAverage);
+    if (indexDecimal >= 0 && (!kpiDecimalPrecision || (kpiDecimalPrecision && kpiDecimalPrecision !== "" && kpiDecimalPrecision < 4))) {
+      // if we had override kpiDecimalPrecision, use that
+      if (!kpiDecimalPrecision) {
+        var decimal_digits = newDailyAverage.length - indexDecimal - 1;
+        var integer_digits = newDailyAverage.length - decimal_digits - 1;
+        // default the numDecimalDigit to 1 unless decimal_digits is 0;
+        var numDecimalDigit = 1 < decimal_digits ? 1 : decimal_digits;
+        // show max three non-zero digits or at least one decimal if more than three digits
+        if (integer_digits === 1) {
+          if (newDailyAverage.charAt(0) === "0") {
+            numDecimalDigit = 3 < decimal_digits?3:decimal_digits;
+          } else {
+            numDecimalDigit = 2 < decimal_digits?2:decimal_digits;
+          }
+        }
+      } else {
+        var numDecimalDigit = kpiDecimalPrecision;
+      }
+      // if (kpi.toLowerCase().indexOf("availability") > -1) debugger;
+      var adjustedDailyAverage = (Math.round(parseFloat(dailyAverage) * Math.pow(10, numDecimalDigit)) / (Math.pow(10, numDecimalDigit))).toString();
+    } else {
+      adjustedDailyAverage = dailyAverage.toString();
+    }
+    newDailyAverage = (adjustedDailyAverage.indexOf(".") > -1 && numDecimalDigit) ?
+      adjustedDailyAverage.toString().substring(0, indexDecimal + numDecimalDigit + 1) :
+      adjustedDailyAverage;
+    // newDailyAverage = parseFloat(newDailyAverage);
     return newDailyAverage;
   }
   if (dailyAverage === null) {

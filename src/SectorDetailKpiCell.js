@@ -24,7 +24,7 @@ var SectorDetailKpiCell = React.createClass({
   kpiView: function() {
     var sector = this.props.geoArea;
     var getDailyAverage = require('./utils/getDailyAverage');
-    var dailyAverage = getDailyAverage(sector.dailyAverage);
+    var dailyAverage = getDailyAverage(sector.kpi, sector.dailyAverage, sector.kpiDecimalPrecision);
     var unit = sector.unit;
     var category = sector.category;
     var kpi = sector.kpi;
@@ -36,7 +36,7 @@ var SectorDetailKpiCell = React.createClass({
     var greenThreshold = getThreshold(sector.thresholds, "green", kpi);
 
     // dailyAverage = "No Data";  // for testing
-    var colorBackground = (getImageFromAverage(dailyAverage, redThreshold, greenThreshold)).toLowerCase();
+    var colorBackground = getImageFromAverage(dailyAverage, redThreshold, greenThreshold, sector.statusColor).toLowerCase();
 
     var styleColor = "#37b449";
     if (colorBackground.indexOf("red") > -1) {

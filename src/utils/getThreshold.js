@@ -16,38 +16,35 @@
 'use strict';
 
 function getThreshold(thresholds: any, thresholdName: string, kpi: string) {
+
   if (typeof thresholds.red !== "string") {
     switch(thresholdName) {
       case "red":
         return thresholds.red;
-        break;
       case "green":
         return thresholds.green;
-        break;
     }
   }
-  // the red/green thresholds are in "< number" or "> number" string format, let's parse the actual value
-  var redDirection = ">";
-  var greenDirection = "<=";
-  var redIndex = thresholds.red.indexOf(redDirection);
-  var greenIndex = thresholds.green.indexOf(greenDirection);
-  if (redIndex === -1) {
-    redDirection = "<";
-    greenDirection = ">=";
-    redIndex = thresholds.red.indexOf(redDirection) + 1;
-    greenIndex = thresholds.green.indexOf(greenDirection) + 2;
-  } else {
-    redIndex = redIndex + 1;
-    greenIndex = greenIndex + 2;
-  }
-  var redThreshold = parseFloat(thresholds.red.substring(redIndex, thresholds.red.length));
-  var greenThreshold = parseFloat(thresholds.green.substring(greenIndex, thresholds.green.length));
+  // the red/green thresholds are in ">=/< number" or "<=/> number" string format, let's parse the actual value
   switch(thresholdName) {
-
     case "red":
-      return redThreshold === 0?0:redThreshold;
+      var redIndex = thresholds.red.indexOf(">=") === -1 ? thresholds.red.indexOf("<=") : thresholds.red.indexOf(">=");
+      if (redIndex === -1) {
+        redIndex = thresholds.red.indexOf(">") === -1 ? thresholds.red.indexOf("<") : thresholds.red.indexOf(">");
+      } else {
+        redIndex++;
+      }
+      var redThreshold = parseFloat(thresholds.red.substring(redIndex+1, thresholds.red.length));
+      return redThreshold;
     case "green":
-      return greenThreshold === 0?0:greenThreshold;
+      var greenIndex = thresholds.green.indexOf(">=") === -1 ? thresholds.green.indexOf("<=") : thresholds.green.indexOf(">=");
+      if (greenIndex === -1) {
+        greenIndex = thresholds.green.indexOf(">") === -1 ? thresholds.green.indexOf("<") : thresholds.green.indexOf(">");
+      } else {
+        greenIndex++;
+      }
+      var greenThreshold = parseFloat(thresholds.green.substring(greenIndex+1, thresholds.green.length));
+      return greenThreshold;
   }
 }
 

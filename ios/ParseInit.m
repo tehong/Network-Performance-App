@@ -18,7 +18,7 @@
 RCT_EXPORT_MODULE(ParseInit)
 
 // init the parse with the right app ID and Key, also start the
-RCT_EXPORT_METHOD(init:(NSString *)appId key: (NSString *)appKey) {
+RCT_EXPORT_METHOD(init:(NSString *)appId key: (NSString *)appKey user: (NSString *)userObjectId) {
   
   // NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
   
@@ -34,14 +34,14 @@ RCT_EXPORT_METHOD(init:(NSString *)appId key: (NSString *)appKey) {
   [app registerUserNotificationSettings:settings];
   [app registerForRemoteNotifications];
 
-  // PARSE: Subscribe to Beeper channel.
-  /*
-  PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-  [currentInstallation addUniqueObject:@"Beeper" forKey:@"channels"];
-  [currentInstallation saveInBackground];
-   
-  */
   
+  // Associate the device with a user
+  PFInstallation *installation = [PFInstallation currentInstallation];
+  // No [PFUser currentUser] since we logged in in the JS code so we need to pass in the appUser here
+  
+  installation[@"userObjectId"] = userObjectId;
+  [installation saveInBackground];
+
 }
 
 // get the badge number

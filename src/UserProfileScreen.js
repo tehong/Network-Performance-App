@@ -73,7 +73,7 @@ module.exports = React.createClass({
     });
     Alert.alert(
       'Change App Details',
-      'Application ID and Application Key have been changed.  You are logged out.',
+      'Carrier Name and Security Key have been changed.  You are logged out.',
     );
     global.appID = this.state.appID;
     global.appKey = this.state.appKey;
@@ -84,7 +84,7 @@ module.exports = React.createClass({
     var valid = true;
     if (this.state.appID.length !== 10) {
       Alert.alert(
-        'Incorrect Application ID Entry!',
+        'Incorrect Carrier Name Entry!',
         'It should be 10 characters, your entry is ' + this.state.appID.length,
       );
       valid = false;
@@ -147,15 +147,14 @@ module.exports = React.createClass({
     */
 
     UIImagePickerManager.showImagePicker(options, (response) => {
-      console.log('Response = ', response);
       if (response.didCancel) {
-        console.log('User cancelled image picker');
+        // console.log('User cancelled image picker');
       }
       else if (response.error) {
         console.log('UIImagePickerManager Error: ', response.error);
       }
       else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
+        // console.log('User tapped custom button: ', response.customButton);
       }
       else {
         this.uploadImageToParse(response.data);
@@ -391,11 +390,11 @@ module.exports = React.createClass({
             <Text style={styles.text3}>{global.BeeperVersion}</Text>
           </View>
           <View style={styles.textBox2}>
-            <Text style={styles.text1}>Application ID</Text>
+            <Text style={styles.text1}>Carrier Name</Text>
             <Text style={styles.text3}>{global.appID}</Text>
           </View>
           <View style={styles.textBox2}>
-            <Text style={styles.text1}>Application Key</Text>
+            <Text style={styles.text1}>Security Key</Text>
             <Text style={styles.text3}>{global.appKey}</Text>
           </View>
           <View style={styles.textBox2}>

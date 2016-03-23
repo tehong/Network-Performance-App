@@ -15,7 +15,7 @@ var {
 } = React;
 
 var Actions = require('react-native-router-flux').Actions;
-import InvertibleScrollView from 'react-native-invertible-scroll-view';
+// import InvertibleScrollView from 'react-native-invertible-scroll-view';
 
 var RefreshableListView = require('react-native-refreshable-listview');
 
@@ -233,7 +233,6 @@ module.exports = React.createClass({
       sectorName: comment.sectorName,
       kpi:  comment.kpi,
     };
-console.log(global.navCommentProps);
     mixpanelTrack("Touch Feed Comment",
     {
       "Entity": "#" + comment.entityType,

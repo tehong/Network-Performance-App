@@ -87,7 +87,7 @@
   // Store the deviceToken in the current installation and save it to Parse.
   PFInstallation *installation = [PFInstallation currentInstallation];
   [installation setDeviceTokenFromData:deviceToken];
-  installation.channels = @[ @"global" ];
+  installation.channels = @[ @"Beeper" ];
   [installation saveInBackground];
 
   // Mixpanel token
@@ -100,7 +100,16 @@
 // Required for the notification event.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
-  [PFPush handlePush:userInfo];
+  // Note: commenting out the PFPush.handlePush() disallowed in-app remote notification pop up
+  //   see  http://stackoverflow.com/questions/29585480/how-an-i-prevent-the-uialertview-from-appearing-when-a-push-notification-is-rece
+  // [PFPush handlePush:userInfo];
+  //  Since we commented out the PFPush.handlePush() => we still can add the badge number with this code below
+  /*    However, adding the folowing code didn't make a difference
+  if ([userInfo objectForKey:@"badge"]) {
+    long badgeNumber = [[userInfo objectForKey: @"badge"] integerValue];
+    application.applicationIconBadgeNumber = badgeNumber;
+  }
+   */
 
   // We don't need this one since this is for iOS and we have React Native already below
   // [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoteNotificationReceived" object:self userInfo:userInfo];
@@ -128,7 +137,7 @@
    * on the same Wi-Fi network.
    */
 
-  // jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
+  jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
 
   /**
    * OPTION 2
@@ -156,7 +165,7 @@
    */
 
   AHBuild *build = [[AppHub buildManager] currentBuild];
-  jsCodeLocation = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
+  // jsCodeLocation = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
 
   return jsCodeLocation;
 }

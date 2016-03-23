@@ -12,8 +12,8 @@ var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var DEFAULT_LOGIN_BUTTON_TEXT= "LOGIN";
 var DEFAULT_USERNAME= "USERNAME";
 var DEFAULT_PASSWORD= "PASSWORD";
-var APP_ID_TITLE = 'Application ID';
-var APP_KEY_TITLE = 'Application Key';
+var CARRIER_NAME= 'Carrier Name';
+var SECURITY_KEY= 'Security Key';
 
 var {
   AppStateIOS,
@@ -32,7 +32,7 @@ var {
 
 var Actions = require('react-native-router-flux').Actions;
 import Storage from 'react-native-storage';
-var AfterLoginScreen = require('./AfterLoginScreen');
+// var AfterLoginScreen = require('./AfterLoginScreen');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
 var Login = require('./components/icons/Login');
 // var BackButton = require('./components/icons/BackButton');
@@ -56,6 +56,7 @@ var LoginScreen = React.createClass({
       passwordDefault: DEFAULT_PASSWORD,
       loginButtonLabel: DEFAULT_LOGIN_BUTTON_TEXT,
       isLoading: false,
+      securePasswordEntry: false,
     }
   },
   componentWillMount: function() {
@@ -75,27 +76,21 @@ var LoginScreen = React.createClass({
       usernameDefault: DEFAULT_USERNAME,
       passwordDefault: DEFAULT_PASSWORD,
       loginButtonLabel: DEFAULT_LOGIN_BUTTON_TEXT,
+      securePasswordEntry: true,
     });
   },
   saveAppKeys: function() {
     var valid = true;
-    if (this.state.username.length !== global.CONTROL_KEY_LENGTH) {
+    if (this.state.password.length < global.CONTROL_KEY_LENGTH) {
       Alert.alert(
-        'Incorrect Application ID Entry!',
-        'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.username.length,
-      );
-      valid = false;
-    }
-    if (this.state.password.length !== global.CONTROL_KEY_LENGTH) {
-      Alert.alert(
-        'Incorrect Applicaiton Key Entry!',
-        'It should be ' + global.CONTROL_KEY_LENGTH + ' characters, your entry is ' + this.state.password.length,
+        'Error',
+        'Incorrect Security Key Entry!',
       );
       valid = false;
     }
     if (valid) {
-      var masterUsername = this.state.username;
-      var masterPassword = this.state.password;
+      var masterUsername = this.state.username.toLowerCase();
+      var masterPassword = this.state.password.toLowerCase();
       this.initParseApp(masterUsername, masterPassword, false, true);
     }
   },
@@ -158,7 +153,7 @@ var LoginScreen = React.createClass({
             this.saveControlKeysToStorage();
             Alert.alert(
               'App Details',
-              'Application ID and Application Key are saved.',
+              'Carrier identity is saved on your device.',
               [
                 {text: 'OK', onPress: (text) => this.resetLoginPrompt()},
               ],
@@ -194,30 +189,30 @@ var LoginScreen = React.createClass({
               this.setState({
                 username: controlUsername,
                 password: controlPassword,
-                usernameDefault: APP_ID_TITLE,
-                passwordDefault: APP_KEY_TITLE,
-                loginButtonLabel: 'Save APP ID & Key',
+                usernameDefault: CARRIER_NAME,
+                passwordDefault: SECURITY_KEY,
+                loginButtonLabel: 'Go',
               });
             } else {
               this.setState({
                 username: global.appID,
                 password: global.appKey,
-                usernameDefault: APP_ID_TITLE,
-                passwordDefault: APP_KEY_TITLE,
-                loginButtonLabel: 'Save APP ID & Key',
+                usernameDefault: CARRIER_NAME,
+                passwordDefault: SECURITY_KEY,
+                loginButtonLabel: 'Go',
               });
             }
           } else {
             Alert.alert(
               'Error!',
-              'App ID and App Key verification failure, please re-enter them.',
+              'Carrier identity verification failure, please re-enter them.',
             );
             this.setState({
               username: controlUsername,
               password: controlPassword,
-              usernameDefault: APP_ID_TITLE,
-              passwordDefault: APP_KEY_TITLE,
-              loginButtonLabel: 'Save APP ID & Key',
+              usernameDefault: CARRIER_NAME,
+              passwordDefault: SECURITY_KEY,
+              loginButtonLabel: 'Go',
             });
           }
         }
@@ -226,6 +221,9 @@ var LoginScreen = React.createClass({
   loadLoginFromStorage: function() {
     // only load login if not in update password or entering appKeys
     if (!this.state.isUpdatePassword && this.state.appID && this.state.appKey) {
+      this.setState({
+          securePasswordEntry: true,
+      });
       global.storage.load({
         key: global.LOGIN_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
         // autoSync(default true) means if data not found or expired,
@@ -243,6 +241,7 @@ var LoginScreen = React.createClass({
               password: "",
               usernameStored: ret.username,
               passwordStored: ret.password,
+              securePasswordEntry: true,
           });
         } else {
           this.setState({
@@ -250,11 +249,15 @@ var LoginScreen = React.createClass({
               password: ret.password,
               usernameStored: ret.username,
               passwordStored: ret.password,
+              securePasswordEntry: true,
           });
           // log in the user directly by pressing the login button for the user
           this.onPressLogin();
         }
       }).catch( err => {
+        this.setState({
+          securePasswordEntry: true,
+        });
         // any exception including data not found
         // goes to catch()
       });
@@ -307,7 +310,7 @@ var LoginScreen = React.createClass({
     }).then( ret => {
       // found data goes to then()
       // sanity check
-      if (ret.controlUsername.length === global.CONTROL_KEY_LENGTH && ret.controlPassword.length === global.CONTROL_KEY_LENGTH) {
+      if (ret.controlPassword.length >= global.CONTROL_KEY_LENGTH) {
         this.setState({
           controlUsername: ret.controlUsername,
           controlPassword: ret.controlPassword,
@@ -324,20 +327,14 @@ var LoginScreen = React.createClass({
       this.setState({
         username: '',
         password: '',
-        usernameDefault: APP_ID_TITLE,
-        passwordDefault: APP_KEY_TITLE,
-        loginButtonLabel: 'Save APP ID & Key',
+        usernameDefault: CARRIER_NAME,
+        passwordDefault: SECURITY_KEY,
+        loginButtonLabel: 'Go',
         isLoading: false,
       });
     });
   },
   render: function() {
-    if (this.state.appID && this.state.appKey) {
-      // Parse.initialize(this.state.appID, this.state.appKey);
-      var securePasswordEntry = true;
-    } else {
-      var securePasswordEntry = false;
-    }
     var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     var content = this.state.isLoading ?
     <Image style={styles.logo} source={require('./assets/images/Logo_Beeper.png')}>
@@ -378,7 +375,7 @@ var LoginScreen = React.createClass({
               value={this.state.password}
               placeholder={this.state.passwordDefault}
               placeholderTextColor='#7AA5AD'
-              secureTextEntry={securePasswordEntry}
+              secureTextEntry={this.state.securePasswordEntry}
               editable={!this.state.isLoading}
             />
           </View>
@@ -498,7 +495,7 @@ var LoginScreen = React.createClass({
       Intercom.registerIdentifiedUser({ userId: username })
       .then(() => {
         // Need to register Parse on the iOS side for push notification
-        ParseInitIOS.init(this.state.appID, this.state.mobileKey);
+        ParseInitIOS.init(this.state.appID, this.state.mobileKey, user.id);
         // No need to register for push again from Intercom since Parse register the device already above
         //   or else there will be duplicated notifications if register twice
         // Intercom.registerForPush();
@@ -510,7 +507,11 @@ var LoginScreen = React.createClass({
       .catch((err) => {
         console.log('registerIdentifiedUser ERROR', err);
       });
-      this.setState({currentUser: user});
+      this.setState(
+        {
+          currentUser: user,
+          securePasswordEntry: false,
+        });
       this.saveLoginToStorage();
       this.toDataScreen();
     }

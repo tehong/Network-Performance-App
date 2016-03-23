@@ -10,7 +10,7 @@ import Swiper from 'react-native-swiper';
 
 var React = require('react-native');
 // var Parse = require('parse/react-native');
-var Router = require('gb-native-router');
+// var Router = require('gb-native-router');
 
 var {
   StyleSheet,

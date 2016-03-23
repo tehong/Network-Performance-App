@@ -154,6 +154,8 @@ var AreaScreen = React.createClass({
     this.checkNavToComment(cachedAreas);
     AppStateIOS.addEventListener('change', this._handleAppStateChange);
     AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
+    // see if we need to scroll to the right place for auto-nav of the comments
+    this.scrollToRightListItem();
   },
   componentWillUnmount: function() {
     AppStateIOS.removeEventListener('change', this._handleAppStateChange);
@@ -161,7 +163,11 @@ var AreaScreen = React.createClass({
   },
   _handleAppStateChange: function(currentAppState) {
     // setState doesn't set the state immediately until the render runs again so this.state.currentAppState is not updated now
-    var previousAppStates = this.state.previousAppStates.slice();
+    if (this.state.previousAppStates) {
+      var previousAppStates = this.state.previousAppStates.slice();
+    } else {
+      var previousAppStates = [];
+    }
     previousAppStates.push(this.state.appState);
     this.setState({
       appState: currentAppState,
@@ -331,6 +337,12 @@ var AreaScreen = React.createClass({
       this.navigateToComment(areas);
     }
   },
+  scrollToRightListItem: function() {
+    // see if we need to auto scroll to the right site first
+    // We need pre-scroll to the right item for comment auto-nav
+    //  because some list item are dynamically loaded when too long
+    scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT, true);
+  },
   navigateToComment: function(areas: object) {
     if (global.navCommentProps &&
       (global.navCommentProps.entityType.toLowerCase() === "site" ||
@@ -340,7 +352,6 @@ var AreaScreen = React.createClass({
       var sortedAreas = getSortedDataArray(areas);
       for (var i=0; i<sortedAreas.length; i++) {
         var kpiName = sortedAreas[i].category.toLowerCase()+ "_" + sortedAreas[i].kpi.replace(/ /g, "_").toLowerCase();
-if (!global.navCommentProps.siteName) debugger;
         var siteName = global.navCommentProps.siteName;
         if (kpi === kpiName) {
           /*
@@ -490,7 +501,7 @@ if (!global.navCommentProps.siteName) debugger;
         // now save the kpiSaveArray
         Parse.Object.saveAll(kpiSaveArray, {
           success: function(objs) {
-            console.log("parse - saving all kpi - ", kpiSaveArray);
+            // console.log("parse - saving all kpi - ", kpiSaveArray);
           },
           error: function(error) {
             console.log("parse - kpi saving failed, error code = " + error.message);
@@ -502,21 +513,13 @@ if (!global.navCommentProps.siteName) debugger;
       }
     });
   },
-  addUtilData: function(areas) {
-    for (var i=0;i<areas.length; i++) {
-      // reset the isCommentOn flag
-      areas[i].isCommentOn = false;
-    }
-    return areas;
-  },
   getDataSource: function(areas: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
     var sortedAreas = getSortedDataArray(areas);
     // save the KPI name in cloud
     // need to be after it is sorted and category is populated!
     this.updateKpiNameInCloud(sortedAreas);  // populate the category name
-    var sortedNetworkAreas = this.addUtilData(sortedAreas);
-    return this.state.dataSource.cloneWithRows(sortedNetworkAreas);
+    return this.state.dataSource.cloneWithRows(sortedAreas);
   },
   selectKpi: function(area: Object, isMixpanel: bool) {
     if (isMixpanel) this.mpSelectKpi(area.category + " " + area.kpi);
@@ -632,7 +635,8 @@ if (!global.navCommentProps.siteName) debugger;
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
     var isLoading = (this.state.isLoading || this.state.isRefreshing);
-        // FIXME: setScrollIndex={this.props.setScrollIndex}
+        // FIXME: set"ScrollIndex={this.props.setScrollIndex}
+
     return (
       <PerformanceCell
         key={area.id}
@@ -655,7 +659,6 @@ if (!global.navCommentProps.siteName) debugger;
             contentInset: contentInset,
           });
         }}
-        triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
   },

@@ -284,13 +284,6 @@ var SiteScreen = React.createClass({
 
   onEndReached: function() {
   },
-  addUtilData: function(sites) {
-    for (var i=0;i<sites.length; i++) {
-      // reset the isCommentOn flag
-      sites[i].isCommentOn = false;
-    }
-    return sites;
-  },
   getDataSource: function(sites: Array<any>): ListView.DataSource {
     var sortedSites = getSortedDataArray(sites);
     /*
@@ -302,8 +295,7 @@ var SiteScreen = React.createClass({
     }
     return this.state.dataSource.cloneWithRows(filteredSet);
     */
-    var sortedModSites = this.addUtilData(sortedSites);
-    return this.state.dataSource.cloneWithRows(sortedModSites);
+    return this.state.dataSource.cloneWithRows(sortedSites);
   },
 
   selectSite: function(site: Object, isMixpanel: bool) {
@@ -433,7 +425,6 @@ var SiteScreen = React.createClass({
             });
           }
         }}
-        triggerScroll={() => scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT)}
       />
     );
     /*

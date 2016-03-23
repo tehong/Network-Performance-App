@@ -53,8 +53,8 @@ function getSortedAreaDataArray(dataArray: Array<any>): Array<any> {
           return -1;
         }
       }
-      var aImage = getImageFromAverage(a["dailyAverage"], a["thresholds"]["red"], a["thresholds"]["green"]);
-      var bImage = getImageFromAverage(b["dailyAverage"], b["thresholds"]["red"], b["thresholds"]["green"]);
+      var aImage = getImageFromAverage(a["dailyAverage"], a["thresholds"]["red"], a["thresholds"]["green"], a['statusColor']);
+      var bImage = getImageFromAverage(b["dailyAverage"], b["thresholds"]["red"], b["thresholds"]["green"], b['statusColor']);
 
       // sorted alphbetically if the same color
       if (aImage === bImage) {

@@ -33,6 +33,7 @@ var SparklineView= require('./SparklineView');
 var isDataEmpty = require('../utils/isDataEmpty');
 var CommentBox = require('./CommentBox');
 var mixpanelTrack = require('../utils/mixpanelTrack');
+var getDailyAverage = require('../utils/getDailyAverage');
 
 var PerformanceCell = React.createClass({
   propTypes: {
@@ -50,7 +51,6 @@ var PerformanceCell = React.createClass({
   },
   componentWillUnmount: function() {
     if (this.props.onUnmount) {
-      console.log("calling unMount!");
       this.props.onUnmount(this.props.geoArea);
     }
     // this.isLoading();
@@ -101,8 +101,8 @@ var PerformanceCell = React.createClass({
       if (hit) {
         this.setState({isShowComment: true});
         this.props.geoArea.isCommentOn = true;
-        // now trigger scrolling when the component is mounted
-        this.props.triggerScroll(navCommentProps);   // trigger scroll to timer
+        // No need to scroll when the parent pre-scoll
+        // this.props.triggerScroll(navCommentProps);   // trigger scroll to timer
       }
     }
   },
@@ -133,7 +133,7 @@ var PerformanceCell = React.createClass({
     var dailyAverage = this.getDailyAverage(false);
     var redThreshold = getThreshold(this.props.geoArea.thresholds, "red", kpi);
     var greenThreshold = getThreshold(this.props.geoArea.thresholds, "green", kpi);
-    var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
+    var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold, this.props.geoArea.statusColor);
     var commentContent =
         this.state.isShowComment?
         <CommentBox
@@ -158,40 +158,16 @@ var PerformanceCell = React.createClass({
       </View>
     );
   },
-  getDailyAverage(zeroFill) {
+  getDailyAverage: function(zeroFill) {
     var dataArray = this.props.geoArea.data;
     // might be invalid data when length < 2, i.e. 1
 
     var dailyAverage = this.props.geoArea.dailyAverage;
-    if (dailyAverage !== null) {
-      dailyAverage = this.props.geoArea.dailyAverage.toString();
-    } else {
-      dailyAverage = "No Data";
-      return dailyAverage;
-    }
+    var newDailyAverage = getDailyAverage(this.props.geoArea.kpi, dailyAverage, this.props.geoArea.kpiDecimalPrecision);
     if (isDataEmpty(dataArray) && zeroFill === false) {
-      dailyAverage = "No Data";
-    } else {
-      // Limit the number of total digits to 3 non-leading-zero digits
-      var indexDecimal = dailyAverage.indexOf('.');
-      if (indexDecimal >= 0) {
-        var decimal_digits = dailyAverage.length - indexDecimal - 1;
-        var integer_digits = dailyAverage.length - decimal_digits - 1;
-        // default the numDecimalDigit to 1 unless decimal_digits is 0;
-        var numDecimalDigit = 1 < decimal_digits ? 1 : decimal_digits;
-        // show max three non-zero digits or at least one decimal if more than three digits
-        if (integer_digits === 1) {
-          if (dailyAverage.charAt(0) === "0") {
-            numDecimalDigit = 3 < decimal_digits?3:decimal_digits;
-          } else {
-            numDecimalDigit = 2 < decimal_digits?2:decimal_digits;
-          }
-        }
-        dailyAverage = dailyAverage.substring(0, indexDecimal + numDecimalDigit + 1)
-      }
-      dailyAverage = parseFloat(dailyAverage);
+      newDailyAverage = "No Data";
     }
-    return dailyAverage;
+    return newDailyAverage.toString();
   },
 
   innerContentView: function() {
@@ -332,9 +308,60 @@ var PerformanceCell = React.createClass({
   getRandomInt: function(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
   },
+  switchSign: function(sign, switchDirection = false) {
+    /*
+    map the yellow sign by these rules when determing the yellow signs
+    (">") -> "\u2264" (<=)
+    ("<") -> "\u2265" (>=)
+    ("\u2264") ->  ">"
+    ("\u2265") -> "<"
+    */
+    switch (sign) {
+      case ">":
+        if (switchDirection) {
+          return "\u2265";
+        }
+        return "\u2264";
+      case "<":
+        if (switchDirection) {
+          return "\u2264";
+        }
+        return "\u2265";
+      case "\u2264":
+        if (switchDirection) {
+          return "<";
+        }
+        return ">";
+      case "\u2265":
+        if (switchDirection) {
+          return ">";
+        }
+        return "<";
+    }
+  },
+  getYellowThresholdText: function(redSign, greenSign, redThreshold, greenThreshold) {
+
+    var yellowGreenSign = this.switchSign(greenSign);
+    var yellowRedSign = this.switchSign(redSign);
+    if (greenThreshold > redThreshold) {
+      var yellowRedSign = this.switchSign(redSign, true);
+      var yellowThresholdText = redThreshold + yellowRedSign + "&" + yellowGreenSign + greenThreshold;
+    } else {
+      var yellowGreenSign = this.switchSign(greenSign, true);
+      var yellowThresholdText = greenThreshold + yellowGreenSign + "&" + yellowRedSign + redThreshold ;
+    }
+    yellowThresholdText = yellowThresholdText.toString().replace("99.9999", "Six9s");
+    return yellowThresholdText;
+  },
   kpiView: function() {
     var kpiImage = getImageViewFromParentKPI(this.props.geoArea.category, this.props.geoArea.kpi);
     var dailyAverage = this.getDailyAverage(false)
+    var dailyAverageInteger = dailyAverage.indexOf(".") > -1 ?
+        dailyAverage.substring(0, dailyAverage.indexOf(".")) :
+        dailyAverage;
+    var dailyAverageDecimal = dailyAverage.indexOf(".") > -1 ?
+        dailyAverage.substring(dailyAverage.indexOf("."), dailyAverage.length) :
+        "";
     var unit = this.props.geoArea.unit;
     if (dailyAverage === "No Data") {
       unit = "";
@@ -360,9 +387,12 @@ var PerformanceCell = React.createClass({
             <Text style={styles.kpi}>
               {this.props.geoArea.kpi}
             </Text>
-            <View style={styles.dailyAverage}>
-              <Text style={styles.dailyValue}>
-                {dailyAverage}
+            <View style={styles.dailyAverageContainer}>
+              <Text style={styles.dailyAveargeInteger}>
+                {dailyAverageInteger}
+              </Text>
+              <Text style={styles.dailyAveargeDecimal}>
+                {dailyAverageDecimal}
               </Text>
               <Text style={styles.unit}>
                 {unit}
@@ -381,12 +411,21 @@ var PerformanceCell = React.createClass({
     var dailyAverage = this.getDailyAverage(true);
     // var redDir =  redThreshold > greenThreshold?"\u2265":"\u2264";
     // var greenDir =  redThreshold > greenThreshold?"\u2264":"\u2265";
+    var redThresholdSign = this.props.geoArea.thresholds.redSign;
+    var greenThresholdSign = this.props.geoArea.thresholds.greenSign;
+    /*
     var redDir =  redThreshold > greenThreshold?">":"<";
     var greenDir =  redThreshold > greenThreshold?"\u2264":"\u2265";
+    */
+    // change the 99.9999 to 6 9s
+    var redThresholdText = redThreshold.toString().replace("99.9999", "Six9s");
+    var greenThresholdText = greenThreshold.toString().replace("99.9999", "Six9s");
     var unit = this.props.geoArea.unit;
     var data = this.getData();
-    var yellowLowThreshold = redThreshold;
-    var yellowHighThreshold = greenThreshold;
+    var yellowLowThreshold = redThresholdText;
+    var yellowHighThreshold = greenThresholdText;
+    // get the yellow threshold signs
+    var yellowThresholdText = this.getYellowThresholdText(redThresholdSign, greenThresholdSign, redThreshold, greenThreshold);
     /*
     if (kpi.indexOf("Throughput") !== -1 || kpi.toLowerCase() == "throughput" || kpi.toLowerCase() == "fallback") {
       yellowLowThreshold = redThreshold;
@@ -432,17 +471,17 @@ var PerformanceCell = React.createClass({
         </View>
         <View style={styles.thresholdContainer}>
           <View style={styles.thresholdValue}>
-            <View style={styles.ttContainer}>
-              <Text style={styles.tt}>RED</Text>
-              <Text style={styles.tv}>{redDir}{redThreshold}{unit}</Text>
+            <View style={styles.trContainer}>
+              <Text style={[styles.tt, {}]}>RED</Text>
+              <Text style={[styles.tv, {}]}>{redThresholdSign}{redThresholdText}</Text>
             </View>
             <View style={styles.tyContainer}>
               <Text style={styles.tt}>YELLOW</Text>
-              <Text style={styles.tv}>{yellowLowThreshold}-{yellowHighThreshold}{unit}</Text>
+              <Text style={styles.tv}>{yellowThresholdText}</Text>
             </View>
-            <View style={styles.ttContainer}>
+            <View style={styles.tgContainer}>
               <Text style={styles.tt}>GREEN</Text>
-              <Text style={styles.tv}>{greenDir}{greenThreshold}{unit}</Text>
+              <Text style={styles.tv}>{greenThresholdSign}{greenThresholdText}</Text>
             </View>
           </View>
           <TouchableElement style={styles.commentContainer}
@@ -457,7 +496,6 @@ var PerformanceCell = React.createClass({
     );
   },
   sectorCounterView: function(dailyAverage, redThreshold, greenThreshold) {
-    var backgroundImage = getImageFromAverage(dailyAverage, redThreshold, greenThreshold);
     var totalNumSectors = 9;  // default sectors per zone
     var entityName = this.props.entityName ? this.props.entityName : "";
     // don't show sector count for sector page
@@ -535,6 +573,9 @@ var PerformanceCell = React.createClass({
     );
   },
 });
+
+// To show component outlines for layout
+// var StyleSheet = require('react-native-debug-stylesheet');
 
 var styles = StyleSheet.create({
   topContainer: {
@@ -681,13 +722,13 @@ var styles = StyleSheet.create({
     fontFamily: 'Helvetica Neue',
     backgroundColor: 'transparent',
   },
-  dailyAverage: {
+  dailyAverageContainer: {
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "flex-end",
     backgroundColor: 'transparent',
   },
-  dailyValue: {
+  dailyAveargeInteger: {
     textAlign: "right",
     color: 'white',
     fontSize: 39,
@@ -697,13 +738,23 @@ var styles = StyleSheet.create({
     // borderColor: 'white',
     // borderWidth: 1,
   },
+  dailyAveargeDecimal: {
+    textAlign: "right",
+    marginBottom: 4,
+    color: 'white',
+    fontSize: 23,
+    fontWeight: '700',
+    fontFamily: 'Helvetica Neue',
+    backgroundColor: 'transparent',
+    // borderColor: 'white',
+    // borderWidth: 1,
+  },
   unit: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 23,
+    fontWeight: '700',
     fontFamily: 'Helvetica Neue',
-    paddingLeft: 2,
-    paddingBottom: 7,
+    paddingBottom: 4,
     backgroundColor: 'transparent',
     // borderColor: 'pink',
     // borderWidth: 1,
@@ -834,28 +885,36 @@ var styles = StyleSheet.create({
     // borderColor: "yellow",
     // borderWidth: 1,
   },
-  ttContainer: {
-    flex: 17,
+  trContainer: {
+    flex: 10,
     alignItems: "flex-start",
     // borderColor: "blue",
     // borderWidth: 1,
   },
   tyContainer: {
-    flex: 20,
+    flex: 26,
     alignItems: "flex-start",
     // borderColor: "yellow",
     // borderWidth: 1,
   },
+  tgContainer: {
+    flex: 13,
+    alignItems: "flex-start",
+    // borderColor: "blue",
+    // borderWidth: 1,
+  },
   tt: {
+    alignSelf: 'center',
     color: "rgba(255,255,255, 0.7)",
     fontSize: 11,
     fontWeight: "400",
     fontFamily: 'Helvetica Neue',
   },
   tv: {
+    alignSelf: 'center',
     color: "white",
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "800",
     fontFamily: 'Helvetica Neue',
   },
 });

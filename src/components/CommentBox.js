@@ -9,7 +9,7 @@ var {
   ActivityIndicatorIOS,
 } = React;
 
-import InvertibleScrollView from 'react-native-invertible-scroll-view';
+// import InvertibleScrollView from 'react-native-invertible-scroll-view';
 
 var RefreshableListView = require('react-native-refreshable-listview');
 var Parse = require('parse/react-native');
