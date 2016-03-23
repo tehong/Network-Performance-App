@@ -8,7 +8,6 @@
  */
 
 
-#import <AppHub/AppHub.h>
 #import "AppDelegate.h"
 #import "Intercom/intercom.h"
 
@@ -37,9 +36,6 @@
   // Initialize Intercom
   [Intercom setApiKey:@"ios_sdk-7ae58685589f103d3d3f713d1321839ae6c1cdd8" forAppId:@"vhbvbnbs"];
 
-  // TODO: replace "123" with your Application ID from the AppHub dashboard.
-  [AppHub setApplicationID:@"gREWH9HMWMVUHfqb7MaH"];
-
   _bridge = [[RCTBridge alloc] initWithDelegate:self
                                   launchOptions:launchOptions];
 
@@ -56,12 +52,6 @@
   // manually set the TextField tintColor to white
   [[UITextField appearance] setTintColor:[UIColor whiteColor]];
 
-
-  // Register a callback for when a new build becomes available.
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(newBuildDidBecomeAvailable:)
-                                               name:AHBuildManagerDidMakeBuildAvailableNotification
-                                             object:nil];
 
   // iOS push notification registration - see ParseInit!!!
 
@@ -151,22 +141,7 @@
 
   // jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 
-  /**
-   * OPTION 3 - AppHub
-   *
-   * Load cached code and images from AppHub. Use this when deploying to test
-   * users and the App Store.
-   *
-   * Make sure to re-generate the static bundle by navigating to your Xcode project
-   * folder and running
-   *
-   * $ react-native bundle --entry-file index.ios.js --platform ios --dev true --bundle-output iOS/main.jsbundle
-   *
-   */
-
-  AHBuild *build = [[AppHub buildManager] currentBuild];
-  // jsCodeLocation = [build.bundle URLForResource:@"main" withExtension:@"jsbundle"];
-
+  
   return jsCodeLocation;
 }
 
@@ -176,37 +151,6 @@
 {
   [RCTJavaScriptLoader loadBundleAtURL:[self sourceURLForBridge:bridge]
                             onComplete:loadCallback];
-}
-
-#pragma mark - NSNotificationCenter
-
--(void) newBuildDidBecomeAvailable:(NSNotification *)notification {
-  // Show an alert view when a new build becomes available. The user can choose to "Update" the app, or "Cancel".
-  // If the user presses "Cancel", their app will update when they close the app.
-
-  AHBuild *build = notification.userInfo[AHBuildManagerBuildKey];
-  NSString *alertMessage = [NSString stringWithFormat:@"There's a new update available.\n\nUpdate description:\n\n %@", build.buildDescription];
-
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Great news!"
-                                                  message:alertMessage
-                                                 delegate:self
-                                        cancelButtonTitle:@"Cancel"
-                                        otherButtonTitles:@"Update", nil];
-
-
-  dispatch_async(dispatch_get_main_queue(), ^{
-    // Show the alert on the main thread.
-    [alert show];
-  });
-}
-
-#pragma mark - UIAlertViewDelegate
-
--(void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-  if (buttonIndex == 1) {
-    // The user pressed "update".
-    [_bridge reload];
-  }
 }
 
 @end
