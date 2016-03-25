@@ -46,18 +46,21 @@
     {
       "orientation" : "portrait",
       "idiom" : "iphone",
+      "filename" : "bg_loading_320x480.png",
       "extent" : "full-screen",
       "scale" : "1x"
     },
     {
       "orientation" : "portrait",
       "idiom" : "iphone",
+      "filename" : "bg_loading_640x960-1.png",
       "extent" : "full-screen",
       "scale" : "2x"
     },
     {
       "orientation" : "portrait",
       "idiom" : "iphone",
+      "filename" : "bg_loading_320x480-1.png",
       "extent" : "full-screen",
       "subtype" : "retina4",
       "scale" : "2x"

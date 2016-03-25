@@ -22,7 +22,7 @@ var mixpanelTrack = require('./utils/mixpanelTrack');
 var SectorScreen = require('./SectorScreen');
 var LogoRight = require('./components/icons/LogoRight');
 var PerfNavTitle = require('./components/icons/areas/PerfNavTitle');
-var UIImagePickerManager = require('NativeModules').UIImagePickerManager;
+var ImagePickerManager = require('NativeModules').ImagePickerManager;
 var BackButton = require('./components/icons/BackButton');
 var UserProfileLogoRight = require('./components/icons/UserProfileLogoRight');
 var Actions = require('react-native-router-flux').Actions;
@@ -146,12 +146,12 @@ module.exports = React.createClass({
     * response.width & response.height give you the image dimensions
     */
 
-    UIImagePickerManager.showImagePicker(options, (response) => {
+    ImagePickerManager.showImagePicker(options, (response) => {
       if (response.didCancel) {
         // console.log('User cancelled image picker');
       }
       else if (response.error) {
-        console.log('UIImagePickerManager Error: ', response.error);
+        console.log('ImagePickerManager Error: ', response.error);
       }
       else if (response.customButton) {
         // console.log('User tapped custom button: ', response.customButton);
