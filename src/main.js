@@ -9,7 +9,8 @@ var CustomerReleaseNotes = "\
 (3) Simplified push notifications\n\
 (4) Show four decimal points for Data Availability\n\
 (5) Able to show six 9s in the green and yellow thresholds\n\
-(6) Miscenllenous bug fixes.\
+(6) Added OTA update capability.\n\
+(7) Miscenllenous bug fixes.\
 ";
 
 import Storage from 'react-native-storage';

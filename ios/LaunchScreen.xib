@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="iN0-l3-epB">
-            <rect key="frame" x="0.0" y="0.0" width="613" height="1211"/>
+        <view contentMode="scaleAspectFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" image="LaunchImage" highlightedImage="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="EPp-Lh-3ad">
-                    <rect key="frame" x="0.0" y="0.0" width="613" height="1211"/>
+                <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" image="LaunchImage" highlightedImage="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="EPp-Lh-3ad">
+                    <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                 </imageView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -21,15 +21,13 @@
             </accessibility>
             <constraints>
                 <constraint firstItem="EPp-Lh-3ad" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="6Wf-Zy-63w"/>
-                <constraint firstAttribute="bottom" secondItem="EPp-Lh-3ad" secondAttribute="bottom" id="Giu-gr-uVs"/>
                 <constraint firstItem="EPp-Lh-3ad" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="TDq-gP-owT"/>
                 <constraint firstAttribute="trailing" secondItem="EPp-Lh-3ad" secondAttribute="trailing" id="Yxc-8W-Ehi"/>
                 <constraint firstItem="EPp-Lh-3ad" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="otN-2h-8lO"/>
                 <constraint firstItem="EPp-Lh-3ad" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="rs3-Y1-raK"/>
             </constraints>
             <nil key="simulatedStatusBarMetrics"/>
-            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="324.5" y="377.5"/>
+            <point key="canvasLocation" x="324" y="377"/>
         </view>
     </objects>
     <resources>

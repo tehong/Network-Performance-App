@@ -237,8 +237,8 @@ Release 0.2.3 is on TestFlight:
   (2) Refined further the comment routing and now is it slightly faster and more reliable.
 
 - Beeper iOS 0.5.0 - Internal Release Note
-  - TODO:
   - OTA update implementation via https://github.com/aerofs/react-native-auto-updater
+  - TODO:
   - (Replacing current listview?) Checkout react-native-tableview for IOS tableview support: https://github.com/aksonov/react-native-tableview
 
 - TODO:
