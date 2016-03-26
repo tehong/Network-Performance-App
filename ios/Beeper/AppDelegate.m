@@ -79,7 +79,8 @@
   
   NSURL* defaultJSCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
   
-  /**
+  /**  React Native auto updater NPM:
+   * see https://github.com/aerofs/react-native-auto-updater
    *  1. Get an instance of ReactNativeAutoUpdater
    *  2. Set self as a delegate.
    *  3. Initialize with MetadataUrl and defaultJSCodeLocation
@@ -95,6 +96,7 @@
   
   [updater setHostnameForRelativeDownloadURLs:@"https://raw.githubusercontent.com/3TEN8/autoupdater/master"];
   [updater downloadUpdatesForType: ReactNativeAutoUpdaterPatchUpdate];   // any -.-.x patch update is allowed
+  [updater allowCellularDataUse: NO];   // no Cellular data shall be used for update
   [updater checkUpdate];
   
   NSURL* latestJSCodeLocation = [updater latestJSCodeLocation];
@@ -175,7 +177,7 @@
 {
   UIAlertController *alertController = [UIAlertController
                                         alertControllerWithTitle:NSLocalizedString(@"Update Downloaded", nil)
-                                        message:NSLocalizedString(@"An update was downloaded. Do you want to apply the update now?", nil)
+                                        message:NSLocalizedString(@"Great news!\nAn update was downloaded. Do you want to apply the update now?", nil)
                                         preferredStyle:UIAlertControllerStyleAlert];
   
   UIAlertAction *cancelAction = [UIAlertAction

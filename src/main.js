@@ -10,7 +10,7 @@ var CustomerReleaseNotes = "\
 (4) Show four decimal points for Data Availability\n\
 (5) Able to show six 9s in the green and yellow thresholds\n\
 (6) Added OTA update capability.\n\
-(7) Miscenllenous bug fixes.\
+(7) Miscenllenous bug fixes and UI changes.\
 ";
 
 import Storage from 'react-native-storage';
@@ -22,6 +22,7 @@ var Parse = require('parse/react-native');
 // var Router = require('gb-native-router');
 var InfoPlist = require('react-native').NativeModules.InfoPlist;
 var TimerMixin = require('react-timer-mixin');
+var ReactNativeAutoUpdater = require('react-native-auto-updater');
 
 
 var {
@@ -31,6 +32,7 @@ var {
   StyleSheet,
   PushNotificationIOS,
   Navigator,
+  StatusBar,
 } = React;
 var RNRF = require('react-native-router-flux');
 var {Route, Schema, Animations, Actions, TabBar} = RNRF;
@@ -203,6 +205,7 @@ module.exports = React.createClass({
   componentDidMount: function() {
   },
   componentWillMount: function() {
+    StatusBar.setBarStyle('light-content');
     global.refreshFeedCount = this._getFeedCount;
     global.saveFeedInfo = this._saveFeedInfoToStorage;
     global.contentInset = {bottom: 45};  // global content inset for list view screen
@@ -288,7 +291,9 @@ module.exports = React.createClass({
   },
   _getAppVersion: async function() {
     try {
-      global.BeeperVersion = await InfoPlist.bundleShortVersion();
+      global.BeeperVersion = ReactNativeAutoUpdater.jsCodeVersion() ?
+        ReactNativeAutoUpdater.jsCodeVersion() :
+        await InfoPlist.bundleShortVersion();
     } catch(e) {
       console.error(e);
     }

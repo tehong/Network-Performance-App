@@ -357,11 +357,11 @@
 			isa = PBXGroup;
 			children = (
 				07A268EA1CA4C0EE005B71BC /* metadata.json */,
+				07B709861C1638E4009F6288 /* Info.plist */,
+				07B709851C1638E4009F6288 /* AppDelegate.m */,
 				075A711C1C3B92AD008298B8 /* IntercomWrapper.m */,
 				075A711D1C3B92AD008298B8 /* IntercomWrapper.h */,
 				07B709891C1638E4009F6288 /* AppDelegate.h */,
-				07B709851C1638E4009F6288 /* AppDelegate.m */,
-				07B709861C1638E4009F6288 /* Info.plist */,
 				07B709871C1638E4009F6288 /* Images.xcassets */,
 				07B7098A1C1638E4009F6288 /* main.m */,
 				071A60F71BDC811F00F339E9 /* LaunchScreen.xib */,

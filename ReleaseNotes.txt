@@ -238,14 +238,14 @@ Release 0.2.3 is on TestFlight:
 
 - Beeper iOS 0.5.0 - Internal Release Note
   - OTA update implementation via https://github.com/aerofs/react-native-auto-updater
-  - Updated several RN components.
-  
+  - Updated several RN components, including RN itself to R22.2.
+  - Changed the status bar to light content color.
+  - Fixed the launch image to proper proportion.
+
   - TODO:
   - (Replacing current listview?) Checkout react-native-tableview for IOS tableview support: https://github.com/aksonov/react-native-tableview
 
 - TODO:
-  - Set up "Beeper - Demo" app space in Parse and Mixpanel.
-  - Set up backend to host a separate endpoint for Beeper Demo services.
   - Create the demo data sets in Jason to be used in the Beeper Demo Service.
 
   - (Done!) replace tab bar and gb-native-router with react-native-router-flux: https://github.com/aksonov/react-native-router-flux

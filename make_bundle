@@ -1,2 +1,4 @@
 #!/bin/zsh
 react-native bundle --platform ios --entry-file index.ios.js --bundle-output ./release/main.jsbundle --assets-dest ./release --dev false
+
+#  cp release/main.jsbundle ../autoupdater/b/b33p3r/.
