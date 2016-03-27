@@ -43,7 +43,7 @@
 
     3. Clone the https://github.com/3TEN8/autoupdater.git into a GitHub directory of your choice.
 
-    4. Copy the ./release/main.jsbundle to the autoupdater ./b/b33p3r directory.
+    4. Copy the ./release/main.jsbundle to the autoupdater git ./b/b33p3r directory.
 
     5. Modify the update.json in the ./b/b33p3r directory to the right version and minContainerVersion of the just copied main.jsbundle.
 

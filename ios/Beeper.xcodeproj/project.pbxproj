@@ -16,9 +16,9 @@
 		071C3E401C55603A000DD7E3 /* libRCTPushNotification.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 071C3E3F1C555FDB000DD7E3 /* libRCTPushNotification.a */; };
 		071C3E761C56A398000DD7E3 /* ParseInit.m in Sources */ = {isa = PBXBuildFile; fileRef = 071C3E751C56A398000DD7E3 /* ParseInit.m */; };
 		0730D3721CA33280003F5925 /* libReactNativeAutoUpdater.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0730D3711CA33232003F5925 /* libReactNativeAutoUpdater.a */; };
+		0733DBD31CA63E660013CB04 /* metadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 0733DBD21CA63E660013CB04 /* metadata.json */; };
 		074998511C59A08000EDEB59 /* InfoPlist.m in Sources */ = {isa = PBXBuildFile; fileRef = 074998501C59A08000EDEB59 /* InfoPlist.m */; };
 		075A711E1C3B92AD008298B8 /* IntercomWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 075A711C1C3B92AD008298B8 /* IntercomWrapper.m */; };
-		07A268EB1CA4C0EE005B71BC /* metadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 07A268EA1CA4C0EE005B71BC /* metadata.json */; };
 		07B7094C1C1264E0009F6288 /* Orientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094A1C1264E0009F6288 /* Orientation.m */; };
 		07B709501C126535009F6288 /* RNMixpanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 07B7094F1C126535009F6288 /* RNMixpanel.m */; };
 		07B7096D1C126635009F6288 /* SparklineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B709691C126635009F6288 /* SparklineViewController.swift */; };
@@ -147,12 +147,12 @@
 		071C3E741C56A337000DD7E3 /* ParseInit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParseInit.h; sourceTree = "<group>"; };
 		071C3E751C56A398000DD7E3 /* ParseInit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParseInit.m; sourceTree = "<group>"; };
 		0730D3611CA33232003F5925 /* ReactNativeAutoUpdater.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeAutoUpdater.xcodeproj; path = "../node_modules/react-native-auto-updater/ios/ReactNativeAutoUpdater.xcodeproj"; sourceTree = "<group>"; };
+		0733DBD21CA63E660013CB04 /* metadata.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = metadata.json; path = ../metadata.json; sourceTree = "<group>"; };
 		074998501C59A08000EDEB59 /* InfoPlist.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InfoPlist.m; sourceTree = "<group>"; };
 		074998521C59A19600EDEB59 /* InfoPlist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoPlist.h; sourceTree = "<group>"; };
 		075A711C1C3B92AD008298B8 /* IntercomWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntercomWrapper.m; sourceTree = "<group>"; };
 		075A711D1C3B92AD008298B8 /* IntercomWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntercomWrapper.h; sourceTree = "<group>"; };
 		076ADF401BE308C300C5C29F /* Beeper-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Beeper-Bridging-Header.h"; sourceTree = "<group>"; };
-		07A268EA1CA4C0EE005B71BC /* metadata.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = metadata.json; sourceTree = "<group>"; };
 		07B7094A1C1264E0009F6288 /* Orientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Orientation.m; path = RCTOrientation/Orientation.m; sourceTree = "<group>"; };
 		07B7094B1C1264E0009F6288 /* Orientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orientation.h; path = RCTOrientation/Orientation.h; sourceTree = "<group>"; };
 		07B7094E1C126535009F6288 /* RNMixpanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RNMixpanel.h; path = RNMixpanel/RNMixpanel.h; sourceTree = "<group>"; };
@@ -356,7 +356,7 @@
 		13B07FAE1A68108700A75B9A /* Beeper */ = {
 			isa = PBXGroup;
 			children = (
-				07A268EA1CA4C0EE005B71BC /* metadata.json */,
+				0733DBD21CA63E660013CB04 /* metadata.json */,
 				07B709861C1638E4009F6288 /* Info.plist */,
 				07B709851C1638E4009F6288 /* AppDelegate.m */,
 				075A711C1C3B92AD008298B8 /* IntercomWrapper.m */,
@@ -677,7 +677,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				07B7098D1C1638E4009F6288 /* Images.xcassets in Resources */,
-				07A268EB1CA4C0EE005B71BC /* metadata.json in Resources */,
+				0733DBD31CA63E660013CB04 /* metadata.json in Resources */,
 				071A60F81BDC811F00F339E9 /* LaunchScreen.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
