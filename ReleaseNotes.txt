@@ -242,7 +242,14 @@ Release 0.2.3 is on TestFlight:
   - Changed the status bar to light content color.
   - Fixed the launch image to proper proportion.
 
+- Beeper iOS 0.5.1 - Internal Release Note
+  - Changed the date on all performance page to "Yesterday's" performance.
+  - Added the ability for user to get their username and a temporary password via "forgotten username or password" link.
+  - Removed all alert pop-ups and replaced with modal alert screens.
+  - Fixed the "UL Interference" KPI charting problem.
+
   - TODO:
+  - Allowed user to display road/satellite/hybrid map.
   - (Replacing current listview?) Checkout react-native-tableview for IOS tableview support: https://github.com/aksonov/react-native-tableview
 
 - TODO:

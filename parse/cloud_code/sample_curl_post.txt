@@ -1,0 +1,6 @@
+curl -X POST \
+  -H "X-Parse-Application-Id: Df3vSYw5LPzc8ETCwflAdhkq9NFplAmuApK600Go" \
+  -H "X-Parse-REST-API-Key: bzkHAgWSH8Zs1QFKGtqVWEDkzcSclsBKl01Qu5k8" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "eric@3ten8.com"}' \
+  https://api.parse.com/1/functions/resetUserPassword

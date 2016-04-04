@@ -69,6 +69,8 @@
       -d '{"action":"send"}' \
       https://api.parse.com/1/jobs/morningReminder
 
+  3. Send email via Mailgun from support@3ten8.com account in mailgun.com.
+  
 - NPM package mods:
 
   (1) "react-native-refreshable-listview" => Need to modify the "ListView" component in the packages to "SGListView" component to reduce memory usage.  see node_modules/react-native-refreshable-listview/lib/ListView.js

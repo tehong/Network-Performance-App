@@ -16,7 +16,7 @@ var {
   ListView,
   TouchableOpacity,
   ActivityIndicatorIOS,
-  Alert,
+  // Alert,
 } = React;
 
 var mixpanelTrack = require('./utils/mixpanelTrack');
@@ -59,6 +59,7 @@ var TimerMixin = require('react-timer-mixin');
 // Obtain device oritentation changes and process them
 var Orientation = require('react-native-orientation');
 var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
+var Actions = require('react-native-router-flux').Actions;
 
 
 var SectorDetailScreen = React.createClass({
@@ -261,6 +262,14 @@ var SectorDetailScreen = React.createClass({
       })
       .catch((ex) => {
         var alertMessage = 'Timeout on retrieving data: ' + ex;
+        Actions.beeperInputScreen(
+          {
+            outputText: "Timeout Error:\n" + alertMessage,
+            inputButtonLabel: 'OK',
+            onPressEnter: Actions.dismiss(),
+          }
+        );
+        /*
         Alert.alert(
           'Timeout Alert',
           alertMessage,
@@ -268,6 +277,7 @@ var SectorDetailScreen = React.createClass({
             {text: 'OK', onPress: () => console.log(alertMessage)},
           ]
         );
+        */
         this.setState({
           isLoading: false,
           isRefreshing: false,

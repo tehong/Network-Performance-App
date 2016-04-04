@@ -25,8 +25,8 @@ var {
   View,
   Image,
   TouchableOpacity,
-  Alert,
-  AlertIOS,
+  // Alert,
+  // AlertIOS,
   ActivityIndicatorIOS,
 } = React;
 
@@ -50,6 +50,7 @@ var LoginScreen = React.createClass({
     return {
       memoryWarnings: 0,
       isUpdatePassword: false,
+      isGettingAppKeys: true,
       username: '',
       password: '',
       usernameDefault: DEFAULT_USERNAME,
@@ -82,10 +83,18 @@ var LoginScreen = React.createClass({
   saveAppKeys: function() {
     var valid = true;
     if (this.state.password.length < global.CONTROL_KEY_LENGTH) {
+      Actions.beeperInputScreen(
+        {
+          outputText: "Error:\n" + 'Incorrect Security Key Entry!',
+          cancelText: 'Back to Security Key Screen',
+        }
+      );
+      /*
       Alert.alert(
         'Error',
         'Incorrect Security Key Entry!',
       );
+      */
       valid = false;
     }
     if (valid) {
@@ -151,6 +160,14 @@ var LoginScreen = React.createClass({
             this.state.username = '';
             this.state.password = '';
             this.saveControlKeysToStorage();
+            Actions.beeperInputScreen(
+              {
+                outputText: 'App Details:\n' + 'Carrier identity is saved on your device.',
+                inputButtonLabel: 'OK',
+                onPressEnter: this.resetLoginPrompt,
+              }
+            );
+            /*
             Alert.alert(
               'App Details',
               'Carrier identity is saved on your device.',
@@ -158,13 +175,15 @@ var LoginScreen = React.createClass({
                 {text: 'OK', onPress: (text) => this.resetLoginPrompt()},
               ],
             );
+            */
           }
           this.getRestService(user);
           // get the Parse App ID and JS Key and save it right away
           this.setState({
             appID: user.get('ParseAppId'),
             appKey: user.get('ParseJsKey'),
-            mobileKey: user.get('ParseMobileKey')
+            mobileKey: user.get('ParseMobileKey'),
+            isGettingAppKeys: false,
           });
           // Put mixpanel init last just before logging out since the mixpanel timing might affect appID/appKey saving
           var mixpanelToken = user.get("MixpanelToken");
@@ -181,10 +200,18 @@ var LoginScreen = React.createClass({
         },
         error: (user, error) => {
           if (error.code === 100) {
+            Actions.beeperInputScreen(
+              {
+                outputText: "Error:\n" + 'Unable to connect to server, please check your Internet connection.',
+                cancelText: 'Back to Login Screen',
+              }
+            );
+            /*
             Alert.alert(
               'Error!',
               'Unable to connect to server, please check your Internet connection.',
             );
+            */
             if (isEnteringAppKeys) {
               this.setState({
                 username: controlUsername,
@@ -203,10 +230,18 @@ var LoginScreen = React.createClass({
               });
             }
           } else {
+            Actions.beeperInputScreen(
+              {
+                outputText: "Error:\n" + 'Carrier identity verification failure, please re-enter them.',
+                cancelText: 'Back to Login Screen',
+              }
+            );
+            /*
             Alert.alert(
               'Error!',
               'Carrier identity verification failure, please re-enter them.',
             );
+            */
             this.setState({
               username: controlUsername,
               password: controlPassword,
@@ -320,7 +355,10 @@ var LoginScreen = React.createClass({
         this.initParseApp(ret.controlUsername, ret.controlPassword, true, false);
       }
       // stop the activity indicator
-      this.setState({isLoading: false});
+      this.setState({
+        isLoading: false,
+        isGettingAppKeys: false,
+      });
     }).catch( err => {
       // any exception including data not found
       // goes to catch()
@@ -331,11 +369,20 @@ var LoginScreen = React.createClass({
         passwordDefault: SECURITY_KEY,
         loginButtonLabel: 'Go',
         isLoading: false,
+        isGettingAppKeys: true,
       });
     });
   },
   render: function() {
     var TouchableElement = TouchableOpacity;  // for iOS or Android variation
+
+    var forgottenLogin = this.state.isGettingAppKeys ?
+          <Text style={styles.forgot}></Text>
+          :
+          <Text style={styles.forgot} onPress={this.onPressForgotten}>
+            Forgotten Username or Password
+          </Text>;
+
     var content = this.state.isLoading ?
     <Image style={styles.logo} source={require('./assets/images/Logo_Beeper.png')}>
       <ActivityIndicatorIOS
@@ -387,53 +434,94 @@ var LoginScreen = React.createClass({
               <Text style={styles.loginButtonText}>{this.state.loginButtonLabel}</Text>
             </TouchableElement>
           </View>
-          <Text style={styles.forgot} onPress={this.onPressForgotten}>
-            Forgotten Username or Password
-          </Text>
+          {forgottenLogin}
         </View>
       </Image>
     );
   },
   onPressLogo: function() {
+    Actions.beeperInputScreen(
+      {
+        outputText: "App Info:\n" + 'Version - ' + global.BeeperVersion,
+        cancelText: 'Back to Login Screen',
+      }
+    );
+    /*
     Alert.alert(
       'App Info',
       'Version: ' + global.BeeperVersion,
     );
+    */
   },
-  forgotten: function(name) {
-    if (name !== "") {
-      Intercom.reset();
-      Intercom.registerIdentifiedUser({userId: name})
-      .then(() => {
-        return Intercom.updateUser({
-          name: name,
-        });
-      })
-      .catch((err) => {
-        console.log('registerIdentifiedUser ERROR - ' + name, err);
+  forgotten: function(email) {
+    if (email!== "") {
+      Parse.Cloud.run("resetUserPassword", {email: email}, {
+        success: function(message){
+            // The user was saved correctly
+          Actions.beeperInputScreen(
+            {
+              outputText: "Success:\n" + message,
+              cancelText: 'Back to Login Screen',
+            }
+          );
+          /*
+          Alert.alert(
+            'Success',
+            message,
+          );
+          */
+        },
+        error: function(error){
+          Actions.beeperInputScreen(
+            {
+              outputText: "Error:\n" + error.message,
+              cancelText: 'Back to Login Screen',
+            }
+          );
+          /*
+          Alert.alert(
+            'Error',
+            error.message,
+          );
+          */
+        }
       });
-      // this.mpForgotten(name);
-      Intercom.displayMessageComposer();
     } else {
+      Actions.beeperInputScreen(
+        {
+          outputText: 'Error:\nNo email entered.',
+          cancelText: 'Back to Login Screen',
+        }
+      );
+
+      /*
       Alert.alert(
         'Error!',
-        'No name entered!',
+        'No email entered!',
       );
+      */
     }
   },
   onPressForgotten: function() {
-    if (this.state.usernameStored && this.state.passwordStored) {
-      this.forgotten(this.state.usernameStored);
-    } else {
-      AlertIOS.prompt(
-        'Enter Your Full Name',
-        'Please enter your full name to get support',
-        [
-          {'text': 'Enter', onPress: (name) => this.forgotten(name)},
-          'text'
-        ]
-      );
-    }
+    Actions.beeperInputScreen(
+      {
+        outputText: 'Enter your email to retrieve your username and reset your password:',
+        inputDefault: 'John@yourcompanyname.com',
+        inputButtonLabel: 'Enter',
+        onPressEnter: this.forgotten,
+        cancelText: 'Back to Login Screen',
+      }
+    );
+    /*
+    AlertIOS.prompt(
+      'Enter Your Email',
+      'Please enter your email to retrieve your username and reset your password',
+      [
+        {'text': 'Enter', onPress: (email) => this.forgotten(email)},
+        'text'
+      ]
+    );
+    */
   },
   toDataScreen: function() {
     var username = this.state.usernameStored;
@@ -529,16 +617,32 @@ var LoginScreen = React.createClass({
           var password1 = this.state.username;
           var password2 = this.state.password;
           if (password1 !== password2) {
+            Actions.beeperInputScreen(
+              {
+                outputText: "Password Error:\n" + "Passwords do not match!",
+                cancelText: 'Back to Login Screen',
+              }
+            );
+            /*
             Alert.alert(
               'Password Error!',
               'Passwords do not match!',
             );
+            */
             return;
           } else if (password1.length < 6) {
+            Actions.beeperInputScreen(
+              {
+                outputText: "Password Error:\n" + "Passwords should have at least 6 alphanumeric characters!",
+                cancelText: 'Back to Login Screen',
+              }
+            );
+            /*
             Alert.alert(
               'Password Error!',
               'Passwords should have at least 6 alphanumeric characters!',
             );
+            */
             return;
           }
           // set user's password in memory
@@ -569,19 +673,35 @@ var LoginScreen = React.createClass({
                 passwordDefault: DEFAULT_PASSWORD,
                 currentUser: 'undefined',
               });
+              Actions.beeperInputScreen(
+                {
+                  outputText: "Success:\n" + "Your password is updated successfuly, please log in with the new password.",
+                  cancelText: 'Back to Login Screen',
+                }
+              );
+              /*
               Alert.alert(
                 'Success!',
                 'Your password is updated successfuly, please log in with the new password.',
               );
+              */
               Parse.User.logOut();
             },
             error: (user, error) => {
               // The save failed.
               // error is a Parse.Error with an error "code" and error "message".
+              Actions.beeperInputScreen(
+                {
+                  outputText: "Password Save Error:\n" + error.message,
+                  cancelText: 'Back to Login Screen',
+                }
+              );
+              /*
               Alert.alert(
                 'Password Save Error!',
                 error.message,
               );
+              */
               Parse.User.logOut();
             },
           });
@@ -601,16 +721,32 @@ var LoginScreen = React.createClass({
       error: (user, error) => {
         if (error.code === 100) {
           this.setState({isLoading: false});
+          Actions.beeperInputScreen(
+            {
+              outputText: "Error:\n" + "Unable to connect to server, please check your Internet connection.",
+              cancelText: 'Back to Login Screen',
+            }
+          );
+          /*
           Alert.alert(
             'Error!',
             'Unable to connect to server, please check your Internet connection.',
           );
+          */
         } else {
           this.setState({isLoading: false});
+          Actions.beeperInputScreen(
+            {
+              outputText: "Login Error:\n" + error.message,
+              cancelText: 'Back to Login Screen',
+            }
+          );
+          /*
           Alert.alert(
             'Login Error',
             error.message,
           );
+          */
         }
       }
     });
@@ -729,7 +865,7 @@ var styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
     textDecorationLine: 'underline',
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: 'Helvetica Neue',
     fontWeight: "500",
     // borderWidth: 1,

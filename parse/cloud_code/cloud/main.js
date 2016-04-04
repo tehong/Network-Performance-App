@@ -6,7 +6,92 @@ Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
 });
 */
-// Parse.Cloud.define("reminder", function(request, response) {
+
+
+function saveUserPassword(userEmail, newPassword, callback) {
+  Parse.Cloud.useMasterKey();
+  var query = new Parse.Query(Parse.User);
+  query.equalTo("email", userEmail);
+
+  query.first({
+      success: function(theUser){
+
+        if (!theUser) {
+          callback.error('Unable to find email "' + userEmail + '" in our system.');
+          return;
+        }
+        theUser.set("password", newPassword);
+        theUser.set("isUpdatePassword", true);
+        theUser.setPassword(newPassword);
+
+        theUser.save(null,{
+            success: function(theUser){
+                // The user was saved correctly
+                callback.success(theUser);
+            },
+            error: function(SMLogin, error){
+                callback.error("Unable to set a new password.");
+            }
+        });
+      },
+      error: function(error){
+          callback.error("Unable to query your email in our system.");
+      }
+  });
+}
+
+Parse.Cloud.define("resetUserPassword", function(request, response) {
+
+  var client = require('cloud/myMailModule-1.0.0.js');
+  client.initialize('sandbox2b785383c4144bbfa77aadf236ee7141.mailgun.org', 'key-50ae8c67309ad8248834e8fc24a9af30');
+
+  var toEmail = request.params.email;
+
+  // to generat a new random password => see http://stackoverflow.com/questions/9719570/generate-random-password-string-with-requirements-in-javascript
+  var newPassword = Math.random().toString(36).substring(3, 9);  // extract char 3-8
+
+
+  saveUserPassword(toEmail, newPassword, {
+    success: function(user) {
+
+      var username = user.get('username');
+
+      var emailHtml =
+"Forgot your password? No big deal!<br><br>\
+Here’s a temporary one you can use to log back into Beeper.<br>\
+Remember, this is just temporary, you’ll be prompted to change your password at login.<br><br>\
+Username: " + username + "<br>Password: " + newPassword + "<br><br>\
+This is part of the procedure to create a new password on the system. If you DID NOT request a new password then please ignore this email and your password will remain the same.<br><br>\
+Thank you,<br>\
+The 3TEN8 Team!";
+
+        var emailText =
+"Forgot your password? No big deal!\n\n\
+Here’s a temporary one you can use to log back into Beeper.\n\
+Remember, this is just temporary, you’ll be prompted to change your password at login.\n\n\
+Username: " + username + "\nPassword: " + newPassword + "\n\n\
+This is part of the procedure to create a new password on the system. If you DID NOT request a new password then please ignore this email and your password will remain the same.\n\n\
+Thank you,\n\
+The 3TEN8 Team!";
+
+      client.sendEmail({
+        to: toEmail,
+        from: "support@3ten8.com",
+        subject: "Your temporary password for Beeper. (no reply)",
+        text: emailText,
+        html: emailHtml,
+      }).then(function(httpResponse) {
+        response.success("Your username and new password have been sent to your registered email address...");
+      }, function(httpResponse) {
+        console.error(httpResponse);
+        response.error("unable to send email.");
+      });
+    },
+    error: function(error) {
+      response.error(error);
+    }
+  });
+});
 
 Parse.Cloud.afterSave("Feed", function(request) {
   // get the user of the Feed comment

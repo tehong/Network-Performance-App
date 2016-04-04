@@ -252,7 +252,11 @@ var PerformanceCell = React.createClass({
   findYScale: function(target) {
     var yScale = [];
     var data = this.getData();
-    var maxY = 0.0;
+    if (parseFloat(this.props.geoArea.dailyAverage) < 0) {
+      var maxY = -9999.99;
+    } else {
+      var maxY = 0.0;
+    }
     yScale[0] = 0.0;
     yScale[1] = 0.0;
     for (var i in data) {
@@ -275,7 +279,7 @@ var PerformanceCell = React.createClass({
     }
     var minY = Math.floor(Math.round(minY * 10) / 10);
     var maxY = Math.ceil(Math.round((maxY) * 10) / 10) ;
-    if (minY < 0) {
+    if (maxY > 0 && minY < 0) {
       minY = 0;
     }
     // show at least scale of 10

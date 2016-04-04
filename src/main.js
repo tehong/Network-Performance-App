@@ -3,15 +3,12 @@
 */
 'use strict';
 // Program version number and customer visible release notes
-var CustomerReleaseNotes = "\
-(1) New Tab Bar.\n\
-(2) New scene transition for User Profile Scene\n\
-(3) Simplified push notifications\n\
-(4) Show four decimal points for Data Availability\n\
-(5) Able to show six 9s in the green and yellow thresholds\n\
-(6) Added OTA update capability.\n\
-(7) Miscenllenous bug fixes and UI changes.\
-";
+var CustomerReleaseNotes = '\
+(1) Changed the date on the performance screen header to "Yesterday\'s". \n\
+(2) Added the ability to allow user to obtain user\'s username and a new password via email on the login screen.\n\
+(3) Fixed the "UI Interference" KPI charting problem.\n\
+(4) Miscenllenous bug fixes and UI changes.\
+';
 
 import Storage from 'react-native-storage';
 
@@ -38,6 +35,7 @@ var RNRF = require('react-native-router-flux');
 var {Route, Schema, Animations, Actions, TabBar} = RNRF;
 
 var LoginScreen = require('./LoginScreen');
+var BeeperInputScreen = require('./BeeperInputScreen');
 var UserProfileScreen = require('./UserProfileScreen');
 var RefreshScreen = require('./RefreshScreen');
 // var AfterLoginScreen = require('./AfterLoginScreen');
@@ -317,8 +315,8 @@ module.exports = React.createClass({
   renderTitle: function(title) {
     return (
       <View style={styles.titleContainer}>
+        <Text style={styles.leadTitle}>{"Yesterday's "}</Text>
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subTitle}>{Moment().subtract(1, 'days').format("MM/DD/YYYY")}</Text>
       </View>
     );
   },
@@ -335,6 +333,7 @@ module.exports = React.createClass({
               <Route type="reset" name="login" component={LoginScreen} initial={true}/>
               <Route name="refreshScreen" component={RefreshScreen} type="modal" />
               <Route name="userProfile" component={UserProfileScreen} type="modal" />
+              <Route name="beeperInputScreen" component={BeeperInputScreen} type="modal" />
               <Route name="tabbar" type="reset" >
                 <Router name="tabBarReouter" footer={TabBar} hideNavBar={true} tabBarStyle={styles.tabBar}>
                   <Route name="perf" schema="tab" initial={global.isPerfTabOn} defaultRoute="network"
@@ -452,13 +451,13 @@ var styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: 'white',
-    fontWeight: "500",
+    fontWeight: "400",
     fontFamily: 'Helvetica Neue',
     marginRight: 8,
   },
-  subTitle: {
+  leadTitle: {
     fontSize: 15,
-    fontWeight: "300",
+    fontWeight: "700",
     color: 'white',
     fontFamily: 'Helvetica Neue',
   },
