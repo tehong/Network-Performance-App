@@ -186,19 +186,19 @@ var AreaScreen = React.createClass({
       // save the last app state
       Mixpanel.timeEvent("App Inactive");
       Mixpanel.timeEvent("App Background");
-      mixpanelTrack("App Active", {"App Version": global.BeeperVersion}, global.currentUser);
+      mixpanelTrack("App Active", null, global.currentUser);
     } else if (currentAppState === 'background') {
       // save the last app state
       this.setState({lastSaveAppState: currentAppState});
-      mixpanelTrack("App Background", {"App Version": global.BeeperVersion}, global.currentUser);
+      mixpanelTrack("App Background", null, global.currentUser);
     } else if (currentAppState === 'inactive') {
       // save the last app state
       this.setState({lastSaveAppState: currentAppState});
-      mixpanelTrack("App Inactive", {"App Version": global.BeeperVersion}, global.currentUser);
+      mixpanelTrack("App Inactive", null, global.currentUser);
     }
   },
   mpAppMemoryWarning: function() {
-    mixpanelTrack("App Memory Warning", {"App Version": global.BeeperVersion}, this.state.currentUser);
+    mixpanelTrack("App Memory Warning", null, this.state.currentUser);
   },
   _getAppBadgeValue: async function() {
     try {

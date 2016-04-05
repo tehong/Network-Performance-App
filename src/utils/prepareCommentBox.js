@@ -25,7 +25,7 @@ function prepareCommentBox(listView, dataSource, item, rowHight, includePriorCom
         if (listView.getScrollResponder()) {
           var y = rowHight*(i+1)+numOnCommentBoxBefore*COMMENT_BOX_HEIGHT - 10;
           listView.getScrollResponder().scrollTo({x:0, y: y, animated: false});
-          console.log("prepareCommentBox scroll to = ", y);
+          // console.log("prepareCommentBox scroll to = ", y);
         } else {
           console.log("ERR - no scroll responder!");
           return;  // something is wrong

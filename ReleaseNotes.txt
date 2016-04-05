@@ -248,6 +248,11 @@ Release 0.2.3 is on TestFlight:
   - Removed all alert pop-ups and replaced with modal alert screens.
   - Fixed the "UL Interference" KPI charting problem.
 
+- Beeper iOS 0.5.2 - Internal Release Note
+  - Changed the Mixpanel customer property "App Version" to "Beeper Release" (OTA update release number) so as not to be confused with Mixpanel's own "App Version".
+  - Fixed landscape display problem in Sector Detail Screen.
+  - Added OTA check when the app comes to foreground.
+
   - TODO:
   - Allowed user to display road/satellite/hybrid map.
   - (Replacing current listview?) Checkout react-native-tableview for IOS tableview support: https://github.com/aksonov/react-native-tableview

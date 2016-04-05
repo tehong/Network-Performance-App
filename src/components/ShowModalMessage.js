@@ -44,7 +44,6 @@ module.exports = React.createClass({
     var text = this.props.statusMessage ? this.props.statusMessage : "We have noticed a problem with our system, we are working on it so please come back soon.";
     var imageIcon = <Image style={styles.imageIcon} source={require('../assets/icons/icon_oops.png')}/>;
     if (this.props.statusCode) {
-      console.log("statusCode = " + this.props.statusCode);
       if (this.props.statusMessage) {
         text = this.props.statusMessage;
       }

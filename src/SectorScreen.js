@@ -329,7 +329,7 @@ var SectorScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    console.log("SectorScreen queryString = " + queryString);
+    // console.log("SectorScreen queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },

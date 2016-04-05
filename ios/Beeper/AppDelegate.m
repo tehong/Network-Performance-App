@@ -19,6 +19,10 @@
 
 #define JS_CODE_METADATA_URL @"https://raw.githubusercontent.com/3TEN8/autoupdater/master/b/b33p3r/update.json"
 
+/* Test autoupdater setup
+#define JS_CODE_METADATA_URL @"https://raw.githubusercontent.com/3TEN8/autoupdater/test/b/b33p3r/update.json"
+*/
+
 @interface AppDelegate() <ReactNativeAutoUpdaterDelegate>
 
 @end
@@ -53,18 +57,6 @@
   
   NSURL* jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle.bundle?platform=ios&dev=true"];
   
-  RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
-                                                      moduleName:@"Beeper"
-                                               initialProperties:nil
-                                                   launchOptions:launchOptions];
-  
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [UIViewController new];
-  rootViewController.view = rootView;
-  self.window.rootViewController = rootViewController;
-  [self.window makeKeyAndVisible];
-  return YES;
-
 #else
 
   /**
@@ -87,6 +79,45 @@
    *  4. Make a call to checkUpdate
    *  5. Don't forget to implement the delegate methods
    */
+  
+  ReactNativeAutoUpdater* updater = [self checkUpdate:defaultJSCodeLocation];
+  NSURL* jsCodeLocation = [updater latestJSCodeLocation];
+  
+#endif
+
+  RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
+                                                      moduleName:@"Beeper"
+                                               initialProperties:nil
+                                                   launchOptions:launchOptions];
+  
+  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  UIViewController *rootViewController = [UIViewController new];
+  rootViewController.view = rootView;
+  self.window.rootViewController = rootViewController;
+  // [self createReactRootViewFromURL:latestJSCodeLocation];  // from auto-updater sample code, not working for orientation changes!
+  [self.window makeKeyAndVisible];
+  return YES;
+
+  // iOS push notification registration - see ParseInit!!!
+  
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+  
+#ifdef DEBUG
+
+#else
+
+  NSURL* defaultJSCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+
+  [self checkUpdate:defaultJSCodeLocation];
+
+#endif
+  
+}
+
+- (ReactNativeAutoUpdater* ) checkUpdate:(NSURL *)defaultJSCodeLocation {
+
   ReactNativeAutoUpdater* updater = [ReactNativeAutoUpdater sharedInstance];
   [updater setDelegate:self];
   NSURL* defaultMetadataFileLocation = [[NSBundle mainBundle] URLForResource:@"metadata" withExtension:@"json"];
@@ -95,25 +126,17 @@
                defaultMetadataFileLocation:defaultMetadataFileLocation ];
   
   [updater setHostnameForRelativeDownloadURLs:@"https://raw.githubusercontent.com/3TEN8/autoupdater/master"];
+  
+  /* Test autoupdater setup
+  [updater setHostnameForRelativeDownloadURLs:@"https://raw.githubusercontent.com/3TEN8/autoupdater/test"];
+  */
+  
   [updater downloadUpdatesForType: ReactNativeAutoUpdaterPatchUpdate];   // any -.-.x patch update is allowed
   [updater allowCellularDataUse: NO];   // no Cellular data shall be used for update
   [updater checkUpdate];
-  
-  NSURL* latestJSCodeLocation = [updater latestJSCodeLocation];
-  
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [UIViewController new];
-  self.window.rootViewController = rootViewController;
-  [self createReactRootViewFromURL:latestJSCodeLocation];
-  [self.window makeKeyAndVisible];
-  return YES;
-
-#endif
-  
-  // iOS push notification registration - see ParseInit!!!
+  return updater;
   
 }
-
 - (void)createReactRootViewFromURL:(NSURL*)url {
   // Make sure this runs on main thread. Apple does not want you to change the UI from background thread.
   dispatch_async(dispatch_get_main_queue(), ^{

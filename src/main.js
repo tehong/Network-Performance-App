@@ -20,7 +20,7 @@ var Parse = require('parse/react-native');
 var InfoPlist = require('react-native').NativeModules.InfoPlist;
 var TimerMixin = require('react-timer-mixin');
 var ReactNativeAutoUpdater = require('react-native-auto-updater');
-
+var Orientation = require('react-native-orientation');
 
 var {
   View,
@@ -56,10 +56,17 @@ var feedImageSrc_unselected = require('./assets/icons/Toolbar_Feed.png');
 import { createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 
+function enableLandscape() {
+  Orientation.unlockAllOrientations(); //this will unlock the view to all Orientations
+}
+function disableLandscape() {
+  Orientation.lockToPortrait(); //this will lock the view to Portrait
+}
+
 function reducer(state = {}, action) {
     switch (action.type) {
         case Actions.BEFORE_ROUTE:
-            // console.log("BEFORE_ROUTE:", action);
+            // console.log("BEFORE_ROUTE:", action);  // large performance penality, need to be commented out
             if (action.name === "network") {
               global.networkRouting = true;
             }
@@ -68,26 +75,43 @@ function reducer(state = {}, action) {
             }
             return state;
         case Actions.AFTER_ROUTE:
-            // console.log("AFTER_ROUTE:", action);
+            // console.log("AFTER_ROUTE:", action);  // large performance penality, need to be commented out
             var isRefreshScreen = false;
             switch(action.name) {
               case 'refreshScreen':
                 global.isRefreshBadgeCount = false;
                 break;
               case "network":
+                Orientation.lockToPortrait(); //this will lock the view to Portrait
+                global.allowLandscape = false;
                 global.networkRouting = undefined;
                 isRefreshScreen = true;
                 break;
               case "site":
+                Orientation.lockToPortrait(); //this will lock the view to Portrait
+                global.allowLandscape = false;
                 global.siteRouting = undefined;
                 isRefreshScreen = true;
                 break;
               case "sectorDetail":
+                Orientation.unlockAllOrientations(); //this will unlock the view to all Orientations
+                global.allowLandscape = true;
+                isRefreshScreen = true;
+                break;
               case "sector":
+                Orientation.lockToPortrait(); //this will lock the view to Portrait
+                global.allowLandscape = false;
               case "tabbar":
                 isRefreshScreen = true;
                 break;
+              case "perf":
+                // if the subroute of this tab is doing landscape, enable it
+                if (global.allowLandscape) {
+                  Orientation.unlockAllOrientations(); //this will unlock the view to all Orientations
+                }
+                break;
               case "feed":
+                Orientation.lockToPortrait(); //this will lock the view to Portrait
                 if (global.saveFeedInfo) {
                   global.saveFeedInfo(new Date());
                   ParseInitIOS.clearBadge();
@@ -99,19 +123,15 @@ function reducer(state = {}, action) {
             }
             return state;
         case Actions.AFTER_POP:
-            // console.log("AFTER_POP:", action);
             if (!global.isRefreshBadgeCount && global.refreshFeedCount) {
               global.refreshFeedCount(); // refresh feed count
             }
             return state;
         case Actions.BEFORE_POP:
-            // console.log("BEFORE_POP:", action);
             return state;
         case Actions.AFTER_DISMISS:
-            // console.log("AFTER_DISMISS:", action);
             return state;
         case Actions.BEFORE_DISMISS:
-            // console.log("BEFORE_DISMISS:", action);
             return state;
         default:
             return state;
@@ -203,6 +223,7 @@ module.exports = React.createClass({
   componentDidMount: function() {
   },
   componentWillMount: function() {
+    Orientation.lockToPortrait(); //this will lock the view to Portrait
     StatusBar.setBarStyle('light-content');
     global.refreshFeedCount = this._getFeedCount;
     global.saveFeedInfo = this._saveFeedInfoToStorage;
@@ -220,11 +241,13 @@ module.exports = React.createClass({
     this._getAppVersion();
     this._loadFeedInfoFromStorage();
     var mixpanelTrack = require('./utils/mixpanelTrack');
-    mixpanelTrack("App Launch", {"App Version": global.BeeperVersion}, null);
+    mixpanelTrack("App Launch", null, null);
   },
   componentWillUnmount: function() {
     global.refreshFeedCount = undefined;  // we are unmounting this, so better set this global to undefined
     PushNotificationIOS.removeEventListener('notification', this._onNotification);
+    Orientation.removeOrientationListener(this._orientationDidChange);
+    Orientation.lockToPortrait(); //this will lock the view to Portrait
   },
   _getFeedCount: function() {
     // don't use parse if no feedViewDate or no current user

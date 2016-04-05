@@ -28,6 +28,8 @@ var Parse = require('parse/react-native');
 var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 var mixpanelTrack = require('./utils/mixpanelTrack');
 var TimerMixin = require('react-timer-mixin');
+var Orientation = require('react-native-orientation');
+
 
 var LOADING = {};
 
@@ -48,6 +50,7 @@ module.exports = React.createClass({
     }
   },
   componentWillMount: function() {
+    Orientation.lockToPortrait(); //this will lock the view to Portrait
     this.getComments();
     global.refreshFeed = this.reloadData;
   },

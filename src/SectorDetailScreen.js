@@ -98,6 +98,11 @@ var SectorDetailScreen = React.createClass({
     if (this.props.entityType) {
       saveEntityTypeInCloud(this.props.entityType);
     }
+    // Orientation.lockToPortrait(); //this will lock the view to Portrait
+    //Orientation.lockToLandscape(); //this will lock the view to Landscape
+    Orientation.unlockAllOrientations(); //this will unlock the view to all Orientations
+    // register the oritnation listener
+    Orientation.addOrientationListener(this._orientationDidChange);
     // this.loadData();
   },
   componentWillUnmount: function() {
@@ -144,11 +149,6 @@ var SectorDetailScreen = React.createClass({
         this.setState({isLandscape: false});
       }
     });
-    // Orientation.lockToPortrait(); //this will lock the view to Portrait
-    //Orientation.lockToLandscape(); //this will lock the view to Landscape
-    Orientation.unlockAllOrientations(); //this will unlock the view to all Orientations
-    // register the oritnation listener
-    Orientation.addOrientationListener(this._orientationDidChange);
 
     // This is a fake animation, now disabled
     // this.setAnimatingTimeout();
@@ -502,7 +502,7 @@ var SectorDetailScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    console.log("SectorDailyScreen queryString = " + queryString);
+    // console.log("SectorDailyScreen queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },

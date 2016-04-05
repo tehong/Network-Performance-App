@@ -18,7 +18,10 @@
 var Mixpanel = require('react-native').NativeModules.RNMixpanel;
 
 function mixpanelTrack(trackPoint: string, trackProperties: object, user: object) {
-  var properties = trackProperties;
+  var properties = trackProperties?trackProperties:{};
+  if (global.BeeperVersion) {
+    properties["Beeper Release"] = global.BeeperVersion;
+  }
   /*  No need since we now have Mixpanel.identify and Mixpanel.peopleSet
   if (user) {
     var username = user.get("username");

@@ -55,16 +55,6 @@ var PerformanceCell = React.createClass({
     }
     // this.isLoading();
   },
-  /*
-  isLoading: function() {
-    if (this.props.isLoading) {
-      console.log('PerfCell - closing comment box');
-      this.setState({
-        isShowComment: false,
-      });
-    }
-  },
-  */
   goToComment: function() {
     // ||
       if (global.navCommentProps && global.navCommentProps.entityType === this.props.entityType) {

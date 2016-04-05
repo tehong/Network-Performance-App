@@ -29,7 +29,7 @@ function saveEntityTypeInCloud(entityType: string) {
         entity.save(null, {
           success: function(entity) {
             // Execute any logic that should take place after the object is saved.
-            console.log('New Entity object created with objectId: ' + entity.id);
+            // console.log('New Entity object created with objectId: ' + entity.id);
           },
           error: function(entity, error) {
             // error is a Parse.Error with an error code and message.

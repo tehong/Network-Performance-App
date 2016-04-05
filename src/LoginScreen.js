@@ -46,7 +46,6 @@ var LoginScreen = React.createClass({
 
   // run by one time when a component is created
   getInitialState: function() {
-    Orientation.lockToPortrait(); //this will lock the view to Portrait
     return {
       memoryWarnings: 0,
       isUpdatePassword: false,
@@ -62,6 +61,7 @@ var LoginScreen = React.createClass({
   },
   componentWillMount: function() {
     this.loadControlKeysFromStorage();
+    Orientation.lockToPortrait(); //this will lock the view to Portrait
   },
   componentWillUnmount: function() {
   },
@@ -772,10 +772,10 @@ var LoginScreen = React.createClass({
     );
   },
   mpForgotten: function(name) {
-    mixpanelTrack("Forgotten username/password", {"App Version": global.BeeperVersion}, name);
+    mixpanelTrack("Forgotten username/password", null, name);
   },
   mpAppLogin: function() {
-    mixpanelTrack("App Login", {"App Version": global.BeeperVersion}, this.state.currentUser);
+    mixpanelTrack("App Login", null, this.state.currentUser);
   },
 });
 
