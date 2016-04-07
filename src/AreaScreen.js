@@ -341,7 +341,7 @@ var AreaScreen = React.createClass({
     // see if we need to auto scroll to the right site first
     // We need pre-scroll to the right item for comment auto-nav
     //  because some list item are dynamically loaded when too long
-    scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT, true);
+    scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT);
   },
   navigateToComment: function(areas: object) {
     if (global.navCommentProps &&

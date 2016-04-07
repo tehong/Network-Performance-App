@@ -124,7 +124,7 @@ var SectorScreen = React.createClass({
     // see if we need to auto scroll to the right site first
     // We need pre-scroll to the right item for comment auto-nav
     //  because we are using the SGListView's dynamic loading of the list item
-    scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT, true);
+    scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT);
   },
   loadData: function() {
     /*

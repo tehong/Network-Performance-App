@@ -5,7 +5,7 @@
 
 var COMMENT_BOX_HEIGHT = 266;
 // This assumes there is a dataSource and listView from teh caller
-function prepareCommentBox(listView, dataSource, item, rowHight, includePriorCommentBox, forced = false) {
+function prepareCommentBox(listView, dataSource, item, rowHight, includePriorCommentBox) {
   if (!listView || !dataSource) {
     console.log("no listView");
     return;
@@ -21,7 +21,7 @@ function prepareCommentBox(listView, dataSource, item, rowHight, includePriorCom
       if (data.isCommonOn !== item.isCommentOn) {
         data.isCommentOn = item.isCommentOn;
       }
-      if (data.isCommentOn || forced) {
+      if (data.isCommentOn) {
         if (listView.getScrollResponder()) {
           var y = rowHight*(i+1)+numOnCommentBoxBefore*COMMENT_BOX_HEIGHT - 10;
           listView.getScrollResponder().scrollTo({x:0, y: y, animated: false});

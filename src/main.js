@@ -7,7 +7,8 @@ var CustomerReleaseNotes = '\
 (1) Changed the date on the performance screen header to "Yesterday\'s". \n\
 (2) Added the ability to allow user to obtain user\'s username and a new password via email on the login screen.\n\
 (3) Fixed the "UI Interference" KPI charting problem.\n\
-(4) Miscenllenous bug fixes and UI changes.\
+(4) Added different map types in Sector Detail screen.\n\
+(5) Miscenllenous bug fixes and UI changes.\
 ';
 
 import Storage from 'react-native-storage';

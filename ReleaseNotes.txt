@@ -253,6 +253,10 @@ Release 0.2.3 is on TestFlight:
   - Fixed landscape display problem in Sector Detail Screen.
   - Added OTA check when the app comes to foreground.
 
+- Beeper iOS 0.5.3 - Internal Release Note
+  - Added new map types in Sector Detail page.
+  - Fixed a stickiness problem with tapping the feed comments.
+
   - TODO:
   - Allowed user to display road/satellite/hybrid map.
   - (Replacing current listview?) Checkout react-native-tableview for IOS tableview support: https://github.com/aksonov/react-native-tableview

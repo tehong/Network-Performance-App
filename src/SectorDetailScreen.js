@@ -77,6 +77,8 @@ var SectorDetailScreen = React.createClass({
       }),
       sectorLocations: {},
       overlays: [],
+      showMapType: false,
+      mapType: 'standard',
       mapRegion: null,
       mapRegionInput: null,
       annotations: null,
@@ -119,6 +121,24 @@ var SectorDetailScreen = React.createClass({
    */
   getRandomArbitrary: function(min, max) {
       return Math.random() * (max - min) + min;
+  },
+  _setRoadMap: function() {
+    this.setState({
+      mapType: 'standard',
+      showMapType: false,
+    });
+  },
+  _setSatelliteMap: function() {
+    this.setState({
+      mapType: 'satellite',
+      showMapType: false,
+    });
+  },
+  _setHybridMap: function() {
+    this.setState({
+      mapType: 'hybrid',
+      showMapType: false,
+    });
   },
   setAnimatingTimeout: function() {
     this.setTimeout(
@@ -519,6 +539,11 @@ var SectorDetailScreen = React.createClass({
     this.setAnimatingTimeout();
     */
   },
+  onPressMapType: function() {
+    this.setState({
+      showMapType: true,
+    });
+  },
   onPressDiagnosis: function() {
     this.setState({
       animating: true,
@@ -614,17 +639,18 @@ var SectorDetailScreen = React.createClass({
     var buttonStyle1 = styles.buttonText2;
     var buttonStyle2 = styles.buttonText2;
     var buttonStyle3 = styles.buttonText2;
-    switch(this.state.tabNumber) {
-      case 0:
+    switch(this.state.mapType) {
+      case "standard":
         buttonStyle1 = styles.buttonText1;
         break;
-      case 1:
+      case "satellite":
         buttonStyle2 = styles.buttonText1;
         break;
-      case 2:
+      case "hybrid":
         buttonStyle3 = styles.buttonText1;
         break;
     };
+
     if (this.state.isLandscape) {
       return;
     } else {
@@ -642,13 +668,30 @@ var SectorDetailScreen = React.createClass({
       */
       return(
         <View style={styles.kpiContainer}>
-          <View style={styles.kpiTabContainer}>
+          <View style={styles.mapTypeContainer}>
             <TouchableElement
               style={styles.button}
               activeOpacity={0.5}
-              onPress={this.onPressPerformance}>
-              <Text style={buttonStyle1}>Performance ({this.props.sector.name})</Text>
+              onPress={this._setRoadMap}>
+              <Text style={buttonStyle1}>Street</Text>
             </TouchableElement>
+            <TouchableElement
+              style={styles.button}
+              activeOpacity={0.5}
+              onPress={this._setSatelliteMap}>
+              <Text style={buttonStyle2}>Satellite</Text>
+            </TouchableElement>
+            <TouchableElement
+              style={styles.button}
+              activeOpacity={0.5}
+              onPress={this._setHybridMap}>
+              <Text style={buttonStyle3}>Hybrid</Text>
+            </TouchableElement>
+          </View>
+          <View style={styles.kpiTabContainer}>
+            <View style={styles.button}>
+              <Text style={styles.perfBoxStyle}>Sector Performance ({this.props.sector.name})</Text>
+            </View>
           </View>
           <View style={styles.kpiListContainer}>
             <SectorDetails
@@ -690,7 +733,7 @@ var SectorDetailScreen = React.createClass({
             overlays={this.state.overlays || undefined}
             onAnnotationPress={this._onAnnotationPressed}
             rotateEnabled={false}
-            mapType={'standard'}
+            mapType={this.state.mapType}
           />
           {this.showKpiView()}
         </View>
@@ -1103,6 +1146,8 @@ var NoSectors = React.createClass({
   }
 });
 
+// To show component outlines for layout
+// var StyleSheet = require('react-native-debug-stylesheet');
 var styles = StyleSheet.create({
   container: {
     marginTop: 62,
@@ -1140,15 +1185,24 @@ var styles = StyleSheet.create({
     backgroundColor: '#00BBF0',
   },
   map: {
-    flex: 9,
+    flex: 15,
     // borderColor: "red",
     // borderWidth: 2,
   },
   kpiContainer: {
-    flex: 8,
+    flex: 14,
     // backgroundColor: '#f3f3f3',
     backgroundColor: 'white',
     // borderColor: "violet",
+    // borderWidth: 2,
+  },
+  mapTypeContainer: {
+    flex:1,
+    flexDirection: "row",
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    backgroundColor: '#D4E6EF',
+    // borderColor: "brown",
     // borderWidth: 2,
   },
   kpiTabContainer: {
@@ -1156,41 +1210,65 @@ var styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: 'center',
     alignItems: 'stretch',
-    marginLeft: 16,
-    marginRight: 16,
-    marginTop: 5,
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 8,
     marginBottom: 5,
     backgroundColor: '#D4E6EF',
     // borderColor: "brown",
     // borderWidth: 2,
   },
   button: {
-    flex: 1,
+    flex: 8,
     alignItems: 'stretch',
     justifyContent: 'center',
     backgroundColor: 'white',
     // borderColor: "green",
     // borderWidth: 1,
   },
-  buttonText1: {
+  mapTypeText: {
     textAlign: 'center',
-    fontSize: 15,
-    fontWeight: "500",
+    fontSize: 10,
+    fontWeight: "700",
     fontFamily: 'Helvetica Neue',
     backgroundColor: '#00A9E9',
     color: '#D4E6EF',
+    // borderColor: "yellow",
+    // borderWidth: 1,
+  },
+  perfBoxStyle: {
+    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: "500",
+    fontFamily: 'Helvetica Neue',
+    backgroundColor: '#d1d3d4',
+    color: 'white',
     paddingTop: 5,
     paddingBottom: 5,
+    // borderColor: "red",
+    // borderWidth: 1,
+  },
+  buttonText1: {
+    textAlign: 'center',
+    fontSize: 11,
+    fontWeight: "600",
+    fontFamily: 'Helvetica Neue',
+    backgroundColor: '#00A9E9',
+    color: '#D4E6EF',
+    paddingTop: 7,
+    paddingBottom: 7,
     // borderColor: "yellow",
     // borderWidth: 1,
   },
   buttonText2: {
     textAlign: 'center',
-    fontSize: 14,
-    fontWeight: "500",
+    fontSize: 11,
+    fontWeight: "600",
     fontFamily: 'Helvetica Neue',
-    backgroundColor: '#D4E6EF',
+    backgroundColor: '#e5f7fd',
     color: '#00A9E9',
+    paddingTop: 7,
+    paddingBottom: 7,
     // borderColor: "red",
     // borderWidth: 1,
   },
@@ -1331,12 +1409,14 @@ var styles = StyleSheet.create({
   centering: {
     flexDirection: "row",
     justifyContent: 'center',
+    alignSelf: 'center',
     alignItems: 'flex-end',
+    marginTop: 30,
   },
   listView: {
     marginBottom: 10,
-    // marginLeft: 15,
-    // marginRight: 15,
+    marginLeft: 15,
+    marginRight: 15,
     // backgroundColor: 'transparent',
     // borderColor: "violet",
     // borderWidth: 2,

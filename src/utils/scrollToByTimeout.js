@@ -4,7 +4,7 @@
 'use strict';
 
 
-function scrollToByTimeout(_this, entityType, rowHeight, scrollOnly = false) {
+function scrollToByTimeout(_this, entityType, rowHeight) {
   if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === entityType.toLowerCase()) {
     var navCommentProps = global.navCommentProps;
     var refValidation = 0;
@@ -14,13 +14,11 @@ function scrollToByTimeout(_this, entityType, rowHeight, scrollOnly = false) {
         refValidation++;
         // make sure all the components are loaded, especially the listview
         if(_this.refs.listview) {
-            scrollToEntity(_this, navCommentProps, rowHeight, scrollOnly);
+            scrollToEntity(_this, navCommentProps, rowHeight);
             _this.clearInterval(interval);
             // for site, we need to scroll to the right place first before the comment can be turned on
             //   So for scrollOnly we  don't clear the condition
-            if (!scrollOnly) {
-              global.navCommentProps = undefined;
-            }
+            global.navCommentProps = undefined;
         } else if (refValidation > 100) {
           console.log("refValidation stopped at =", refValidation);
           _this.clearInterval(interval);
@@ -31,13 +29,13 @@ function scrollToByTimeout(_this, entityType, rowHeight, scrollOnly = false) {
     );
   }
 }
-function scrollToEntity(_this, entity, rowHeight, forced = false) {
+function scrollToEntity(_this, entity, rowHeight) {
   if (entity) {
     var findScrollItem = require('./findScrollItem');
     var prepareCommentBox = require('./prepareCommentBox');
     var item = findScrollItem(_this.state.dataSource, entity);
     if (item) {
-      var contentInset = prepareCommentBox(_this.refs.listview, _this.state.dataSource, item, rowHeight, false, forced);
+      var contentInset = prepareCommentBox(_this.refs.listview, _this.state.dataSource, item, rowHeight, false);
       _this.setState({
         contentInset: contentInset,
       });
