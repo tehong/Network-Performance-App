@@ -24,6 +24,15 @@ function getAreaScreenStyles(): StyleSheet {
     listView: {
       marginTop: 62,
       backgroundColor: '#f3f3f3',
+      // backgroundColor: "#414042",
+    },
+    perfCell: {
+      paddingLeft: 4,
+      paddingRight: 4,
+      paddingBottom: 6,
+      // marginLeft: 5,
+      // marginRight: 5,
+      backgroundColor: "#414042",
     },
     container: {
       flex: 1,

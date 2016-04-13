@@ -80,7 +80,6 @@ var SectorDetailScreen = React.createClass({
       showMapType: false,
       mapType: 'standard',
       mapRegion: null,
-      mapRegionInput: null,
       annotations: null,
       isFirstLoad: true,
       queryNumber: 0,
@@ -342,13 +341,11 @@ var SectorDetailScreen = React.createClass({
     for (var i=0; i<result.length; i++) {
       var item = result[i];
       if (this.props.sector.name === item.name) {
-        centerLng = item.longitude;
-        centerLat = item.latitude;
         var location = {
           "name": item.name,
           "parentEntityName": item.parentName,
-          "latitude": centerLat,
-          "longitude": centerLng,
+          "latitude": item.latitude,
+          "longitude": item.longitude,
           "azimuth": item.azimuth,
         }
         var scalingFactor = Math.abs(Math.cos(2 * Math.PI * location.latitude / 360.0))
@@ -377,8 +374,9 @@ var SectorDetailScreen = React.createClass({
     // find the neighboring sectors
     for (var i=0; i<result.length; i++) {
       var item = result[i];
-      // add all sites without the is isWithRegion
-      //if(this.isWithinRegion(item, centerLat, centerLng, latitudeDelta, longitudeDelta)) {
+      // add sites in regaion
+      // add all sites without the check of isWithRegion
+      // if(this.isWithinRegion(item, region)) {
         var location = {
           "name": item.name,
           "parentEntityName": item.parentName,
@@ -392,14 +390,14 @@ var SectorDetailScreen = React.createClass({
     }
     this._onRegionInputChanged(region);
   },
-  isWithinRegion: function(point, centerLat, centerLng, latitudeDelta, longitudeDelta) {
-    var absCenterLat = Math.abs(centerLat);
-    var absCenterLng = Math.abs(centerLng);
+  isWithinRegion: function(point, region) {
+    var absCenterLat = Math.abs(region.latitude);
+    var absCenterLng = Math.abs(region.longitude);
     if (
-      ((absCenterLng + 0.5 * longitudeDelta) >= Math.abs(point.longitude)) &&
-      ((absCenterLng - 0.5 * longitudeDelta) <= Math.abs(point.longitude)) &&
-      ((absCenterLat + 0.5 * latitudeDelta) >= Math.abs(point.latitude)) &&
-      ((absCenterLat - 0.5 * latitudeDelta) <= Math.abs(point.latitude))
+      ((absCenterLng + 0.5 * region.longitudeDelta) >= Math.abs(point.longitude)) &&
+      ((absCenterLng - 0.5 * region.longitudeDelta) <= Math.abs(point.longitude)) &&
+      ((absCenterLat + 0.5 * region.latitudeDelta) >= Math.abs(point.latitude)) &&
+      ((absCenterLat - 0.5 * region.latitudeDelta) <= Math.abs(point.latitude))
       ) {
         return true;
       }
@@ -568,69 +566,86 @@ var SectorDetailScreen = React.createClass({
     for (var key in sectorLocations) {
       // var image = require('./assets/icons/Sector_Icon_03.png');
       // var image = resolveAssetSource(require('./assets/icons/Sector_Icon_03.png'));
-      if (sectorLocations[key].azimuth !== undefined) {
-        var azimuth = sectorLocations[key].azimuth + "deg";
-      } else {
-        var azimuth = "0deg";
-      }
-      var sectorView =
-          <View style={styles.sectorViewWrapper}>
-            <Image style={[styles.sectorView, {transform: [{rotate: azimuth}]}]} source={require('./assets/icons/Icon_Sector_01.png')}/>
-          </View>
-      if (this.props.sector.name === key) {
-        // image = require('./assets/icons/Sector_Icon_focused_03.png');
-        // image = resolveAssetSource(require('./assets/icons/Sector_Icon_focused_03.png'));
-        sectorView =
-          <View style={styles.sectorViewWrapper}>
-            <Image style={[styles.sectorView, {transform: [{rotate: azimuth}]}]} source={require('./assets/icons/Icon_Sector_Selected_01.png')}/>
-          </View>
-      }
-      var title = this.props.areaName;
-      // var subtitle = this.props.zoneName + " - " + sectorLocations[key].name;
-      // show sector name or site name based on which site it is.  If it is the site of the selected sector => show sector name
-      if (this.props.sector.parentEntityName === sectorLocations[key].parentEntityName) {
-        var subtitle = this.props.sector.name;
-      } else {
-        var subtitle = sectorLocations[key].parentEntityName;
-      }
       var latitude = sectorLocations[key].latitude;
       var longitude = sectorLocations[key].longitude;
-      annotations.push({
-        longitude: longitude,
+      var point = {
         latitude: latitude,
-        title: title,
-        subtitle: subtitle,
-        // image: image,
-        view: sectorView,
-        // tintColor: "#1C75BC",  additional tint on site icon, not used
-      });
+        longitude: longitude,
+      }
+      if(this.isWithinRegion(point, region)) {
+        if (sectorLocations[key].azimuth !== undefined) {
+          var azimuth = sectorLocations[key].azimuth + "deg";
+        } else {
+          var azimuth = "0deg";
+        }
+        var sectorView =
+            <View style={styles.sectorViewWrapper}>
+              <Image style={[styles.sectorView, {transform: [{rotate: azimuth}]}]} source={require('./assets/icons/Icon_Sector_01.png')}/>
+            </View>
+        if (this.props.sector.name === key) {
+          // image = require('./assets/icons/Sector_Icon_focused_03.png');
+          // image = resolveAssetSource(require('./assets/icons/Sector_Icon_focused_03.png'));
+          sectorView =
+            <View style={styles.sectorViewWrapper}>
+              <Image style={[styles.sectorView, {transform: [{rotate: azimuth}]}]} source={require('./assets/icons/Icon_Sector_Selected_01.png')}/>
+            </View>
+        }
+        var title = this.props.areaName;
+        // var subtitle = this.props.zoneName + " - " + sectorLocations[key].name;
+        // show sector name or site name based on which site it is.  If it is the site of the selected sector => show sector name
+        if (this.props.sector.parentEntityName === sectorLocations[key].parentEntityName) {
+          var subtitle = this.props.sector.name;
+        } else {
+          var subtitle = sectorLocations[key].parentEntityName;
+        }
+        annotations.push({
+          longitude: longitude,
+          latitude: latitude,
+          title: title,
+          subtitle: subtitle,
+          id: subtitle,
+          // image: image,
+          view: sectorView,
+          onFocus: (annotation) => {
+            this.mpAnnotationPressed(annotation.annotationId);
+          },
+          // tintColor: "#1C75BC",  // additional tint on site icon, not used
+        });
+      }
     }
     return annotations;
   },
   _onRegionChange(region) {
-    this.setState({
-      mapRegionInput: region,
-    });
   },
   _onRegionChangeComplete(region) {
-    if (this.state.isFirstLoad) {
+    // if (this.state.isFirstLoad) {
       this.setState({
-        mapRegionInput: region,
-        annotations: this._getAnnotations(region),
+        // mapRegion: region,
+        annotations: null,  // every time we finish changing region, we need to set annotaions to null and refresh
         isFirstLoad: false,
+        // annotations: this._getAnnotations(region),
       });
-    }
+      this.setTimeout(
+        () => {
+          this.setState({
+            annotations: this._getAnnotations(region),
+          });
+        },
+        1
+      );
+    // }
   },
   _onRegionInputChanged(region) {
     this.setState({
       mapRegion: region,
-      mapRegionInput: region,
       annotations: this._getAnnotations(region),
     });
   },
+  /*
   _onAnnotationPressed(annotation) {
     this.mpAnnotationPressed(annotation["subtitle"]);
   },
+  */
   showKpiView: function() {
     var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     // var textBlock =  SectorDiagnosis;
@@ -721,6 +736,7 @@ var SectorDetailScreen = React.createClass({
         />
       );
     } else {
+            // onAnnotationPress={this._onAnnotationPressed}
       return (
         <View style={styles.container}>
           {/* MapView rotateEnabled set to false due to no way to detect the map heading angle to change the azimuth*/}
@@ -731,7 +747,6 @@ var SectorDetailScreen = React.createClass({
             region={this.state.mapRegion || undefined}
             annotations={this.state.annotations || undefined}
             overlays={this.state.overlays || undefined}
-            onAnnotationPress={this._onAnnotationPressed}
             rotateEnabled={false}
             mapType={this.state.mapType}
           />

@@ -357,6 +357,17 @@ var PerformanceCell = React.createClass({
         dailyAverage.substring(dailyAverage.indexOf("."), dailyAverage.length) :
         "";
     var unit = this.props.geoArea.unit;
+    var kpi = this.props.geoArea.kpi;
+    var category = this.props.geoArea.category;
+    // readjust the category and kpi names to even out the length of the two lines
+    if ((kpi.match(/ /g) || []).length >= 2) {
+      var firstSpaceIndex = kpi.indexOf(" ");
+      var categoryDisplayed = category + " " + kpi.substring(0,firstSpaceIndex);
+      var kpiDisplayed = kpi.substring(firstSpaceIndex+1, kpi.length);
+    } else {
+      var categoryDisplayed = category;
+      var kpiDisplayed = kpi;
+    }
     if (dailyAverage === "No Data") {
       unit = "";
     }
@@ -376,10 +387,10 @@ var PerformanceCell = React.createClass({
           </View>
           <View style={styles.kpiValueContainer}>
             <Text style={styles.category}>
-              {this.props.geoArea.category}
+              {categoryDisplayed}
             </Text>
             <Text style={styles.kpi}>
-              {this.props.geoArea.kpi}
+              {kpiDisplayed}
             </Text>
             <View style={styles.dailyAverageContainer}>
               <Text style={styles.dailyAveargeInteger}>
@@ -705,8 +716,7 @@ var styles = StyleSheet.create({
   },
   category: {
     color: 'rgba(0,0,0,0.7)',
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 15,
     fontFamily: 'Helvetica Neue',
     backgroundColor: 'transparent',
   },
@@ -725,7 +735,7 @@ var styles = StyleSheet.create({
   dailyAveargeInteger: {
     textAlign: "right",
     color: 'white',
-    fontSize: 39,
+    fontSize: 35,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
     backgroundColor: 'transparent',
@@ -736,7 +746,7 @@ var styles = StyleSheet.create({
     textAlign: "right",
     marginBottom: 4,
     color: 'white',
-    fontSize: 23,
+    fontSize: 20,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
     backgroundColor: 'transparent',
@@ -745,7 +755,7 @@ var styles = StyleSheet.create({
   },
   unit: {
     color: 'white',
-    fontSize: 23,
+    fontSize: 20,
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
     paddingBottom: 4,

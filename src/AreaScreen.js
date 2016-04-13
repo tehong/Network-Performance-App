@@ -636,30 +636,35 @@ var AreaScreen = React.createClass({
   ) {
     var isLoading = (this.state.isLoading || this.state.isRefreshing);
         // FIXME: set"ScrollIndex={this.props.setScrollIndex}
-
+    var cellStyle = styles.perfCell;
+    if (rowID === "0") {
+      cellStyle = [cellStyle, {paddingTop: 6}];
+    }
     return (
-      <PerformanceCell
-        key={area.id}
-        onSelect={() => this.selectKpi(area, true)}
-        onSelectRed={() => this.selectKpiRed(area)}
-        onSelectYellow={() => this.selectKpiYellow(area)}
-        onSelectGreen={() => this.selectKpiGreen(area)}
-        onSelectGrey={() => this.selectKpiGrey(area)}
-        onHighlight={() => highlightRowFunc(sectionID, rowID)}
-        onUnhighlight={() => highlightRowFunc(null, null)}
-        geoArea={area}
-        areaName={area.areaName}
-        entityType={this.props.entityType}
-        scrollIndex={this.props.scrollIndex}
-        onToggleComment={(showComment) => {
-          /* this.props.setScrollIndex(); */ // always need to the correct index
-          area["isCommentOn"] = showComment;
-          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, ROW_HEIGHT, true);
-          this.setState({
-            contentInset: contentInset,
-          });
-        }}
-      />
+      <View style={cellStyle}>
+        <PerformanceCell
+          key={area.id}
+          onSelect={() => this.selectKpi(area, true)}
+          onSelectRed={() => this.selectKpiRed(area)}
+          onSelectYellow={() => this.selectKpiYellow(area)}
+          onSelectGreen={() => this.selectKpiGreen(area)}
+          onSelectGrey={() => this.selectKpiGrey(area)}
+          onHighlight={() => highlightRowFunc(sectionID, rowID)}
+          onUnhighlight={() => highlightRowFunc(null, null)}
+          geoArea={area}
+          areaName={area.areaName}
+          entityType={this.props.entityType}
+          scrollIndex={this.props.scrollIndex}
+          onToggleComment={(showComment) => {
+            /* this.props.setScrollIndex(); */ // always need to the correct index
+            area["isCommentOn"] = showComment;
+            var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, ROW_HEIGHT, true);
+            this.setState({
+              contentInset: contentInset,
+            });
+          }}
+        />
+      </View>
     );
   },
 

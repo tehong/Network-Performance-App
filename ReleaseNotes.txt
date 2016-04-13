@@ -257,6 +257,19 @@ Release 0.2.3 is on TestFlight:
   - Added new map types in Sector Detail page.
   - Fixed a stickiness problem with tapping the feed comments.
 
+- Beeper iOS 0.5.4 - Internal Release Note
+  - Fixed a problem with user entering upper case Carrier Key and not able to restart the app without entering them again.
+  - Fixed a problem when zooming quickly in and out of the map, some sector icons are lost.
+  - Changed the map display to only display cell sites that are visible.
+  - Added dark grey border around the list item in the network page to provide better separation.
+
+- Beeper iOS 0.5.5 - Internal Release Note
+  - Story 891: Reduced the daily average font size in the list item by 10% to eliminate bleeding into the chart for the 4.7 inch devices.
+  - Story 893: Rearranged the KPI name in the list item to allow the name to fit in two lines for for the 4.7 inch devices.
+
+  - TODO:
+  - Story 638: Color code sector details map. https://3ten8.tpondemand.com/entity/638
+
   - TODO:
   - Allowed user to display road/satellite/hybrid map.
   - (Replacing current listview?) Checkout react-native-tableview for IOS tableview support: https://github.com/aksonov/react-native-tableview

@@ -320,8 +320,8 @@ var LoginScreen = React.createClass({
     global.storage.save({
       key: global.CONTROL_KEYS_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
       rawData: {
-          controlUsername: this.state.controlUsername,
-          controlPassword: this.state.controlPassword
+          controlUsername: this.state.controlUsername.toLowerCase(),
+          controlPassword: this.state.controlPassword.toLowerCase(),
       },
       // if not specified, the defaultExpires will be applied instead.
       // if set to null, then it will never expires.
