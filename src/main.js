@@ -226,6 +226,7 @@ module.exports = React.createClass({
   componentWillMount: function() {
     Orientation.lockToPortrait(); //this will lock the view to Portrait
     StatusBar.setBarStyle('light-content');
+    global.isMonthlyTarget = false;
     global.refreshFeedCount = this._getFeedCount;
     global.saveFeedInfo = this._saveFeedInfoToStorage;
     global.contentInset = {bottom: 45};  // global content inset for list view screen

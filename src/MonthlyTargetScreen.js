@@ -2,7 +2,6 @@
 
 var React = require('react-native');
 var {
-  AppStateIOS,
   ActivityIndicatorIOS,
   ListView,
   Platform,
@@ -20,7 +19,7 @@ var prepareCommentBox = require('./utils/prepareCommentBox');
 var scrollToByTimeout = require('./utils/scrollToByTimeout');
 var RefreshableListView = require('react-native-refreshable-listview');
 
-var PerformanceCell = require('./components/PerformanceCell');
+var MonthlyTargetCell = require('./components/MonthlyTargetCell');
 var TimerMixin = require('react-timer-mixin');
 var SiteScreen = require('./SiteScreen');
 var SearchBar = require('./components/SearchBar');
@@ -72,12 +71,15 @@ var MonthlyTargetScreen = React.createClass({
     };
   },
   getRestEndPoint: function() {
-    if (!(global.restService && global.restService.monthlyTargetUrl)) {
+    // if (!(global.restService && global.restService.monthlyTargetUrl)) {
+    if (!(global.restService && global.restService.networkPerfUrl)) {
       // periodic check if the service URL is retrieved
       var interval = this.setInterval(
         () => {
-          if (global.restService && global.restService.monthlyTargetUrl) {
-            MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
+          if (global.restService && global.restService.networkPerfUrl) {
+            MONTHLY_TARGET_URL = global.restService.networkPerfUrl;
+          // if (global.restService && global.restService.monthlyTargetUrl) {
+            // MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
             this.clearInterval(interval);
             // now we can get data
             this.getAreas('area');
@@ -86,7 +88,8 @@ var MonthlyTargetScreen = React.createClass({
         50, // checking every 50 ms
       );
     } else {
-      MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
+      // MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
+      MONTHLY_TARGET_URL = global.restService.networkPerfUrl;
       this.getAreas('area');
     }
   },
@@ -321,7 +324,7 @@ var MonthlyTargetScreen = React.createClass({
         onSelectGrey={() => this.selectKpiGrey(area)}
         */
     return (
-      <PerformanceCell
+      <MonthlyTargetCell
         key={area.id}
         onSelect={() => {}}
         onSelectRed={() => {}}
@@ -334,8 +337,6 @@ var MonthlyTargetScreen = React.createClass({
         areaName={area.areaName}
         entityType={this.props.entityType}
         entityName={this.props.entityName}
-        scrollIndex={this.props.scrollIndex}
-        setScrollIndex={this.props.setScrollIndex}
         onToggleComment={(showComment) => {
           this.props.setScrollIndex();  // always need to the correct index
           area["isCommentOn"] = showComment;
@@ -387,7 +388,7 @@ var MonthlyTargetScreen = React.createClass({
     }
     /*renderSeparator={this.renderSeparator}*/
     return (
-      <View style={styles.container}>
+      <View style={styles.subScreenContainer}>
         {content}
       </View>
     );
