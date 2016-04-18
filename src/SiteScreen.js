@@ -416,6 +416,7 @@ var SiteScreen = React.createClass({
         areaName={this.props.areaName}
         siteName={site.name}
         entityType={this.props.entityType}
+        entityName={site.name.replace(/ /g, "_").toLowerCase()}
         onToggleComment={(showComment) => {
           if (site) {
             site["isCommentOn"] = showComment;

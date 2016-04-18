@@ -422,6 +422,7 @@ var SectorScreen = React.createClass({
         sectorName={sector.name}
         color={this.props.color}
         entityType={this.props.entityType}
+        entityName={sector.name.replace(/ /g, "_").toLowerCase()}
         onToggleComment={(showComment) => {
           if (sector) {
             sector["isCommentOn"] = showComment;

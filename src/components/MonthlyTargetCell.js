@@ -26,6 +26,8 @@ var {
   View
 } = React;
 
+import { CombinedChart } from 'react-native-ios-charts';
+
 var getImageFromAverage = require('../utils/getImageFromAverage');
 var getImageViewFromParentKPI = require('../utils/getImageViewFromParentKPI');
 var getThreshold = require('../utils/getThreshold');
@@ -46,6 +48,7 @@ module.exports = React.createClass({
     };
   },
   componentDidMount: function() {
+    // if (this.props.geoArea.kpi.toLowerCase().indexOf("inter") > -1) debugger;
     this.goToComment();
     // this.isLoading();
   },
@@ -91,6 +94,12 @@ module.exports = React.createClass({
       if (hit) {
         this.setState({isShowComment: true});
         this.props.geoArea.isCommentOn = true;
+        // if already scrolled, clear out
+        if (global.navCommentProps.scrolled) {
+          global.navCommentProps = undefined;
+        } else {
+          global.navCommentProps.commentOpened = true;
+        }
         // No need to scroll when the parent pre-scoll
         // this.props.triggerScroll(navCommentProps);   // trigger scroll to timer
       }
@@ -99,7 +108,7 @@ module.exports = React.createClass({
   mpCommentBox: function() {
     var kpi = "#" + this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.replace(/ /g, "_").toLowerCase();
     var entityType = "#" + this.props.entityType;
-    var entityName = "#" + this.props.geoArea.name.toLowerCase().replace(/ /g, "_");
+    var entityName = "#" + this.props.entityName;
     mixpanelTrack("Show Comment",
     {
       "Entity": entityType,
@@ -129,7 +138,7 @@ module.exports = React.createClass({
         <CommentBox
           style={styles.commentExtensionContainer}
           entityType={this.props.entityType}
-          entityName={this.props.geoArea.name.toLowerCase().replace(/ /g, "_")}
+          entityName={this.props.entityName}
           kpi={kpiName}
           geoArea={this.props.geoArea}
           areaName={this.props.areaName}
@@ -225,8 +234,10 @@ module.exports = React.createClass({
     for (var i=0; i < dataArray.length; i++) {
       // the second element in the dataArray[i] could be empty due to no data, check it
       if (dataArray[i].length > 1) {
-        var array = [dataArray[i][0].toString(), parseFloat(dataArray[i][1])];
-        newDataArray.push(array);
+        // var array = [dataArray[i][0].toString(), parseFloat(dataArray[i][1])];
+        // newDataArray.push(array);
+        var value = parseFloat(dataArray[i][1]);
+        newDataArray.push(value);
       }
       /* Skip the array element if no data on the second element!
       else {
@@ -250,7 +261,8 @@ module.exports = React.createClass({
     yScale[0] = 0.0;
     yScale[1] = 0.0;
     for (var i in data) {
-      var item = data[i][1];
+      // var item = data[i][1];
+      var item = data[i];
       if (item > maxY) {
         maxY = item;
       }
@@ -259,7 +271,8 @@ module.exports = React.createClass({
 
     // find minY
     for (var i in data) {
-      var item = data[i][1];
+      // var item = data[i][1];
+      var item = data[i];
       if (item === "") {
         continue;
       }
@@ -403,6 +416,7 @@ module.exports = React.createClass({
                 {unit}
               </Text>
             </View>
+            <Text style={styles.kpiText}>Monthly Busy Hour Average</Text>
           </View>
         </View>
       </View>
@@ -436,9 +450,24 @@ module.exports = React.createClass({
       yellowLowThreshold = redThreshold;
     }
     */
+/* debugging info
+var category = this.props.geoArea.category;
+if (category.toLowerCase().indexOf("ue") > -1) debugger;
+*/
     var yScale = this.findYScale(greenThreshold);
-    var yMinValue = yScale[0]
+    var yMinValue = yScale[0];
     var yMaxValue = yMinValue + yScale[1];
+    // get limitLabelOffset based on the where the greenThreshold vs yMin and yMax
+    const TOP_LIMIT_LABEL = -0.4;
+    const BOTTOM_LIMIT_LABEL = -10.0;
+    if (greenThreshold <= yMinValue) {
+      var limitLabelOffset = TOP_LIMIT_LABEL;
+    } else if (greenThreshold >= yMaxValue) {
+      var limitLabelOffset = BOTTOM_LIMIT_LABEL;
+    } else if (greenThreshold > yMinValue && greenThreshold < yMaxValue) {
+      var limitLabelOffset = greenThreshold >= yMaxValue  - Math.abs(yMaxValue * 0.1)
+      ? BOTTOM_LIMIT_LABEL : TOP_LIMIT_LABEL;
+    }
     var yUnit = "";
 
     /*
@@ -456,16 +485,109 @@ module.exports = React.createClass({
     if (commentCount === 0) {
       commentCount = "";
     }
-    return(
-      <View style={styles.dataContainer}>
-        <View style={styles.chartContainer}>
-          <Image style={styles.chartBands} source={require("../assets/images/BG_Chart_Bands.png")}>
+    const config = {
+      barData: {
+        dataSets: [{
+          values: data,
+          drawValues: false,
+          highlightEnabled: false,
+          colors: ['white'],
+          axisDependency: 'left'
+        }]
+      },
+      /*
+          // drawHighlightArrowEnabled: true,
+          // drawValueAboveBarEnabled: false,
+          // drawBarShadowEnabled: false,
+          // autoScaleMinMax: true,
+          // dragEnabled: false,
+          // highlightPerDragEnabled: false,
+
+      lineData: {
+        dataSets: [{
+          values: [
+            30,30,30,30,30,30,30,30,30,30,
+            30,30,30,30,30,30,30,30,30,30,
+            30,30,30,30,30,30,30,30,30,30,
+            30
+          ],
+          drawValues: false,
+          colors: ['black'],
+          label: 'Sine function',
+          drawCubic: true,
+          drawCircles: false,
+          lineDashLengths: 3.0,
+          // lineDashPhase: 0.7,
+          lineWidth: 1,
+          axisDependency: 'left'
+        }],
+      },
+      */
+      autoScaleMinMax: false,
+      pinchZoomEnable: false,
+      doubleTapToZoomEnabled: false,
+      drawBarShadowEnabled: false,
+      backgroundColor: 'transparent',
+      labels: [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+               '11','12','13','14','15','16','17','18','19','20',
+               '21','22','23','24','25','26','27','28','29','30',
+               '31',
+              ],
+      showLegend: false,
+      xAxis: {
+        enabled: false,
+        drawAxisLine: false,
+        drawGridLines: false,
+        position: 'bottom'
+      },
+      leftAxis: {
+        // axisMaximum: 50,
+        // axisMinimum: 0,
+        enabled: false,
+        drawGridLines: false,
+        drawAxisLine: false,
+        spaceTop: 0.0,
+        spaceBottom: 0.0,
+        axisMaximum: yMaxValue,
+        axisMinimum: yMinValue,
+        limitLines: [
+          {
+            limit: greenThreshold,
+            label: "GREEN",
+            lineColor: "black",
+            lineWidth: 0.8,
+            lineDashLengths: 3.7,
+            valueTextColor: "rgba(40,40,40,0.7)",
+            textFontName: 'Helvetica Neue',
+            textSize: 8.0,
+            xOffset: -3.0,
+            // yOffset Position should shift based on whether the line is on top or below
+            // On top: -10.0, Below: 0.0
+            yOffset: limitLabelOffset,
+          }
+        ]
+      },
+      rightAxis: {
+        enabled: false,
+      },
+      valueFormatter: {
+        type: 'regular',
+        maximumDecimalPlaces: 0
+      }
+    };
+    /*
             <SparklineView
               style={styles.hostView}
               average={greenThreshold}
               yScale={yScale}
               dataArray={data}
             />
+            */
+    return(
+      <View style={styles.dataContainer}>
+        <View style={styles.chartContainer}>
+          <Image style={styles.chartBands} source={require("../assets/images/BG_Chart_Bands.png")}>
+            <CombinedChart config={config} style={styles.hostView}/>
           </Image>
           <View style={styles.chartSideContainer}>
             <Text style={styles.yMaxValue}>{yMaxValue}{yUnit}</Text>
@@ -763,6 +885,15 @@ var styles = StyleSheet.create({
     // borderColor: 'pink',
     // borderWidth: 1,
   },
+  kpiText: {
+    color: 'rgba(60,60,60,0.6)',
+    fontSize: 10,
+    fontWeight: '600',
+    fontFamily: 'Helvetica Neue',
+    backgroundColor: 'transparent',
+    // borderColor: 'pink',
+    // borderWidth: 1,
+  },
   chartContainer: {
     flex: 34,
     flexDirection: "row",
@@ -786,10 +917,12 @@ var styles = StyleSheet.create({
   },
   hostView: {
     flex: 1,
-    paddingTop: 1,
-    paddingBottom: 1,
-    marginTop: 4,
-    marginBottom: 4,
+    // paddingTop: 1,
+    // paddingBottom: 1,
+    marginLeft: -10,
+    marginRight: -10,
+    marginTop: -6,
+    marginBottom: -6,
     // borderColor: "red",
     // borderWidth: 1,
   },

@@ -1,7 +1,5 @@
 'use strict';
 
-var ENTITY_TYPE = "network";
-
 var React = require('react-native');
 var {
   ActivityIndicatorIOS,
@@ -21,6 +19,7 @@ var ROW_HEIGHT = 285;
 var prepareCommentBox = require('./utils/prepareCommentBox');
 var scrollToByTimeout = require('./utils/scrollToByTimeout');
 var TimerMixin = require('react-timer-mixin');
+var SGListView = require('react-native-sglistview');
 var RefreshableListView = require('react-native-refreshable-listview');
 
 var PerformanceCell = require('./components/PerformanceCell');
@@ -250,7 +249,7 @@ module.exports = React.createClass({
     // see if we need to auto scroll to the right site first
     // We need pre-scroll to the right item for comment auto-nav
     //  because some list item are dynamically loaded when too long
-    scrollToByTimeout(this, ENTITY_TYPE, ROW_HEIGHT);
+    scrollToByTimeout(this, this.props.entityType, ROW_HEIGHT);
   },
   navigateToComment: function(areas: object) {
     if (global.navCommentProps &&
@@ -326,7 +325,7 @@ module.exports = React.createClass({
         }
         // now construct kpiSaveArray
         for (var i = 0; i < areas.length; i++) {
-          var kpiName = areas[i].category.toLowercase()+ "_" + areas[i].kpi.replace(/ /g, "_").toLowerCase();
+          var kpiName = areas[i].category.toLowerCase()+ "_" + areas[i].kpi.replace(/ /g, "_").toLowerCase();
           var kpiSave = true;
           for (var j = 0; j < kpiArray.length; j++) {
             if (kpiArray[j].indexOf(kpiName) > -1) {
@@ -356,7 +355,7 @@ module.exports = React.createClass({
   },
   getDataSource: function(areas: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
-    var sortedAreas = getSortedDataArray(areas);
+    var sortedAreas = getSortedDataArray(areas, this.props.entityName);
     // save the KPI name in cloud
     // need to be after it is sorted and category is populated!
     this.updateKpiNameInCloud(sortedAreas);  // populate the category name
@@ -482,7 +481,7 @@ module.exports = React.createClass({
           geoArea={area}
           areaName={area.areaName}
           entityType={this.props.entityType}
-          scrollIndex={this.props.scrollIndex}
+          entityName={this.props.entityName}
           onToggleComment={(showComment) => {
             /* this.props.setScrollIndex(); */ // always need to the correct index
             area["isCommentOn"] = showComment;
@@ -506,9 +505,8 @@ module.exports = React.createClass({
         color={"#00A9E9"}
         size="large"
       />;
-    } else {
-      if (this.state.dataSource.getRowCount() === 0) {
-        var list = <ShowModalMessage
+    } else if (this.state.dataSource.getRowCount() === 0) {
+        var content = <ShowModalMessage
           filter={this.state.filter}
           statusCode={this.state.statusCode}
           statusMessage={this.state.statusMessage}
@@ -516,23 +514,22 @@ module.exports = React.createClass({
           onPressRefresh={this.reloadData}
           buttonText={'Try Again'}
         />;
-      } else {
-        var content = <RefreshableListView
-          ref="listview"
-          style={styles.listView}
-          dataSource={this.state.dataSource}
-          renderFooter={this.renderFooter}
-          renderRow={this.renderRow}
-          onEndReached={this.onEndReached}
-          automaticallyAdjustContentInsets={false}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps={true}
-          showsVerticalScrollIndicator={true}
-          loadData={this.refreshData}
-          refreshDescription="Refreshing Data ..."
-          contentInset={this.state.contentInset}
-        />;
-      }
+    } else {
+      var content = <RefreshableListView
+        ref="listview"
+        style={styles.listView}
+        dataSource={this.state.dataSource}
+        renderFooter={this.renderFooter}
+        renderRow={this.renderRow}
+        onEndReached={this.onEndReached}
+        automaticallyAdjustContentInsets={false}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps={true}
+        showsVerticalScrollIndicator={true}
+        loadData={this.refreshData}
+        refreshDescription="Refreshing Data ..."
+        contentInset={this.state.contentInset}
+      />;
     }
     return (
       <View style={styles.subScreenContainer}>

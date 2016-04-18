@@ -18,7 +18,13 @@ function scrollToByTimeout(_this, entityType, rowHeight) {
             _this.clearInterval(interval);
             // for site, we need to scroll to the right place first before the comment can be turned on
             //   So for scrollOnly we  don't clear the condition
-            global.navCommentProps = undefined;
+            // if the comment is opened then we can clear
+            if (global.navCommentProps.commentOpened) {
+              global.navCommentProps = undefined;
+            } else {
+              global.navCommentProps.scrolled = true;
+            }
+            // global.navCommentProps = undefined;
         } else if (refValidation > 100) {
           console.log("refValidation stopped at =", refValidation);
           _this.clearInterval(interval);
@@ -35,6 +41,7 @@ function scrollToEntity(_this, entity, rowHeight) {
     var prepareCommentBox = require('./prepareCommentBox');
     var item = findScrollItem(_this.state.dataSource, entity);
     if (item) {
+      item.isCommentOn = true;  // force the comment to be on to trigger actual scroll
       var contentInset = prepareCommentBox(_this.refs.listview, _this.state.dataSource, item, rowHeight, false);
       _this.setState({
         contentInset: contentInset,

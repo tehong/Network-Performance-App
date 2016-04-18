@@ -20,9 +20,9 @@ var getImageFromAverage = require('./getImageFromAverage');
 var isDataEmpty = require('./isDataEmpty');
 
 
-function getSortedAreaDataArray(dataArray: Array<any>): Array<any> {
+function getSortedAreaDataArray(dataArray: Array<any>, entityName = ""): Array<any> {
   // first do a dailyAverage sort and then alphbetically based on name
-  var sortedDataArray = getSortedDataArray(dataArray);
+  var sortedDataArray = getSortedDataArray(dataArray, entityName);
   // now sort them alphbetically
   sortedDataArray.sort(
     function(a,b) {

@@ -267,6 +267,13 @@ Release 0.2.3 is on TestFlight:
   - Story 891: Reduced the daily average font size in the list item by 10% to eliminate bleeding into the chart for the 4.7 inch devices.
   - Story 893: Rearranged the KPI name in the list item to allow the name to fit in two lines for for the 4.7 inch devices.
 
+- Beeper iOS 0.5.6 - Internal Release Note
+  - Story 894: BH Monthly Average Target tracker
+    - Need to make comment scrolling work
+    - Need to make comment navigation work for both daily_average and monthly_target works
+    - Need to change the feed comment "network" to "network" and "daily_average"
+    - Need to check the mixpanel stats
+
   - TODO:
   - Story 638: Color code sector details map. https://3ten8.tpondemand.com/entity/638
 

@@ -15,7 +15,8 @@ function findScrollItem(dataSource, entity) {
     var entityName = entity.entityName;
     if (entity.siteName != "") entityName = entity.siteName;
     if (entity.sectorName != "") entityName = entity.sectorName;
-    var name = data.name.toLowerCase().replace(/ /g, "_");
+    // var name = data.name.toLowerCase().replace(/ /g, "_");
+    var name = data.entityName;
     if (data.areaName.toLowerCase() === entity.networkName && kpi === entity.kpi && name === entityName) {
       return data;
     }

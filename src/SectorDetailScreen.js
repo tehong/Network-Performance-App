@@ -60,6 +60,7 @@ var TimerMixin = require('react-timer-mixin');
 var Orientation = require('react-native-orientation');
 var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
 var Actions = require('react-native-router-flux').Actions;
+var ShowModalMessage = require('./components/ShowModalMessage');
 
 
 var SectorDetailScreen = React.createClass({
@@ -67,6 +68,8 @@ var SectorDetailScreen = React.createClass({
 
   getInitialState: function() {
     return {
+      statusCode: 408,  // default to request timeout
+      statusMessage: "",  // show any result status message if present
       animating: false,
       tabNumber: 0,
       isLoading: false,
@@ -241,53 +244,64 @@ var SectorDetailScreen = React.createClass({
     })
       .then((response) => response.json())
       .then((responseData) => {
-        var sectors = responseData;
-        if (sectors) {
-            LOADING[query] = false;
-            resultsCache.totalForQuery[query] = sectors.length;
-            resultsCache.dataForQuery[query] = sectors;
-            // resultsCache.nextPageNumberForQuery[query] = 2;
-
-            // this gets the right data from the results
-            this.findData(query, sectors);
-
-            // get the data in the kpi query, not the location
-            if (query.indexOf('location') === -1) {
-              this.setState({
-                dataSource: this.getDataSource(sectors),
-              });
-            }
-            // don't set isLoading to false unless all data are loaded
-            // this.state.queryNumber won't be updated until later when the view is shown
-            //   so a static number is shown
-            // if (numEntryProcessed >= NUM_CACHE_ENTRY) {
-            // we don't have to worry about hasOwnProperty check on this so this method will work
-            if (Object.keys(resultsCache.dataForQuery).length >= NUM_CACHE_ENTRY) {
-              this.setState({
-                isLoading: false,
-                isRefreshing: false,
-              });
-            }
-        } else {
-          LOADING[query] = false;
-          resultsCache.dataForQuery[query] = undefined;
-
+        if(responseData.statusCode && responseData.statusCode !== 200) {
           this.setState({
-            dataSource: this.getDataSource([]),
-            isRefreshing: false,
             isLoading: false,
+            isRefreshing: false,
+            statusCode: responseData.statusCode,
+            statusMessage: responseData.statusMessage,
           });
+        } else {
+          var sectors = responseData;
+          if (sectors) {
+              LOADING[query] = false;
+              resultsCache.totalForQuery[query] = sectors.length;
+              resultsCache.dataForQuery[query] = sectors;
+              // resultsCache.nextPageNumberForQuery[query] = 2;
+
+              // this gets the right data from the results
+              this.findData(query, sectors);
+
+              // get the data in the kpi query, not the location
+              if (query.indexOf('location') === -1) {
+                this.setState({
+                  dataSource: this.getDataSource(sectors),
+                });
+              }
+              // don't set isLoading to false unless all data are loaded
+              // this.state.queryNumber won't be updated until later when the view is shown
+              //   so a static number is shown
+              // if (numEntryProcessed >= NUM_CACHE_ENTRY)
+              // we don't have to worry about hasOwnProperty check on this so this method will work
+              if (Object.keys(resultsCache.dataForQuery).length >= NUM_CACHE_ENTRY) {
+                this.setState({
+                  isLoading: false,
+                  isRefreshing: false,
+                });
+              }
+          } else {
+            LOADING[query] = false;
+            resultsCache.dataForQuery[query] = undefined;
+
+            this.setState({
+              dataSource: this.getDataSource([]),
+              isRefreshing: false,
+              isLoading: false,
+            });
+          }
         }
       })
       .catch((ex) => {
+        /*
         var alertMessage = 'Timeout on retrieving data: ' + ex;
         Actions.beeperInputScreen(
           {
             outputText: "Timeout Error:\n" + alertMessage,
             inputButtonLabel: 'OK',
-            onPressEnter: Actions.dismiss(),
+            onPressEnter: Actions.dismiss,
           }
         );
+        */
         /*
         Alert.alert(
           'Timeout Alert',
@@ -520,7 +534,7 @@ var SectorDetailScreen = React.createClass({
     });
 
     var queryString = this._urlForQueryAndPage(query, 1);
-    // console.log("SectorDailyScreen queryString = " + queryString);
+    console.log("SectorDailyScreen queryString = " + queryString);
     // now fetch data
     this.fetchData(query, queryString);
   },
@@ -791,13 +805,23 @@ var SectorDetails = React.createClass({
         />
       );
     }
+    /*
+          <NoSectors
+            isLoading={this.props.isLoading}
+            onPressRefresh={this.props.reloadData}
+          />
+          */
     switch (this.props.tabNumber) {
       case 0:
         // var data = this.props.sectorKpiData;
         var content = (this.props.dataSource.getRowCount() === 0 && !this.props.isRefreshing) ?
-          <NoSectors
-            isLoading={this.props.isLoading}
+          <ShowModalMessage
+            filter={this.state.filter}
+            statusCode={this.state.statusCode}
+            statusMessage={this.state.statusMessage}
+            isLoading={this.state.isLoading}
             onPressRefresh={this.props.reloadData}
+            buttonText={'Try Again'}
           />
           :
           <ListView

@@ -11,13 +11,13 @@ var massageCategoryKpi = require('../utils/massageCategoryKpi');
 var addUtilData = require('./addUtilData');
 
 
-function getSortedDataArray(dataArray: Array<any>): Array<any> {
+function getSortedDataArray(dataArray: Array<any>, entityName = ""): Array<any> {
   // first check if the arrays are there
   if (dataArray.constructor !== Array) {
     // if dataArrays are not there, return an empty array;
     return [];
   }
-  var newDataArray = addUtilData(dataArray);
+  var newDataArray = addUtilData(dataArray, entityName);
 
   // if only on element, sort is not call, still need to massage the category and kpi fields.
   if (newDataArray.length === 1) {

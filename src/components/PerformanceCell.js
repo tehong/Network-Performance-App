@@ -91,6 +91,12 @@ var PerformanceCell = React.createClass({
       if (hit) {
         this.setState({isShowComment: true});
         this.props.geoArea.isCommentOn = true;
+        // if already scrolled, clear out
+        if (global.navCommentProps.scrolled) {
+          global.navCommentProps = undefined;
+        } else {
+          global.navCommentProps.commentOpened = true;
+        }
         // No need to scroll when the parent pre-scoll
         // this.props.triggerScroll(navCommentProps);   // trigger scroll to timer
       }
@@ -99,7 +105,7 @@ var PerformanceCell = React.createClass({
   mpCommentBox: function() {
     var kpi = "#" + this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.replace(/ /g, "_").toLowerCase();
     var entityType = "#" + this.props.entityType;
-    var entityName = "#" + this.props.geoArea.name.toLowerCase().replace(/ /g, "_");
+    var entityName = "#" + this.props.entityName;
     mixpanelTrack("Show Comment",
     {
       "Entity": entityType,
@@ -129,7 +135,7 @@ var PerformanceCell = React.createClass({
         <CommentBox
           style={styles.commentExtensionContainer}
           entityType={this.props.entityType}
-          entityName={this.props.geoArea.name.toLowerCase().replace(/ /g, "_")}
+          entityName={this.props.entityName}
           kpi={kpiName}
           geoArea={this.props.geoArea}
           areaName={this.props.areaName}
@@ -402,6 +408,10 @@ var PerformanceCell = React.createClass({
               <Text style={styles.unit}>
                 {unit}
               </Text>
+            </View>
+            <View style={styles.kpiTextContainer}>
+              <Text style={styles.kpiText}>Daily Average</Text>
+              <Text style={[styles.kpiText, {fontWeight: '900',}]}> 5am - 11pm</Text>
             </View>
           </View>
         </View>
@@ -759,6 +769,20 @@ var styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: 'Helvetica Neue',
     paddingBottom: 4,
+    backgroundColor: 'transparent',
+    // borderColor: 'pink',
+    // borderWidth: 1,
+  },
+  kpiTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  kpiText: {
+    color: 'rgba(60,60,60,0.6)',
+    fontSize: 10,
+    fontWeight: '600',
+    fontFamily: 'Helvetica Neue',
     backgroundColor: 'transparent',
     // borderColor: 'pink',
     // borderWidth: 1,

@@ -1,5 +1,8 @@
 PODS:
   - Bolts/Tasks (1.6.0)
+  - Charts (2.2.3):
+    - Charts/Core (= 2.2.3)
+  - Charts/Core (2.2.3)
   - CorePlot (2.1)
   - Intercom (2.3.19)
   - Mixpanel (2.9.4):
@@ -7,12 +10,15 @@ PODS:
   - Mixpanel/Mixpanel (2.9.4)
   - Parse (1.12.0):
     - Bolts/Tasks (~> 1.5)
+  - SwiftyJSON (2.3.2)
 
 DEPENDENCIES:
+  - Charts (= 2.2.3)
   - CorePlot (from `https://github.com/core-plot/core-plot.git`, branch `release-2.1`)
   - Intercom
   - Mixpanel
   - Parse
+  - SwiftyJSON (~> 2.3)
 
 EXTERNAL SOURCES:
   CorePlot:
@@ -26,9 +32,11 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Bolts: f52a250053bb517ca874523c3913776359ab3def
+  Charts: f54267bb3f0f0e74520c6f248517cf5074dfd6fc
   CorePlot: ab9898c79b94999018e9634ab0aa4c21480c8552
   Intercom: de20d3f2eeb7798aac66b26a7a7b92979211e05c
   Mixpanel: 80d2ca9bb38ae91c1044d738e80fe448377ac89f
   Parse: de2c52a9a1421b91ae7594ab8ce191afd184f19b
+  SwiftyJSON: 04ccea08915aa0109039157c7974cf0298da292a
 
 COCOAPODS: 0.39.0

@@ -67,7 +67,7 @@ var MonthlyTargetScreen = React.createClass({
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
-      contentInset: {bottom: 25},
+      contentInset: global.contentInset,
     };
   },
   getRestEndPoint: function() {
@@ -101,9 +101,21 @@ var MonthlyTargetScreen = React.createClass({
     // resultsCache.dataForQuery = {};
   },
   componentDidMount: function() {
-    saveEntityTypeInCloud(this.props.entityType);
+    if (!global.navCommentProps) {
+    // need to get data again to make sure we have scroll responder set
+      if (this.props.entityType) {
+        saveEntityTypeInCloud(this.props.entityType);
+      }
+    }
+    this.scrollToRightListItem();
   },
   componentWillUnmount: function() {
+  },
+  scrollToRightListItem: function() {
+    // see if we need to auto scroll to the right site first
+    // We need pre-scroll to the right item for comment auto-nav
+    //  because some list item are dynamically loaded when too long
+    scrollToByTimeout(this, this.props.entityType, ROW_HEIGHT);
   },
   reloadData: function() {
     resultsCache.totalForQuery = {};
@@ -112,7 +124,7 @@ var MonthlyTargetScreen = React.createClass({
   },
   refreshData: function() {
     // need to make sure we ended up at the right network screen index
-    this.props.setScrollIndex();
+    // this.props.setScrollIndex();
     this.setState({
       isRefreshing: true,
     });
@@ -208,50 +220,6 @@ var MonthlyTargetScreen = React.createClass({
 
   onEndReached: function() {
   },
-  // save the KPI names in cloud
-  updateKpiNameInCloud: function(areas: Array<any>) {
-    var KPI = Parse.Object.extend("Kpi");
-    var kpiArray = [];
-    var kpiSaveArray = [];
-    var numKpiProcessed = 0;
-    // first find all KPIs in the KPI table
-    var query = new Parse.Query(KPI);
-    query.find({
-      success: function(results) {
-        for (var i = 0; i < results.length; i++) {
-          var kpiObj = results[i]
-          kpiArray.push(kpiObj.get('kpiName'));
-        }
-        // now construct kpiSaveArray
-        for (var i = 0; i < areas.length; i++) {
-          var kpiName = areas[i].category.toLowercase()+ "_" + areas[i].kpi.replace(/ /g, "_").toLowerCase();
-          var kpiSave = true;
-          for (var j = 0; j < kpiArray.length; j++) {
-            if (kpiArray[j].indexOf(kpiName) > -1) {
-              kpiSave = false;
-            }
-          }
-          if (kpiSave) {
-            var kpi = new KPI();
-            kpi.set('kpiName', kpiName)
-            kpiSaveArray.push(kpi);
-          }
-        }
-        // now save the kpiSaveArray
-        Parse.Object.saveAll(kpiSaveArray, {
-          success: function(objs) {
-            console.log("parse - saving all kpi - ", kpiSaveArray);
-          },
-          error: function(error) {
-            console.log("parse - kpi saving failed, error code = " + error.message);
-          }
-        });
-      },
-      error: function(error) {
-        // error is an instance of Parse.Error.
-      }
-    });
-  },
   addUtilData: function(areas) {
     var getThreshold = require('./utils/getThreshold');
     for (var i=0;i<areas.length; i++) {
@@ -272,7 +240,7 @@ var MonthlyTargetScreen = React.createClass({
   },
   getDataSource: function(areas: Array<any>): ListView.DataSource {
     // Sort by red then yellow then green backgroundImage
-    var sortedAreas = getSortedDataArray(areas);
+    var sortedAreas = getSortedDataArray(areas, this.props.entityName);
     // save the KPI name in cloud
     // need to be after it is sorted and category is populated!
     // this.updateKpiNameInCloud(sortedAreas);  // populate the category name
@@ -327,10 +295,6 @@ var MonthlyTargetScreen = React.createClass({
       <MonthlyTargetCell
         key={area.id}
         onSelect={() => {}}
-        onSelectRed={() => {}}
-        onSelectYellow={() => {}}
-        onSelectGreen={() => {}}
-        onSelectGrey={() => {}}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
         geoArea={area}
@@ -338,15 +302,13 @@ var MonthlyTargetScreen = React.createClass({
         entityType={this.props.entityType}
         entityName={this.props.entityName}
         onToggleComment={(showComment) => {
-          this.props.setScrollIndex();  // always need to the correct index
+          // this.props.setScrollIndex();  // always need to the correct index
           area["isCommentOn"] = showComment;
-          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, showComment, ROW_HEIGHT, true);
+          var contentInset = prepareCommentBox(this.refs.listview, this.state.dataSource, area, ROW_HEIGHT, true);
           this.setState({
             contentInset: contentInset,
           });
         }}
-        navCommentProps={global.navCommentProps}
-        triggerScroll={() => scrollToByTimeout(this, this.props.entityType, ROW_HEIGHT)}
       />
     );
   },
@@ -361,30 +323,31 @@ var MonthlyTargetScreen = React.createClass({
         color={"#00A9E9"}
         size="large"
       />;
+    } else if (this.state.dataSource.getRowCount() === 0) {
+        var content = <ShowModalMessage
+          filter={this.state.filter}
+          statusCode={this.state.statusCode}
+          statusMessage={this.state.statusMessage}
+          isLoading={this.state.isLoading}
+          onPressRefresh={this.reloadData}
+          buttonText={'Try Again'}
+        />;
     } else {
-      var content = this.state.dataSource.getRowCount() === 0 ?
-        <ActivityIndicatorIOS
-          animating={true}
-          style={[styles.centering, {height: 100}]}
-          color={"#00A9E9"}
-          size="large"
-        />
-        :
-        <RefreshableListView
-          ref="listview"
-          style={styles.listView}
-          dataSource={this.state.dataSource}
-          renderFooter={this.renderFooter}
-          renderRow={this.renderRow}
-          onEndReached={this.onEndReached}
-          automaticallyAdjustContentInsets={false}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps={true}
-          showsVerticalScrollIndicator={true}
-          loadData={this.refreshData}
-          refreshDescription="Refreshing Data ..."
-          contentInset={this.state.contentInset}
-        />
+      var content = <RefreshableListView
+        ref="listview"
+        style={styles.listView}
+        dataSource={this.state.dataSource}
+        renderFooter={this.renderFooter}
+        renderRow={this.renderRow}
+        onEndReached={this.onEndReached}
+        automaticallyAdjustContentInsets={false}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps={true}
+        showsVerticalScrollIndicator={true}
+        loadData={this.refreshData}
+        refreshDescription="Refreshing Data ..."
+        contentInset={this.state.contentInset}
+      />
     }
     /*renderSeparator={this.renderSeparator}*/
     return (
