@@ -36,6 +36,7 @@ var isDataEmpty = require('../utils/isDataEmpty');
 var CommentBox = require('./CommentBox');
 var mixpanelTrack = require('../utils/mixpanelTrack');
 var getDailyAverage = require('../utils/getDailyAverage');
+const NO_VALUE = -99999999999999999999;
 
 module.exports = React.createClass({
   propTypes: {
@@ -228,6 +229,15 @@ module.exports = React.createClass({
         );
     }
   },
+  getLabel() {
+    var dataArray = this.props.geoArea.data;
+    var newLabelArray = [];
+    for (var i=0; i <= 30; i++) {
+      var value = i.toString();
+      newLabelArray.push(value);
+    }
+    return newLabelArray;
+  },
   getData() {
     var dataArray = this.props.geoArea.data;
     var newDataArray = [];
@@ -237,8 +247,10 @@ module.exports = React.createClass({
         // var array = [dataArray[i][0].toString(), parseFloat(dataArray[i][1])];
         // newDataArray.push(array);
         var value = parseFloat(dataArray[i][1]);
-        newDataArray.push(value);
+      } else {
+        var value = NO_VALUE;
       }
+      newDataArray.push(value);
       /* Skip the array element if no data on the second element!
       else {
         var array = [dataArray[i][0].toString(), null];
@@ -273,7 +285,7 @@ module.exports = React.createClass({
     for (var i in data) {
       // var item = data[i][1];
       var item = data[i];
-      if (item === "") {
+      if (item === "" || item === NO_VALUE) {
         continue;
       }
       if (item < minY) {
@@ -287,7 +299,9 @@ module.exports = React.createClass({
     }
     // show at least scale of 10
     if (minY === maxY) {
-      if (maxY === 0.0) {
+      if (target > maxY) {
+        maxY = Math.ceil(Math.round((target) * 10) / 10) ;;
+      } else if (maxY === 0.0) {
         maxY = 10.0;
       } else if (maxY === 100.0) {
         minY = 90.0
@@ -441,6 +455,7 @@ module.exports = React.createClass({
     var greenThresholdText = greenThreshold.toString().replace("99.9999", "Six9s");
     var unit = this.props.geoArea.unit;
     var data = this.getData();
+    var labels = this.getLabel();
     var yellowLowThreshold = redThresholdText;
     var yellowHighThreshold = greenThresholdText;
     // get the yellow threshold signs
@@ -528,11 +543,7 @@ if (category.toLowerCase().indexOf("ue") > -1) debugger;
       doubleTapToZoomEnabled: false,
       drawBarShadowEnabled: false,
       backgroundColor: 'transparent',
-      labels: [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-               '11','12','13','14','15','16','17','18','19','20',
-               '21','22','23','24','25','26','27','28','29','30',
-               '31',
-              ],
+      labels: labels,
       showLegend: false,
       xAxis: {
         enabled: false,

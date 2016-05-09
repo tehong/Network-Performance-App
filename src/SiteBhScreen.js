@@ -103,7 +103,7 @@ var SiteScreen = React.createClass({
   },
 
   componentWillMount: function() {
-    SITE_URL = global.restService.sitePerfUrl ? global.restService.sitePerfUrl : SITE_URL;
+    SITE_URL = global.restService.siteBhUrl ? global.restService.siteBhUrl : SITE_URL;
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
@@ -226,7 +226,7 @@ var SiteScreen = React.createClass({
   },
   navigateToComment: function(sites: object) {
     // see if we need to auto nav to the next page to get to the comment item
-    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "sector") {
+    if (global.navCommentProps && global.navCommentProps.entityType.toLowerCase() === "sector_busy_hour") {
       // need to run the sorted data array because it modifies the record slightly
       var kpi = global.navCommentProps.kpi;
       var site = global.navCommentProps.siteName;
@@ -338,7 +338,7 @@ var SiteScreen = React.createClass({
     }
     */
     if (Platform.OS === 'ios') {
-      Actions.sector(
+      Actions.sector_busy_hour(
         {
           dispatch: this.props.dispatch,   // need this to re-route to comments
           category: site.category,
@@ -364,7 +364,7 @@ var SiteScreen = React.createClass({
     this.timeoutID = this.setTimeout(() => this.getSites(filter), 100);
   },
   mpSelectSite: function(siteName) {
-    mixpanelTrack("Site Selected", {"Data": "Daily Average", "Site Name": siteName}, global.currentUser);
+    mixpanelTrack("Site Selected", {"Data": "Busy Hour", "Site Name": siteName}, global.currentUser);
   },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {

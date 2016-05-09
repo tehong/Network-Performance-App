@@ -4,11 +4,9 @@
 'use strict';
 // Program version number and customer visible release notes
 var CustomerReleaseNotes = '\
-(1) Changed the date on the performance screen header to "Yesterday\'s". \n\
-(2) Added the ability to allow user to obtain user\'s username and a new password via email on the login screen.\n\
-(3) Fixed the "UI Interference" KPI charting problem.\n\
-(4) Added different map types in Sector Detail screen.\n\
-(5) Miscenllenous bug fixes and UI changes.\
+(1) Added Monthly Target Screen.\n\
+(2) Added Busy Hour Network/Site/Sector Screen.\n\
+(3) Miscenllenous bug fixes and UI changes.\
 ';
 
 import Storage from 'react-native-storage';
@@ -43,7 +41,9 @@ var RefreshScreen = require('./RefreshScreen');
 var FeedScreen = require('./FeedScreen');
 var AreaScreen = require('./AreaScreen');
 var SiteScreen = require('./SiteScreen');
+var SiteBhScreen = require('./SiteBhScreen');
 var SectorScreen = require('./SectorScreen');
+var SectorBhScreen = require('./SectorBhScreen');
 var SectorDetailScreen = require('./SectorDetailScreen');
 var LogoRight = require('./components/icons/LogoRight');
 var BackButton = require('./components/icons/BackButton');
@@ -226,7 +226,7 @@ module.exports = React.createClass({
   componentWillMount: function() {
     Orientation.lockToPortrait(); //this will lock the view to Portrait
     StatusBar.setBarStyle('light-content');
-    global.isMonthlyTarget = true;
+    global.areaTabSelected = "monthly_target";
     global.refreshFeedCount = this._getFeedCount;
     global.saveFeedInfo = this._saveFeedInfoToStorage;
     global.contentInset = {bottom: 45};  // global content inset for list view screen
@@ -376,9 +376,17 @@ module.exports = React.createClass({
                         component={SiteScreen}
                         renderTitle={() => this.renderTitle("Site Performance")}
                         />
+                      <Route name="site_busy_hour" entityType="site_busy_hour"
+                        component={SiteBhScreen}
+                        renderTitle={() => this.renderTitle("Site Busy Hour")}
+                        />
                       <Route name="sector" entityType="sector"
                         component={SectorScreen}
                         renderTitle={() => this.renderTitle("Sector Performance")}
+                        />
+                      <Route name="sector_busy_hour" entityType="sector_busy_hour"
+                        component={SectorBhScreen}
+                        renderTitle={() => this.renderTitle("Sector Busy Hour")}
                         />
                       <Route name="sectorDetail" entityType="sector_detail"
                         component={SectorDetailScreen}

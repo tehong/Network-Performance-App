@@ -115,17 +115,29 @@ var LoginScreen = React.createClass({
             case 'network_perf':
               global.restService.networkPerfUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
               break;
+            case 'busy_hour':
+              global.restService.networkBhUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
             case 'monthly_target':
               global.restService.monthlyTargetUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
               break;
             case 'site_perf':
               global.restService.sitePerfUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
               break;
+            case 'site_busy_hour':
+              global.restService.siteBhUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
             case 'sector_perf':
               global.restService.sectorPerfUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
               break;
+            case 'sector_busy_hour':
+              global.restService.sectorBhUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
             case 'sector_color':
               global.restService.sectorColorUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
+              break;
+            case 'sector_color_busy_hour':
+              global.restService.sectorColorBhUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');
               break;
             case 'sector_detail':
               global.restService.sectorDetailUrl = serviceObj.get('protocol') + "://" + serviceObj.get('hostName') + serviceObj.get('serviceUrl');

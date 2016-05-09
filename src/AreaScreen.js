@@ -1,7 +1,5 @@
 'use strict';
 
-var ENTITY_TYPE = "network";
-
 var React = require('react-native');
 var {
   AppStateIOS,
@@ -29,6 +27,7 @@ var SearchBar = require('./components/SearchBar');
 var Parse = require('parse/react-native');
 var ParseInitIOS = require('react-native').NativeModules.ParseInit;
 var DailyAverageScreen = require('./DailyAverageScreen');
+var BusyHourScreen = require('./BusyHourScreen');
 var MonthlyTargetScreen = require('./MonthlyTargetScreen');
 var getAreaScreenStyles = require('./styles/getAreaScreenStyles');
 var Mixpanel = require('react-native').NativeModules.RNMixpanel;
@@ -43,10 +42,11 @@ var AreaScreen = React.createClass({
     return {
       statusCode: 408,  // default to request timeout
       statusMessage: "",  // show any result status message if present
-      isMonthlyTarget: global.isMonthlyTarget,
+      areaTabSelected: global.areaTabSelected,
     };
   },
   componentWillMount: function() {
+    this.setState({areaTabSelected: global.areaTabSelected});
     this.navigateToComment();
     this._getAppBadgeValue();
     if (!global.navCommentProps) {
@@ -54,6 +54,7 @@ var AreaScreen = React.createClass({
     }
   },
   componentDidMount: function() {
+    mixpanelTrack("Monthly Target View", null, global.currentUser);
     AppStateIOS.addEventListener('change', this._handleAppStateChange);
     AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
   },
@@ -63,16 +64,18 @@ var AreaScreen = React.createClass({
   },
   navigateToComment: function() {
     if (global.navCommentProps) {
-      switch (global.navCommentProps.entityName.toLowerCase()) {
-        case "monthly_target":
-          global.isMonthlyTarget = true;
-          break;
-        default:
-          global.isMonthlyTarget = false;
-          break;
+      var entityType = global.navCommentProps.entityType;
+      if (entityType === "network" ) {
+        global.areaTabSelected = global.navCommentProps.entityName.toLowerCase();
+      } else {
+        if (entityType.indexOf("busy_hour") > -1) {
+          global.areaTabSelected = "busy_hour";
+        } else {
+          global.areaTabSelected = "daily_average";
+        }
       }
       this.setState({
-        isMonthlyTarget: global.isMonthlyTarget,
+        areaTabSelected: global.areaTabSelected,
       });
     }
   },
@@ -126,6 +129,7 @@ var AreaScreen = React.createClass({
       console.error(e);
     }
   },
+  /*
   mpSelectFeed: function() {
     mixpanelTrack("Show Feed", null, global.currentUser);
   },
@@ -141,41 +145,56 @@ var AreaScreen = React.createClass({
   mpSelectSectorColor: function(kpi, color) {
     mixpanelTrack("Sector Count", {"KPI": kpi, "Color": color}, global.currentUser);
   },
+  */
   onPressDailyAverage: function() {
-    if (global.isMonthlyTarget) {
-      global.isMonthlyTarget = false;
-      this.setState({
-          isMonthlyTarget: global.isMonthlyTarget,
-      });
-    }
+    global.areaTabSelected= "daily_average";
+    this.setState({
+        areaTabSelected: global.areaTabSelected,
+    });
+    mixpanelTrack("Daily Average View", null, global.currentUser);
+  },
+  onPressBusyHour: function() {
+    global.areaTabSelected= "busy_hour";
+    this.setState({
+        areaTabSelected: global.areaTabSelected,
+    });
+    mixpanelTrack("Busy Hour View", null, global.currentUser);
   },
   onPressMonthlyTarget: function() {
-    if (!global.isMonthlyTarget) {
-      global.isMonthlyTarget = true;
-      this.setState({
-          isMonthlyTarget: global.isMonthlyTarget,
-      });
-    }
+    global.areaTabSelected= "monthly_target";
+    this.setState({
+        areaTabSelected: global.areaTabSelected,
+    });
+    mixpanelTrack("Monthly Target View", null, global.currentUser);
   },
   render: function() {
     var header =
       <Header
         style={styles.header}
-        isMonthlyTarget={this.state.isMonthlyTarget}
+        areaTabSelected={this.state.areaTabSelected}
         onPressDailyAverage={this.onPressDailyAverage}
         onPressMonthlyTarget={this.onPressMonthlyTarget}
+        onPressBusyHour={this.onPressBusyHour}
       >
       </Header>;
-    if (this.state.isMonthlyTarget) {
+    if (this.state.areaTabSelected === "monthly_target") {
       console.log("monthlyList");
       var content = <MonthlyTargetScreen
         style={styles.listView}
         entityType={this.props.entityType}
         entityName={"monthly_target"}
       />;
+    } else if (this.state.areaTabSelected === "busy_hour") {
+      console.log("busyHourList");
+      var content = <BusyHourScreen
+        style={styles.listView}
+        entityType={this.props.entityType}
+        entityName={"busy_hour"}
+      />;
     } else {
       console.log("dailyAverageList");
       var content = <DailyAverageScreen
+        style={styles.listView}
         entityType={this.props.entityType}
         entityName={"daily_average"}
       />;
@@ -193,23 +212,26 @@ var Header = React.createClass({
   render: function() {
     var TouchableElement = TouchableOpacity;  // for iOS or Android variation
     var betweenMargin = 3;
-    var dailyAverageStyle = this.props.isMonthlyTarget?
-      styles.headerText
-      :
-      [styles.headerText, {color: "#00BBF0", backgroundColor: "white", marginRight: betweenMargin,}];
-    var monthlyTargetStyle = this.props.isMonthlyTarget?
-      [styles.headerText, {color: "#00BBF0", backgroundColor: "white", marginLeft: betweenMargin,}]
-      :
-      styles.headerText;
-    var dailyAverageUnderlineStyle = this.props.isMonthlyTarget?
-      styles.underline
-      :
-      [styles.underline, {backgroundColor: "#00BBF0", marginRight: betweenMargin,}];
-    var monthlyTargetUnderlineStyle = this.props.isMonthlyTarget?
-      [styles.underline, {backgroundColor: "#00BBF0", marginLeft: betweenMargin,}]
-      :
-      styles.underline;
-
+    var dailyAverageStyle = styles.headerText;
+    var dailyAverageUnderlineStyle = styles.underline;
+    var busyHourStyle = [styles.headerText, {marginLeft: betweenMargin, marginRight: betweenMargin}];
+    var busyHourUnderlineStyle = [styles.underline, {marginLeft: betweenMargin, marginRight: betweenMargin}];
+    var monthlyTargetStyle = styles.headerText;
+    var monthlyTargetUnderlineStyle = styles.underline;
+    switch(this.props.areaTabSelected) {
+      case "daily_average":
+        dailyAverageStyle = [styles.headerText, {color: "#00BBF0", backgroundColor: "white"}];
+        dailyAverageUnderlineStyle = [styles.underline, {backgroundColor: "#00BBF0"}];
+        break;
+      case "busy_hour":
+        busyHourStyle = [styles.headerText, {color: "#00BBF0", backgroundColor: "white", marginLeft: betweenMargin, marginRight: betweenMargin}];
+        busyHourUnderlineStyle = [styles.underline, {backgroundColor: "#00BBF0", marginLeft: betweenMargin, marginRight: betweenMargin}];
+        break;
+      case "monthly_target":
+        monthlyTargetStyle = [styles.headerText, {color: "#00BBF0", backgroundColor: "white"}];
+        monthlyTargetUnderlineStyle = [styles.underline, {backgroundColor: "#00BBF0"}]
+        break;
+    }
     return (
       <View style={styles.listHeader}>
         <TouchableElement
@@ -218,6 +240,13 @@ var Header = React.createClass({
           underlayColor={"#1faae1"}>
           <Text style={dailyAverageStyle}>Daily Average</Text>
           <View style={dailyAverageUnderlineStyle}></View>
+        </TouchableElement>
+        <TouchableElement
+          style={styles.iconTouch}
+          onPress={this.props.onPressBusyHour}
+          underlayColor={"#1faae1"}>
+          <Text style={busyHourStyle}>Busy Hour</Text>
+          <View style={busyHourUnderlineStyle}></View>
         </TouchableElement>
         <TouchableElement
           style={styles.iconTouch}

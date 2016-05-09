@@ -58,35 +58,32 @@ var PerformanceCell = React.createClass({
   goToComment: function() {
     // ||
       if (global.navCommentProps && global.navCommentProps.entityType === this.props.entityType) {
-      var navCommentProps = global.navCommentProps;
-      var kpi = this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.toLowerCase().replace(/ /g, "_");
-      var hit = false;
-      switch(this.props.entityType) {
-        case "network":
-          if (navCommentProps.kpi === kpi) {
-            if (this.props.entityName) { // if at montly_target screen
+        var navCommentProps = global.navCommentProps;
+        var kpi = this.props.geoArea.category.toLowerCase() + "_" + this.props.geoArea.kpi.toLowerCase().replace(/ /g, "_");
+        var hit = false;
+        switch(this.props.entityType) {
+          case "network":
+            if (navCommentProps.kpi === kpi) {
               hit = (navCommentProps.entityName === this.props.entityName)?true:false;
-            } else { // at the network daily screen
-              entityName = this.props.geoArea.areaName.toLowerCase().replace(/ /g, "_");
-              hit = (navCommentProps.entityName === entityName)?true:false;
             }
-          }
-          if (hit) {
-            // this.props.setScrollIndex();
-          }
-          break;
-        case "site":
-          var entityName = this.props.siteName.toLowerCase();
-          if (navCommentProps.entityName === entityName) {
-            hit = true;
-          }
-          break;
-        case "sector":
-          var entityName = this.props.sectorName.toLowerCase();
-          if (navCommentProps.entityName === entityName) {
-            hit = true;
-          }
-          break;
+            if (hit) {
+              // this.props.setScrollIndex();
+            }
+            break;
+          case "site_busy_hour":
+          case "site":
+            var entityName = this.props.siteName.toLowerCase();
+            if (navCommentProps.entityName === entityName) {
+              hit = true;
+            }
+            break;
+          case "sector_busy_hour":
+          case "sector":
+            var entityName = this.props.sectorName.toLowerCase();
+            if (navCommentProps.entityName === entityName) {
+              hit = true;
+            }
+            break;
       }
       if (hit) {
         this.setState({isShowComment: true});
@@ -280,7 +277,9 @@ var PerformanceCell = React.createClass({
     }
     // show at least scale of 10
     if (minY === maxY) {
-      if (maxY === 0.0) {
+      if (target > maxY) {
+        maxY = Math.ceil(Math.round((target) * 10) / 10) ;;
+      } else if (maxY === 0.0) {
         maxY = 10.0;
       } else if (maxY === 100.0) {
         minY = 90.0
@@ -377,6 +376,40 @@ var PerformanceCell = React.createClass({
     if (dailyAverage === "No Data") {
       unit = "";
     }
+    if (this.props.entityType === "network") {
+      switch (this.props.entityName) {
+        case "daily_average":
+          var entityText = "Daily Average " ;
+          var hourText = this.props.geoArea.liveNetworkHours;
+          break;
+        case "monthly_target":
+          var entityText = "Monthly Busy Hour Avearage";
+          var hourText = "";
+          break;
+        case "busy_hour":
+          var entityText = "Network Busy Hour ";
+          var hourText = this.props.geoArea.networkBusyHour;
+          break;
+        }
+    } else {
+      switch (this.props.entityType) {
+        case "site":
+        case "sector":
+        case "sector_color":
+          var entityText = "Daily Average " ;
+          var hourText = this.props.geoArea.liveNetworkHours;
+          break;
+        case "site_busy_hour":
+          var entityText = "Site Busy Hour ";
+          var hourText = this.props.geoArea.networkBusyHour;
+          break;
+        case "sector_busy_hour":
+        case "sector_color_busy_hour":
+          var entityText = "Sector Busy Hour ";
+          var hourText = this.props.geoArea.networkBusyHour;
+          break;
+      }
+    }
       /* KPI icons - deativated
         <View style={styles.iconContainer}>
           {kpiImage}
@@ -410,8 +443,8 @@ var PerformanceCell = React.createClass({
               </Text>
             </View>
             <View style={styles.kpiTextContainer}>
-              <Text style={styles.kpiText}>Daily Average</Text>
-              <Text style={[styles.kpiText, {fontWeight: '900',}]}> 5am - 11pm</Text>
+              <Text style={styles.kpiText}>{entityText}</Text>
+              <Text style={[styles.kpiText, {fontWeight: '900',}]}>{hourText}</Text>
             </View>
           </View>
         </View>
@@ -514,8 +547,8 @@ var PerformanceCell = React.createClass({
     var totalNumSectors = 9;  // default sectors per zone
     var entityName = this.props.entityName ? this.props.entityName : "";
     // don't show sector count for sector page
-    if (this.props.entityType.toLowerCase() === "sector" ||
-        this.props.entityType.toLowerCase() === "site" ||
+    if ((this.props.entityType.toLowerCase().indexOf("sector") > -1) ||
+        (this.props.entityType.toLowerCase().indexOf("site") > -1) ||
         entityName === 'monthly_target') {
       return;
     }

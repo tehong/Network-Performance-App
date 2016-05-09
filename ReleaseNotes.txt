@@ -267,12 +267,22 @@ Release 0.2.3 is on TestFlight:
   - Story 891: Reduced the daily average font size in the list item by 10% to eliminate bleeding into the chart for the 4.7 inch devices.
   - Story 893: Rearranged the KPI name in the list item to allow the name to fit in two lines for for the 4.7 inch devices.
 
-- Beeper iOS 0.5.6 - Internal Release Note
+- Beeper iOS 0.6.0 - Internal Release Note
+  - New OTA base code.
   - Story 894: BH Monthly Average Target tracker
-    - Need to make comment scrolling work
-    - Need to make comment navigation work for both daily_average and monthly_target works
-    - Need to change the feed comment "network" to "network" and "daily_average"
-    - Need to check the mixpanel stats
+    - Added BH Monthly Average tracker page and default to that page
+    - Added new bar chart graph for Monthly Target chart
+    - Made the comment scrolling work
+    - Made comment navigation work for both daily_average and monthly_target works
+    - Changed the comment channel name "#network_name" to "#daily_average" or "#monthly_target"
+    - Mixpanel stats for comments on Monthly Target screen
+
+- Beeper iOS 0.6.3 - Internal Release Note
+  - Story 892: Network/Site/Sector BH charts
+  - Story 894: Showing Network/Site/Sector BH time frame
+
+  TODO:
+  - Swapped out
 
   - TODO:
   - Story 638: Color code sector details map. https://3ten8.tpondemand.com/entity/638

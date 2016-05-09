@@ -116,8 +116,8 @@ module.exports = React.createClass({
     if (!(global.restService && global.restService.networkPerfUrl && global.restService.networkBhUrl)) {
       var interval = this.setInterval(
         () => {
-          if (global.restService && global.restService.networkPerfUrl) {
-            NETWORK_URL = global.restService.networkPerfUrl;
+          if (global.restService && global.restService.networkBhPerfUrl) {
+            NETWORK_URL = global.restService.networkBhUrl;
           }
           this.clearInterval(interval);
           // now we can get data
@@ -126,7 +126,7 @@ module.exports = React.createClass({
         50, // checking every 50 ms
       );
     } else {
-      NETWORK_URL = global.restService.networkPerfUrl;
+      NETWORK_URL = global.restService.networkBhUrl;
       this.getAreas('area');
     }
   },
@@ -366,7 +366,7 @@ module.exports = React.createClass({
     if (isMixpanel) this.mpSelectKpi(area.category + " " + area.kpi);
     var titleComponent = SiteNavTitle;
     if (Platform.OS === 'ios') {
-      Actions.site(
+      Actions.site_busy_hour(
         {
           // dispatch: this.props.dispatch,   // need this to re-route to comments
           category: area.category,
@@ -405,19 +405,18 @@ module.exports = React.createClass({
     var SectorScreen = require('./SectorScreen');
     var SectorNavTitle = require('./components/icons/sectors/SectorNavTitle');
     var titleComponent = SectorNavTitle;
-    // don't drill down if sector count is 0
     if (area.sectorStatusCount[color] > 0) {
       if (Platform.OS === 'ios') {
-          Actions.sector (
-            {
-              // dispatch: this.props.dispatch,   // need this to re-route to comments
-              category: area.category,
-              kpi: area.kpi,
-              areaName: area.areaName,
-              color: color,
-              siteName: color,
-              // setScrollIndex: this.props.setScrollIndex,
-            }
+        Actions.sector_busy_hour(
+          {
+            // dispatch: this.props.dispatch,   // need this to re-route to comments
+            category: area.category,
+            kpi: area.kpi,
+            areaName: area.areaName,
+            color: color,
+            siteName: color,
+            // setScrollIndex: this.props.setScrollIndex,
+          }
         );
       } else {
         dismissKeyboard();
@@ -436,10 +435,10 @@ module.exports = React.createClass({
     this.timeoutID = this.setTimeout(() => this.getAreas(filter), 100);
   },
   mpSelectKpi: function(kpi) {
-    mixpanelTrack("Network KPI", {"Data": "Daily Average", "KPI": kpi}, global.currentUser);
+    mixpanelTrack("Network KPI", {"Data": "Busy Hour", "KPI": kpi}, global.currentUser);
   },
   mpSelectSectorColor: function(kpi, color) {
-    mixpanelTrack("Sector Count", {"Data": "Daily Average", "KPI": kpi, "Color": color}, global.currentUser);
+    mixpanelTrack("Sector Count", {"Data": "Busy Hour", "KPI": kpi, "Color": color}, global.currentUser);
   },
   renderHeader: function() {
   },

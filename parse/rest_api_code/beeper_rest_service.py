@@ -21,7 +21,8 @@ APP_OBJECT_ID_BEEPER_DEMO = "I9WOoxkWHY"
 
 #backend host name and port
 HOST_PROD = "52.20.201.145:3010"
-HOST_DEV = "54.165.24.76:3010"
+#HOST_DEV = "54.165.24.76:3010"
+HOST_DEV = "54.173.247.59:3010"
 HOST_DEMO = ""
 
 #service protocol
@@ -30,10 +31,14 @@ PROTOCOL_HTTPS = "https"
 
 # entityType (UI entity Type)
 ENTITY_MONTHLY_TARGET = "monthly_target"
+ENTITY_BUSY_HOUR = "busy_hour"
 ENTITY_NETWORK_PERF = "network_perf"
 ENTITY_SITE_PERF = "site_perf"
 ENTITY_SECTOR_PERF = "sector_perf"
 ENTITY_SECTOR_COLOR = "sector_color"
+ENTITY_SITE_BUSY_HOUR= "site_busy_hour"
+ENTITY_SECTOR_BUSY_HOUR = "sector_busy_hour"
+ENTITY_SECTOR_COLOR_BUSY_HOUR = "sector_color_busy_hour"
 ENTITY_SECTOR_DETAIL = "sector_detail"
 ENTITY_SECTOR_LOCATION = "sector_location"
 
@@ -56,6 +61,21 @@ connection.request('POST', '/1/batch', json.dumps({
                    "hostName": HOST_DEV,
                    "entityType": ENTITY_NETWORK_PERF,
                    "serviceUrl": "/kpis/v1/network/all/kpi/all"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_DEVELOPMENT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_DEV,
+                   "entityType": ENTITY_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/network/all/busyHour/kpi"
                 }
             },
             {
@@ -116,6 +136,51 @@ connection.request('POST', '/1/batch', json.dumps({
                    "hostName": HOST_DEV,
                    "entityType": ENTITY_SECTOR_PERF,
                    "serviceUrl": "/kpis/v2/sectors/site/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_DEVELOPMENT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_DEV,
+                   "entityType": ENTITY_SITE_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/site/all/busyHour/kpi/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_DEVELOPMENT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_DEV,
+                   "entityType": ENTITY_SECTOR_COLOR_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/sector/all/busyHour/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_DEVELOPMENT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_DEV,
+                   "entityType": ENTITY_SECTOR_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/sectors/busyHour/site/"
                 }
             },
             {
@@ -175,6 +240,21 @@ connection.request('POST', '/1/batch', json.dumps({
                    },
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_PROD,
+                   "entityType": ENTITY_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/network/all/busyHour/kpi"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB_SUPPORT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
                    "entityType": ENTITY_MONTHLY_TARGET,
                    "serviceUrl": "/kpis/v1/monthly/target/kpi/all"
                 }
@@ -222,6 +302,51 @@ connection.request('POST', '/1/batch', json.dumps({
                    "hostName": HOST_PROD,
                    "entityType": ENTITY_SECTOR_PERF,
                    "serviceUrl": "/kpis/v2/sectors/site/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB_SUPPORT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
+                   "entityType": ENTITY_SITE_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/site/all/busyHour/kpi/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB_SUPPORT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
+                   "entityType": ENTITY_SECTOR_COLOR_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/sector/all/busyHour/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB_SUPPORT
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
+                   "entityType": ENTITY_SECTOR_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/sectors/busyHour/site/"
                 }
             },
             {
@@ -281,6 +406,21 @@ connection.request('POST', '/1/batch', json.dumps({
                    },
                    "protocol": PROTOCOL_HTTP,
                    "hostName": HOST_PROD,
+                   "entityType": ENTITY_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/network/all/busyHour/kpi"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
                    "entityType": ENTITY_MONTHLY_TARGET,
                    "serviceUrl": "/kpis/v1/monthly/target/kpi/all"
                 }
@@ -328,6 +468,51 @@ connection.request('POST', '/1/batch', json.dumps({
                    "hostName": HOST_PROD,
                    "entityType": ENTITY_SECTOR_PERF,
                    "serviceUrl": "/kpis/v2/sectors/site/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
+                   "entityType": ENTITY_SITE_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/site/all/busyHour/kpi/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
+                   "entityType": ENTITY_SECTOR_COLOR_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/sector/all/busyHour/"
+                }
+            },
+            {
+                "method": "POST",
+                "path": "/1/classes/RestService",
+                "body": {
+                   "application": {
+                     "__type": "Pointer",
+                     "className": "_User",
+                     "objectId": APP_OBJECT_ID_BEEPER_THUMB
+                   },
+                   "protocol": PROTOCOL_HTTP,
+                   "hostName": HOST_PROD,
+                   "entityType": ENTITY_SECTOR_BUSY_HOUR,
+                   "serviceUrl": "/kpis/v1/sectors/busyHour/site/"
                 }
             },
             {

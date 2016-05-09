@@ -1,6 +1,6 @@
 {
-	"version": "0.5.6",
-	"minContainerVersion": "0.5",
+	"version": "0.6.4",
+	"minContainerVersion": "0.6",
 	"url": {
 		"url": "NA",
 		"isRelative": true

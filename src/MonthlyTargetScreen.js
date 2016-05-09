@@ -13,6 +13,8 @@ var {
   Image,
 } = React;
 
+const NO_VALUE = -99999.99;
+
 var cachedAreas = undefined;
 var ROW_HEIGHT = 198;
 var prepareCommentBox = require('./utils/prepareCommentBox');
@@ -76,10 +78,10 @@ var MonthlyTargetScreen = React.createClass({
       // periodic check if the service URL is retrieved
       var interval = this.setInterval(
         () => {
-          if (global.restService && global.restService.networkPerfUrl) {
-            MONTHLY_TARGET_URL = global.restService.networkPerfUrl;
-          // if (global.restService && global.restService.monthlyTargetUrl) {
-            // MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
+          // if (global.restService && global.restService.networkPerfUrl) {
+            // MONTHLY_TARGET_URL = global.restService.networkPerfUrl;
+          if (global.restService && global.restService.monthlyTargetUrl) {
+            MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
             this.clearInterval(interval);
             // now we can get data
             this.getAreas('area');
@@ -88,8 +90,8 @@ var MonthlyTargetScreen = React.createClass({
         50, // checking every 50 ms
       );
     } else {
-      // MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
-      MONTHLY_TARGET_URL = global.restService.networkPerfUrl;
+      MONTHLY_TARGET_URL = global.restService.monthlyTargetUrl;
+      // MONTHLY_TARGET_URL = global.restService.networkPerfUrl;
       this.getAreas('area');
     }
   },
@@ -229,12 +231,31 @@ var MonthlyTargetScreen = React.createClass({
         areas[i].areaName = "Thumb";
         areas[i].parentEntityName = "Thumb";
       }
-      // populate the last array element [x,y] with fake end of month data that's equal to green target so it is not visible
-      if (areas[i].data.length < 30) {
-        areas[i].data.push([31,areas[i].thresholds.green]);
-      }
       // reset the isCommentOn flag
       areas[i].isCommentOn = false;
+      if (areas[i].dataexp) {
+        var dataexp = areas[i].dataexp;
+        var newData = [];
+        // use the dataexp to fill in the data array if needed
+        // starting with index 0
+        var k = 0;
+        // fill up to 31 days of a month
+        for (var j=0; j<31; j++) {
+          // once the k is used, do not use it again
+          if(k<dataexp.length) {
+            if (parseInt(dataexp[k][0].substring(8,10)) === j+1) {
+              newData[j] = [j, dataexp[k][1]];
+              k++;
+            } else {
+              newData[j] = [j, ];
+            }
+          } else {
+            // override the data withe the new data array
+            areas[i].data = newData;
+            break; // ran out of dataexp entry, stop filling the newData
+          }
+        }
+      }
     }
     return areas;
   },

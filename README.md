@@ -51,10 +51,20 @@
 
 - Parse:
 
-  1. Push Notification setup:
+  1. "Beeper - Master Control" app space
+    (1) To populate the "RestService" table
+      - Select all row on the "RestService" table via the top left selection box.
+      - Press "- Row" button to delete all rows so now we have a blank sheet to work with.
+      - In the RN-iOS-Beeper/parse/rest_api_code directory, edit the "beeper_rest_service.py" script to include any new rest service configuration for a new carrier.
+      - Execute the following to populate the "RestService" table in the "Beeper - Master Control" app space:
+      $>./beeper_rest_service.py
+      - Be sure to check the python output doesn't have any failure objects returned from Parse.
+      - Check the Parse's RestService" table in the "Beeper - Master Control" app space to see if they are populate correctly.  (the "application" column is a point back to the corresponding app space)
+
+  2. Push Notification setup:
     See JWindey's answer here: http://stackoverflow.com/questions/29683720/react-native-push-notifications-parse
 
-  2. Recurring push:
+  3. Recurring push:
     (1) See here to set up some cloud code:  https://www.parse.com/docs/cloudcode/guide#jobs
        # parse new
        # parse deploy or >parse deploy target  (i.e. >parse deploy "Beeper - Thumb")
@@ -69,8 +79,8 @@
       -d '{"action":"send"}' \
       https://api.parse.com/1/jobs/morningReminder
 
-  3. Send email via Mailgun from support@3ten8.com account in mailgun.com.
-  
+  4. Send email via Mailgun from support@3ten8.com account in mailgun.com.
+
 - NPM package mods:
 
   (1) "react-native-refreshable-listview" => Need to modify the "ListView" component in the packages to "SGListView" component to reduce memory usage.  see node_modules/react-native-refreshable-listview/lib/ListView.js

@@ -254,31 +254,41 @@ var SectorDetailScreen = React.createClass({
         } else {
           var sectors = responseData;
           if (sectors) {
-              LOADING[query] = false;
-              resultsCache.totalForQuery[query] = sectors.length;
-              resultsCache.dataForQuery[query] = sectors;
-              // resultsCache.nextPageNumberForQuery[query] = 2;
+            LOADING[query] = false;
+            resultsCache.totalForQuery[query] = sectors.length;
+            resultsCache.dataForQuery[query] = sectors;
+            // resultsCache.nextPageNumberForQuery[query] = 2;
 
-              // this gets the right data from the results
-              this.findData(query, sectors);
+            // this gets the right data from the results
+            this.findData(query, sectors);
 
-              // get the data in the kpi query, not the location
-              if (query.indexOf('location') === -1) {
-                this.setState({
-                  dataSource: this.getDataSource(sectors),
-                });
+            // get the data in the kpi query, not the location
+            if (query.indexOf('location') === -1) {
+              this.setState({
+                dataSource: this.getDataSource(sectors),
+              });
+            }
+            // don't set isLoading to false unless all data are loaded
+            // this.state.queryNumber won't be updated until later when the view is shown
+            //   so a static number is shown
+            // if (numEntryProcessed >= NUM_CACHE_ENTRY)
+            // we don't have to worry about hasOwnProperty check on this so this method will work
+            // we need to check if all the results are populated
+            if (Object.keys(resultsCache.dataForQuery).length >= NUM_CACHE_ENTRY) {
+              var allPopulated = true;
+              for (var key in resultsCache.dataForQuery) {
+                if (!resultsCache.dataForQuery[key]) {
+                  allPopulated = false;
+                  break;
+                }
               }
-              // don't set isLoading to false unless all data are loaded
-              // this.state.queryNumber won't be updated until later when the view is shown
-              //   so a static number is shown
-              // if (numEntryProcessed >= NUM_CACHE_ENTRY)
-              // we don't have to worry about hasOwnProperty check on this so this method will work
-              if (Object.keys(resultsCache.dataForQuery).length >= NUM_CACHE_ENTRY) {
+              if (allPopulated) {
                 this.setState({
                   isLoading: false,
                   isRefreshing: false,
                 });
               }
+            }
           } else {
             LOADING[query] = false;
             resultsCache.dataForQuery[query] = undefined;

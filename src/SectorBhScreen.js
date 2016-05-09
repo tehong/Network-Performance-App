@@ -49,11 +49,11 @@ var saveEntityTypeInCloud = require('./utils/saveEntityTypeInCloud');
  /* with Thumb without the zone, just site */
  // var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sectors/site/';
  // DEV below
- var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v2/sectors/site/';
+ var SECTOR_URL = 'http://52.20.201.145:3010/kpis/v1/sectors/busyHour/site/';
  // var SECTOR_URL = 'http://54.165.24.76:3010/kpis/v2/sectors/site/';
  // var SECTOR_URL = 'http://localhost:3010/kpis/v2/sectors/site/';
 
- var SECTOR_COLOR_URL = 'http://52.20.201.145:3010/kpis/v2/sector/all/';
+ var SECTOR_COLOR_URL = 'http://52.20.201.145:3010/kpis/v1/sector/all/busyHour/';
  // var SECTOR_COLOR_URL = 'http://54.165.24.76:3010/kpis/v2/sector/all/';
  // var SECTOR_COLOR_URL = 'http://localhost:3010/kpis/v2/sector/all/';
  // var SECTOR_COLOR_URL = 'http://52.20.201.145:3010/kpis/v1/sector/all/';
@@ -76,7 +76,7 @@ var resultsCache = {
 
 var LOADING = {};
 
-var SectorScreen = React.createClass({
+module.exports = React.createClass({
 
   mixins: [TimerMixin],
 
@@ -99,8 +99,8 @@ var SectorScreen = React.createClass({
   },
 
   componentWillMount: function() {
-    SECTOR_URL = global.restService.sectorPerfUrl ? global.restService.sectorPerfUrl : SECTOR_URL;
-    SECTOR_COLOR_URL = global.restService.sectorColorUrl ? global.restService.sectorColorUrl: SECTOR_COLOR_URL;
+    SECTOR_URL = global.restService.sectorBhUrl ? global.restService.sectorBhUrl : SECTOR_URL;
+    SECTOR_COLOR_URL = global.restService.sectorColorBhUrl ? global.restService.sectorColorBhUrl: SECTOR_COLOR_URL;
     // now every time the page is visited a new result is retrieved so basically the cache is usless
     // TODO  => we might have to take the cache out unless it is for paging
     // resultsCache.totalForQuery = {};
@@ -341,6 +341,7 @@ var SectorScreen = React.createClass({
   },
 
   selectSector: function(sector: Object) {
+    /* Busy Hours => can't drill down to sector detail here
     this.mpSelectSector(sector.name);
     var titleComponent = SectorDetailTitle;
     if (Platform.OS === 'ios') {
@@ -361,6 +362,7 @@ var SectorScreen = React.createClass({
         sector: sector,
       });
     }
+    */
   },
 
   onSearchChange: function(event: Object) {
@@ -370,7 +372,7 @@ var SectorScreen = React.createClass({
     this.timeoutID = this.setTimeout(() => this.getSectors(filter), 100);
   },
   mpSelectSector: function(sectorName) {
-    mixpanelTrack("Sector Selected", {"Data": "Daily Average", "Sector Name": sectorName}, global.currentUser);
+    mixpanelTrack("Sector Selected", {"Data": "Busy Hour", "Sector Name": sectorName}, global.currentUser);
   },
   renderFooter: function() {
     // if (!this.hasMore() || !this.state.isLoadingTail) {
@@ -534,5 +536,3 @@ var NoSectors = React.createClass({
   }
 });
 var styles = getAreaScreenStyles();
-
-module.exports = SectorScreen;

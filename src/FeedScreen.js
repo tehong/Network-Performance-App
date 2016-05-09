@@ -247,7 +247,18 @@ module.exports = React.createClass({
     }, global.currentUser);
     if (Platform.OS === 'ios') {
       // need lazy loading to get the global.currentUser
-      global.isPerfTabOn = true;
+      // if entityType is network => use the entityName as the areaTabSelected
+      /*
+      if (comment.entityType === "network") {
+        global.areaTabSelected = comment.entityName;
+      } else { // or else use the entityName
+        if (comment.entityType.indexOf("busy_hour") > -1) {
+          global.areaTabSelected = "busy_hour";
+        } else {
+          global.areaTabSelected = "daily_average";
+        }
+      }
+      */
       this.navToNetwork();
     } else {  // for android, no op for now
       dismissKeyboard();
