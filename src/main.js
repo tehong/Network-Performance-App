@@ -378,7 +378,7 @@ module.exports = React.createClass({
                         />
                       <Route name="site_busy_hour" entityType="site_busy_hour"
                         component={SiteBhScreen}
-                        renderTitle={() => this.renderTitle("Site Busy Hour")}
+                        renderTitle={() => this.renderTitle("Network Busy Hour")}
                         />
                       <Route name="sector" entityType="sector"
                         component={SectorScreen}
@@ -386,7 +386,7 @@ module.exports = React.createClass({
                         />
                       <Route name="sector_busy_hour" entityType="sector_busy_hour"
                         component={SectorBhScreen}
-                        renderTitle={() => this.renderTitle("Sector Busy Hour")}
+                        renderTitle={() => this.renderTitle("Network Busy Hour")}
                         />
                       <Route name="sectorDetail" entityType="sector_detail"
                         component={SectorDetailScreen}

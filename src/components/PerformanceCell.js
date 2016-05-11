@@ -376,6 +376,7 @@ var PerformanceCell = React.createClass({
     if (dailyAverage === "No Data") {
       unit = "";
     }
+    debugger;
     if (this.props.entityType === "network") {
       switch (this.props.entityName) {
         case "daily_average":
@@ -383,7 +384,7 @@ var PerformanceCell = React.createClass({
           var hourText = this.props.geoArea.liveNetworkHours;
           break;
         case "monthly_target":
-          var entityText = "Monthly Busy Hour Avearage";
+          var entityText = "Monthly Busy Hour Average";
           var hourText = "";
           break;
         case "busy_hour":
@@ -400,12 +401,12 @@ var PerformanceCell = React.createClass({
           var hourText = this.props.geoArea.liveNetworkHours;
           break;
         case "site_busy_hour":
-          var entityText = "Site Busy Hour ";
+          var entityText = "Network Busy Hour ";
           var hourText = this.props.geoArea.networkBusyHour;
           break;
         case "sector_busy_hour":
         case "sector_color_busy_hour":
-          var entityText = "Sector Busy Hour ";
+          var entityText = "Network Busy Hour ";
           var hourText = this.props.geoArea.networkBusyHour;
           break;
       }
