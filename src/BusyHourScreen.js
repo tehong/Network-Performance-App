@@ -14,7 +14,7 @@ var {
 } = React;
 
 var Actions = require('react-native-router-flux').Actions;
-var cachedAreas = undefined;
+var cachedBhAreas = undefined;
 var ROW_HEIGHT = 285;
 var prepareCommentBox = require('./utils/prepareCommentBox');
 var scrollToByTimeout = require('./utils/scrollToByTimeout');
@@ -146,7 +146,7 @@ module.exports = React.createClass({
       }
     }
     // see we need to auto nav to the next page to get to the comment item
-    this.checkNavToComment(cachedAreas);
+    this.checkNavToComment(cachedBhAreas);
     // see if we need to scroll to the right place for auto-nav of the comments
     this.scrollToRightListItem();
   },
@@ -291,7 +291,7 @@ module.exports = React.createClass({
           isLoading: true,
         });
       }
-      cachedAreas = cachedResultsForQuery;
+      cachedBhAreas = cachedResultsForQuery;
       return;
     }
 
@@ -542,36 +542,4 @@ module.exports = React.createClass({
   },
 });
 
-var NoAreas = React.createClass({
-  render: function() {
-    var TouchableElement = TouchableOpacity;  // for iOS or Android variation
-    var text = '';
-    if (this.props.statusMessage && this.props.statusMessage !== "") {
-      text = this.props.statusMessage + "\n(Status code: " + this.props.statusCode + ")";
-    } else {
-      // If we're looking at the latest areas, aren't currently loading, and
-      // still have no results, show a message
-      text = 'We have detected a problem with our system, we are working on it so please come back soon.';
-    }
-    /*
-        <TouchableElement
-          style={styles.iconTouch}
-          onPress={this.props.onPressRefresh}
-          underlayColor={"#105D95"}>
-          <Text style={[styles.noResultText, {color: white}]}>Refresh Data</Text>
-        </TouchableElement>
-        */
-    return (
-      <View style={styles.noDataContainer}>
-        <Text style={styles.noResultText}>{text}</Text>
-        <TouchableElement
-          style={styles.iconTouch}
-          onPress={this.props.onPressRefresh}
-          underlayColor={"#105D95"}>
-          <Text style={[styles.pressRefreshText, {color: "white"}]}>Refresh Data</Text>
-        </TouchableElement>
-      </View>
-    );
-  }
-});
 var styles = getAreaScreenStyles();

@@ -543,6 +543,7 @@ module.exports = React.createClass({
   },
 });
 
+/*
 var NoAreas = React.createClass({
   render: function() {
     var TouchableElement = TouchableOpacity;  // for iOS or Android variation
@@ -554,14 +555,7 @@ var NoAreas = React.createClass({
       // still have no results, show a message
       text = 'We have detected a problem with our system, we are working on it so please come back soon.';
     }
-    /*
-        <TouchableElement
-          style={styles.iconTouch}
-          onPress={this.props.onPressRefresh}
-          underlayColor={"#105D95"}>
-          <Text style={[styles.noResultText, {color: white}]}>Refresh Data</Text>
-        </TouchableElement>
-        */
+
     return (
       <View style={styles.noDataContainer}>
         <Text style={styles.noResultText}>{text}</Text>
@@ -575,4 +569,5 @@ var NoAreas = React.createClass({
     );
   }
 });
+*/
 var styles = getAreaScreenStyles();

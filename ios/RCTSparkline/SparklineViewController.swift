@@ -16,6 +16,8 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   // class constants
   let kDataLine = "DataLine"
   let kAverageLine = "AverageLine"
+  let kVerticalLine = "VerticalLine"
+
 
   // var annotation = CPTPlotSpaceAnnotation?()
   var histogramOption = CPTScatterPlotHistogramOption.Normal   // not needed
@@ -26,6 +28,10 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   var dateArray = Dictionary<Int, String>()
   let cptPrimeColor = CPTColor(componentRed: 43/255, green: 136/255, blue: 184/255, alpha: 1)
   var _average:Double = 0.0
+  var _verticalLineArray:[Double]?
+  var _yScale:[Double]?
+  var _maxX:Double = 0
+
   
   deinit {
     reset()
@@ -123,7 +129,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
       let dateStr:NSString = NSString(string: String(xValue)).substringFromIndex(0)
       
       dateArray[i] = dateStr as String
-      i--
+      i -= 1
     }
     // print(plotData)
     // print(dateArray)
@@ -224,9 +230,11 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   }
   
   // yScale: [0] => yMinValue, [1] => yLength
-  func plot(dataArray:[[AnyObject]], average: Double, yScale: [Double], graphView:CPTGraphHostingView)
+  func plot(dataArray:[[AnyObject]], average: Double, yScale: [Double], verticalLineArray: [Double], graphView:CPTGraphHostingView)
   {
     _average = average
+    _verticalLineArray = verticalLineArray;
+    _yScale = yScale
     setUpChart(graphView)
     
     // data needs to be there before the plot gets created!
@@ -256,6 +264,19 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     averageLinePlot.dataLineStyle = lineStyle
     averageLinePlot.dataSource = self
     graph!.addPlot(averageLinePlot)
+    
+    // vertical Line plot:
+    
+    let verticalLinePlot: CPTScatterPlot = CPTScatterPlot()
+    verticalLinePlot.identifier = kVerticalLine
+    lineStyle = verticalLinePlot.dataLineStyle!.mutableCopy() as! CPTMutableLineStyle
+    lineStyle.lineWidth = 6.0
+    lineStyle.lineColor = CPTColor(componentRed: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
+    // lineStyle.dashPattern = [4, 3]
+    verticalLinePlot.dataLineStyle = lineStyle
+    verticalLinePlot.dataSource = self
+    graph!.addPlot(verticalLinePlot)
+
     
     // Auto scale the plot space to fit the plot data
     // Extend the ranges by 30% for neatness
@@ -347,14 +368,14 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
   func numberOfRecordsForPlot(plot: CPTPlot) -> UInt {
     // return the number of record for a plot
     let identifier:String = plot.identifier as! String
-    if (identifier == kDataLine ) {
-      var maxX:Double = 0
+    if (identifier == kDataLine || identifier == kVerticalLine ) {
       for item in plotData {
-        if item["x"] > maxX {
-          maxX = item["x"]!
+        if item["x"] > _maxX {
+          _maxX = item["x"]!
         }
       }
-      return UInt(maxX) + 1
+      // depending on how many vertical lines we need, we need to add additional data points to it
+      return UInt(_maxX) + 1 + UInt(_verticalLineArray!.count)
     } else {
       return 2  // average line with only 2 points
     }
@@ -385,6 +406,48 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
         return nil
       }
       // let num: Int = Int(plotData[i][key]!)
+    } else if (identifier == kVerticalLine) {
+      var foundBase = false
+      var foundTop = false
+      for item in _verticalLineArray! {
+        if (item == Double(idx)) {
+          num = item
+          foundBase = true
+          break
+        }
+        if (item+1 == Double(idx)) {
+          num = item
+          foundTop = true
+          break
+        }
+      }
+
+      switch(key) {
+      case "x":
+        if (foundBase || foundTop) {
+          return num
+        } else {
+          return nil
+        }
+      case "y":
+        if (foundBase) {
+          if (_yScale![0] >= 0) {
+            return 0
+          } else {
+            return -9999999
+          }
+        } else if (foundTop) {
+          if (_yScale![0] >= 0) {
+            return 9999999
+          } else {
+            return 0
+          }
+        } else {
+          return nil
+        }
+      default:
+        break
+      }
     } else {  // average plot x,y returns here
       switch(key) {
         case "x":

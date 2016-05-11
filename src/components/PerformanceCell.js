@@ -376,7 +376,6 @@ var PerformanceCell = React.createClass({
     if (dailyAverage === "No Data") {
       unit = "";
     }
-    debugger;
     if (this.props.entityType === "network") {
       switch (this.props.entityName) {
         case "daily_average":
@@ -500,6 +499,15 @@ var PerformanceCell = React.createClass({
     if (commentCount === 0) {
       commentCount = "";
     }
+    var verticalLineArray = [];
+    if (this.props.entityType.indexOf("busy_hour") > -1 || this.props.entityName.indexOf("busy_hour") > -1) {
+      var busyHourText = this.props.geoArea.networkBusyHour;
+      var firstHour = parseInt(this.props.geoArea.liveNetworkHours.substring(0,1));
+      var busyHourIndex = (busyHourText && busyHourText.indexOf("pm") > -1) ?
+          parseInt(busyHourText.substring(0,1)) + 12 - firstHour : parseInt(busyHourText.substring(0,1)) - firstHour;
+      verticalLineArray = [busyHourIndex];
+    }
+
     return(
       <View style={styles.dataContainer}>
         <View style={styles.chartContainer}>
@@ -509,6 +517,7 @@ var PerformanceCell = React.createClass({
               average={greenThreshold}
               yScale={yScale}
               dataArray={data}
+              verticalLineArray={verticalLineArray}
             />
           </Image>
           <View style={styles.chartSideContainer}>

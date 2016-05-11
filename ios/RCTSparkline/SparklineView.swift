@@ -15,6 +15,7 @@ class SparklineView: UIView {
   // let dataDictionary = ["0":96, "1":97, "2":99, "3":100, "4":95, "5":97, "6":99, "7":94, "8":90, "9":100, "10":80, "11":99, "12":97]
 
   var _average:Double?
+  var _verticalLineArray:[Double]?
   var _yScale:[Double]?   // [0] => minimum value of y axis, [1] => y axis length
   var _dataArray = [[AnyObject]]?()
   
@@ -111,6 +112,12 @@ class SparklineView: UIView {
     plot()
   }
   
+  func setVerticalLineArray(verticalLineArray:[Double]) {
+    _verticalLineArray = verticalLineArray
+    plot()
+  }
+
+  
   func setYScale(value:[AnyObject]) {
     let yMinValue:Double = (value[0] as! NSNumber).doubleValue
     let yLength:Double = (value[1] as! NSNumber).doubleValue
@@ -130,9 +137,9 @@ class SparklineView: UIView {
   }
   
   func plot() {
-    if (_dataArray != nil && _average != nil && _yScale != nil) {
+    if (_dataArray != nil && _average != nil && _yScale != nil && _verticalLineArray != nil) {
       setupView()
-      sparklineController.plot(_dataArray!, average: _average!, yScale: _yScale!, graphView: sparklineView)
+      sparklineController.plot(_dataArray!, average: _average!, yScale: _yScale!, verticalLineArray: _verticalLineArray!, graphView: sparklineView)
     }
   }
 }
