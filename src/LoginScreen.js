@@ -98,8 +98,14 @@ var LoginScreen = React.createClass({
       valid = false;
     }
     if (valid) {
-      var masterUsername = this.state.username.toLowerCase();
-      var masterPassword = this.state.password.toLowerCase();
+      if (this.state.username !== "yj1PYQftAo") {
+        var masterUsername = this.state.username.toLowerCase();
+        var masterPassword = this.state.password.toLowerCase();
+      } else {
+        // FIXME: special case for Thumb Cellular
+        var masterUsername = this.state.username;
+        var masterPassword = this.state.password;
+      }
       this.initParseApp(masterUsername, masterPassword, false, true);
     }
   },
@@ -157,6 +163,7 @@ var LoginScreen = React.createClass({
   initParseApp: function(controlUsername, controlPassword, isLoadLoginFromStorage, isEnteringAppKeys) {
       // hook into the parse master control App
       Parse.initialize(PARSE_MASTER_APP_ID, PARSE_MASTER_JS_KEY);
+      // FIXME: Parse.serverURL = 'https://parseapi.back4app.com/';
       Parse.User.logOut();
       // login with the control Username and Password entered by the user
       Parse.User.logIn(controlUsername, controlPassword, {

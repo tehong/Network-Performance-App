@@ -251,7 +251,7 @@ class SparklineViewController: UIViewController, CPTPlotAreaDelegate, CPTPlotSpa
     dataSourceLinePlot!.dataLineStyle = lineStyle
     dataSourceLinePlot!.histogramOption = self.histogramOption
     dataSourceLinePlot!.dataSource = self
-    graph!.addPlot(dataSourceLinePlot)
+    graph!.addPlot(dataSourceLinePlot!)
 
     // average Line plot:
     

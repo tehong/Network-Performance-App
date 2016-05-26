@@ -170,8 +170,8 @@ typedef NSMutableArray<__kindof CPTPlotSpace *> CPTMutablePlotSpaceArray;
 @property (nonatomic, readwrite, copy, nullable) id<NSCopying, NSCoding, NSObject> identifier;
 @property (nonatomic, readwrite) BOOL allowsUserInteraction;
 @property (nonatomic, readonly) BOOL isDragging;
-@property (nonatomic, readwrite, cpt_weak_property, nullable) cpt_weak CPTGraph *graph;
-@property (nonatomic, readwrite, cpt_weak_property, nullable) cpt_weak id<CPTPlotSpaceDelegate> delegate;
+@property (nonatomic, readwrite, cpt_weak_property, nullable) CPTGraph *graph;
+@property (nonatomic, readwrite, cpt_weak_property, nullable) id<CPTPlotSpaceDelegate> delegate;
 
 @property (nonatomic, readonly) NSUInteger numberOfCoordinates;
 
@@ -191,7 +191,7 @@ typedef NSMutableArray<__kindof CPTPlotSpace *> CPTMutablePlotSpaceArray;
 /// @name Initialization
 /// @{
 -(nonnull instancetype)init NS_DESIGNATED_INITIALIZER;
--(nonnull instancetype)initWithCoder:(nonnull NSCoder *)decoder NS_DESIGNATED_INITIALIZER;
+-(nullable instancetype)initWithCoder:(nonnull NSCoder *)decoder NS_DESIGNATED_INITIALIZER;
 /// @}
 
 @end
@@ -236,6 +236,8 @@ typedef NSMutableArray<__kindof CPTPlotSpace *> CPTMutablePlotSpaceArray;
 /// @{
 -(void)scaleToFitPlots:(nullable CPTPlotArray *)plots;
 -(void)scaleToFitPlots:(nullable CPTPlotArray *)plots forCoordinate:(CPTCoordinate)coordinate;
+-(void)scaleToFitEntirePlots:(nullable CPTPlotArray *)plots;
+-(void)scaleToFitEntirePlots:(nullable CPTPlotArray *)plots forCoordinate:(CPTCoordinate)coordinate;
 -(void)scaleBy:(CGFloat)interactionScale aboutPoint:(CGPoint)interactionPoint;
 /// @}
 

@@ -146,7 +146,7 @@
   });
 }
 
-// register push (from Intercom) - no need with Parse register the device already - see ParseInit
+// register push (from Intercom) - no need with Parse registering the device already - see ParseInit
 
 /* push notification */
 

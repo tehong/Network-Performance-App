@@ -285,26 +285,36 @@ Release 0.2.3 is on TestFlight:
   - Revised the Site/Sector BH screens to show title and KPI BH average text to "Network Busy Hour" to clarify
     that this is the network busy hour in site and sector BH screens.
 
+- Beeper iOS 0.6.5 - Internal OTA Release Note
+  - Revised the LoginScreen to specifically target Thumb Celluar Carrier Keys to allow them to enter upper case.
+    Search for "FIXME" in the file.
+
 - Beeper iOS 0.7.0 - Internal non-OTA Release Note
   - Story 897:
     - Place highlight on network busy hour via SparklineView's new verticalLineArray props
     - Implemented the new verticalLineArray props in the iOS Core-Plot SparlineViewController.
 
+- Beeper iOS 0.7.1 - Internal OTA Release Note
+  - Revised the LoginScreen to specifically target Thumb Cellular Carrier Keys for 0.7.0 to allow them to enter upper case.
+
+- Beeper iOS 0.7.2 - Internal non-OTA Release Note
+  - Fixed a problem with getting the feed count correctly.
+  - Updated the underlying iOS packages - mixpanel, core-plot, parse...
+
+- Beeper iOS 0.8.0 - Internal non-OTA Release Note
+  - Changed from the current parse.com server to the back4app parse server.
+
   TODO:
   - Update the react-native-router-flux to the new version.
+  - Search for "FIXME" in the file.
 
-  - TODO:
   - Story 638: Color code sector details map. https://3ten8.tpondemand.com/entity/638
-
-  - TODO:
-  - Allowed user to display road/satellite/hybrid map.
   - (Replacing current listview?) Checkout react-native-tableview for IOS tableview support: https://github.com/aksonov/react-native-tableview
 
 - TODO:
   - Create the demo data sets in Jason to be used in the Beeper Demo Service.
 
   - (Done!) replace tab bar and gb-native-router with react-native-router-flux: https://github.com/aksonov/react-native-router-flux
-  - Changed the header dates to the actual date instead of just the day before.
   - KPI sector colors are displayed on the map's sectors' leaves.
   - Swap out current mixpanel with react native mixpanel - https://github.com/davodesign84/react-native-mixpanel
   - (later when needed) Swap out current MapView with react-native-maps - https://github.com/lelandrichardson/react-native-maps
@@ -313,4 +323,4 @@ Release 0.2.3 is on TestFlight:
   - Check out react-native-viewpager: https://github.com/race604/react-native-viewpager  (Seems too simple)
   - check out react-native-activity-view: https://github.com/naoufal/react-native-activity-view for sharing on IOS only
   - check out react-native-navbar for nav bar component: https://github.com/react-native-fellowship/react-native-navbar
-  - (No support of multi-line!) Swap out coreplot chart with react native chart: https://github.com/tomauty/react-native-chart
+  - (No support of multi-line so line chart still stay with coreplot!) Swap out coreplot chart with react native chart: https://github.com/tomauty/react-native-chart

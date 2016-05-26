@@ -41,7 +41,7 @@ typedef NSMutableSet<CALayer *> CPTMutableSublayerSet;
 
 /// @name Graph
 /// @{
-@property (nonatomic, readwrite, cpt_weak_property, nullable) cpt_weak CPTGraph *graph;
+@property (nonatomic, readwrite, cpt_weak_property, nullable) CPTGraph *graph;
 /// @}
 
 /// @name Padding
@@ -82,7 +82,7 @@ typedef NSMutableSet<CALayer *> CPTMutableSublayerSet;
 /// @name Initialization
 /// @{
 -(nonnull instancetype)initWithFrame:(CGRect)newFrame NS_DESIGNATED_INITIALIZER;
--(nonnull instancetype)initWithCoder:(nonnull NSCoder *)coder NS_DESIGNATED_INITIALIZER;
+-(nullable instancetype)initWithCoder:(nonnull NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 -(nonnull instancetype)initWithLayer:(nonnull id)layer NS_DESIGNATED_INITIALIZER;
 /// @}
 

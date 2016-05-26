@@ -1,6 +1,30 @@
+// call the parse server
 curl -X POST \
-  -H "X-Parse-Application-Id: Df3vSYw5LPzc8ETCwflAdhkq9NFplAmuApK600Go" \
-  -H "X-Parse-REST-API-Key: bzkHAgWSH8Zs1QFKGtqVWEDkzcSclsBKl01Qu5k8" \
+  -H "X-Parse-Application-Id: F3OkLKbbkC6pOOKRrFdhOODtrLyf0PjpRMmq68sy" \
+  -H "X-Parse-REST-API-Key: n1iQqOqZmyq3rEAuiTC7yveGfkd7mCmF6W4iOMAL" \
+  -H "Content-Type: application/json" \
+  https://parseapi.back4app.com/functions/hello
+
+// call the parse server
+curl -X POST \
+  -H "X-Parse-Application-Id: F3OkLKbbkC6pOOKRrFdhOODtrLyf0PjpRMmq68sy" \
+  -H "X-Parse-REST-API-Key: n1iQqOqZmyq3rEAuiTC7yveGfkd7mCmF6W4iOMAL" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "eric@3ten8.com"}' \
+  https://parseapi.back4app.com/functions/resetUserPassword
+
+// call the parse.com
+
+curl -X POST \
+  -H "X-Parse-Application-Id: F3OkLKbbkC6pOOKRrFdhOODtrLyf0PjpRMmq68sy" \
+  -H "X-Parse-REST-API-Key: n1iQqOqZmyq3rEAuiTC7yveGfkd7mCmF6W4iOMAL" \
   -H "Content-Type: application/json" \
   -d '{"email": "eric@3ten8.com"}' \
   https://api.parse.com/1/functions/resetUserPassword
+
+curl -X POST \
+  -H "X-Parse-Application-Id: F3OkLKbbkC6pOOKRrFdhOODtrLyf0PjpRMmq68sy" \
+  -H "X-Parse-REST-API-Key: n1iQqOqZmyq3rEAuiTC7yveGfkd7mCmF6W4iOMAL" \
+  -H "Content-Type: application/json" \
+  -d '{"plan":"paid"}' \
+  https://parseapi.back4app.com/1/jobs/pushTest

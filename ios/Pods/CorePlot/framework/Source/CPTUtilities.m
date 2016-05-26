@@ -173,7 +173,7 @@ CGFloat CPTDecimalCGFloatValue(NSDecimal decimalNumber)
  *  @param decimalNumber The @ref NSDecimal value.
  *  @return The converted value.
  **/
-NSString *CPTDecimalStringValue(NSDecimal decimalNumber)
+NSString *__nonnull CPTDecimalStringValue(NSDecimal decimalNumber)
 {
     return [NSDecimalNumber decimalNumberWithDecimal:decimalNumber].stringValue;
 }
@@ -468,7 +468,7 @@ NSDecimal CPTDecimalFromFloat(float aFloat)
         return CPTDecimalNaN();
     }
     else {
-        NSString *stringValue = [[NSString alloc] initWithFormat:@"%f", aFloat];
+        NSString *stringValue = [[NSString alloc] initWithFormat:@"%f", (double)aFloat];
         NSDecimal result      = CPTDecimalFromString(stringValue);
 
         return result;
@@ -504,7 +504,7 @@ NSDecimal CPTDecimalFromCGFloat(CGFloat aCGFloat)
         return CPTDecimalNaN();
     }
     else {
-        NSString *stringValue = [[NSString alloc] initWithFormat:@"%f", aCGFloat];
+        NSString *stringValue = [[NSString alloc] initWithFormat:@"%f", (double)aCGFloat];
         NSDecimal result      = CPTDecimalFromString(stringValue);
 
         return result;
@@ -516,7 +516,7 @@ NSDecimal CPTDecimalFromCGFloat(CGFloat aCGFloat)
  *  @param stringRepresentation The string value.
  *  @return The numeric value extracted from the string.
  **/
-NSDecimal CPTDecimalFromString(NSString *stringRepresentation)
+NSDecimal CPTDecimalFromString(NSString *__nonnull stringRepresentation)
 {
     // The following NSDecimalNumber-based creation of NSDecimal structs from strings is slower than
     // the NSScanner-based method: (307000 operations per second vs. 582000 operations per second for NSScanner)
@@ -588,7 +588,18 @@ NSDecimal CPTDecimalDivide(NSDecimal numerator, NSDecimal denominator)
 {
     NSDecimal result;
 
-    NSDecimalDivide(&result, &numerator, &denominator, NSRoundBankers);
+    NSCalculationError calcError = NSDecimalDivide(&result, &numerator, &denominator, NSRoundBankers);
+
+    switch ( calcError ) {
+        case NSCalculationUnderflow:
+        case NSCalculationDivideByZero:
+            result = CPTDecimalFromInteger(0);
+            break;
+
+        default:
+            // no error--return the result of the division
+            break;
+    }
     return result;
 }
 
@@ -744,7 +755,7 @@ NSRange CPTExpandedRange(NSRange range, NSInteger expandBy)
  *  @param color The color.
  *  @return The RGBA components of the color.
  **/
-CPTRGBAColor CPTRGBAColorFromCGColor(CGColorRef color)
+CPTRGBAColor CPTRGBAColorFromCGColor(__nonnull CGColorRef color)
 {
     CPTRGBAColor rgbColor;
 
@@ -798,7 +809,7 @@ CPTCoordinate CPTOrthogonalCoordinate(CPTCoordinate coord)
  *  @param point The point in user space.
  *  @return The device aligned point in user space.
  **/
-CGPoint CPTAlignPointToUserSpace(CGContextRef context, CGPoint point)
+CGPoint CPTAlignPointToUserSpace(__nonnull CGContextRef context, CGPoint point)
 {
     // Compute the coordinates of the point in device space.
     point = CGContextConvertPointToDeviceSpace(context, point);
@@ -822,7 +833,7 @@ CGPoint CPTAlignPointToUserSpace(CGContextRef context, CGPoint point)
  *  @param size The size in user space.
  *  @return The device aligned size in user space.
  **/
-CGSize CPTAlignSizeToUserSpace(CGContextRef context, CGSize size)
+CGSize CPTAlignSizeToUserSpace(__nonnull CGContextRef context, CGSize size)
 {
     // Compute the size in device space.
     size = CGContextConvertSizeToDeviceSpace(context, size);
@@ -846,7 +857,7 @@ CGSize CPTAlignSizeToUserSpace(CGContextRef context, CGSize size)
  *  @param rect The rectangle in user space.
  *  @return The device aligned rectangle in user space.
  **/
-CGRect CPTAlignRectToUserSpace(CGContextRef context, CGRect rect)
+CGRect CPTAlignRectToUserSpace(__nonnull CGContextRef context, CGRect rect)
 {
     rect = CGContextConvertRectToDeviceSpace(context, rect);
 
@@ -874,7 +885,7 @@ CGRect CPTAlignRectToUserSpace(CGContextRef context, CGRect rect)
  *  @param point The point in user space.
  *  @return The device aligned point in user space.
  **/
-CGPoint CPTAlignIntegralPointToUserSpace(CGContextRef context, CGPoint point)
+CGPoint CPTAlignIntegralPointToUserSpace(__nonnull CGContextRef context, CGPoint point)
 {
     point = CGContextConvertPointToDeviceSpace(context, point);
 
@@ -894,7 +905,7 @@ CGPoint CPTAlignIntegralPointToUserSpace(CGContextRef context, CGPoint point)
  *  @param rect The rectangle in user space.
  *  @return The device aligned rectangle in user space.
  **/
-CGRect CPTAlignIntegralRectToUserSpace(CGContextRef context, CGRect rect)
+CGRect CPTAlignIntegralRectToUserSpace(__nonnull CGContextRef context, CGRect rect)
 {
     rect = CGContextConvertRectToDeviceSpace(context, rect);
 
@@ -909,7 +920,7 @@ CGRect CPTAlignIntegralRectToUserSpace(CGContextRef context, CGRect rect)
     return CGContextConvertRectToUserSpace(context, rect);
 }
 
-CGRect CPTAlignBorderedRectToUserSpace(CGContextRef context, CGRect rect, CPTLineStyle *borderLineStyle)
+CGRect CPTAlignBorderedRectToUserSpace(__nonnull CGContextRef context, CGRect rect, CPTLineStyle *__nonnull borderLineStyle)
 {
     CGRect borderRect;
     CGFloat contextScale = CPTFloat(1.0);
@@ -942,27 +953,36 @@ CGRect CPTAlignBorderedRectToUserSpace(CGContextRef context, CGRect rect, CPTLin
  *  @param point The point.
  *  @return A string with the format <code> {x, y}</code>.
  **/
-NSString *CPTStringFromPoint(CGPoint point)
+NSString * __nonnull CPTStringFromPoint(CGPoint point)
 {
-    return [NSString stringWithFormat:@"{%g, %g}", point.x, point.y];
+    return [NSString stringWithFormat:@"{%g, %g}", (double)point.x, (double)point.y];
 }
 
 /** @brief Creates a string representation of the given size.
  *  @param size The size.
  *  @return A string with the format <code> {width, height}</code>.
  **/
-NSString *CPTStringFromSize(CGSize size)
+NSString *__nonnull CPTStringFromSize(CGSize size)
 {
-    return [NSString stringWithFormat:@"{%g, %g}", size.width, size.height];
+    return [NSString stringWithFormat:@"{%g, %g}", (double)size.width, (double)size.height];
 }
 
 /** @brief Creates a string representation of the given rectangle.
  *  @param rect The rectangle.
  *  @return A string with the format <code> {{x, y}, {width, height}}</code>.
  **/
-NSString *CPTStringFromRect(CGRect rect)
+NSString *__nonnull CPTStringFromRect(CGRect rect)
 {
-    return [NSString stringWithFormat:@"{{%g, %g}, {%g, %g}}", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height];
+    return [NSString stringWithFormat:@"{{%g, %g}, {%g, %g}}", (double)rect.origin.x, (double)rect.origin.y, (double)rect.size.width, (double)rect.size.height];
+}
+
+/** @brief Creates a string representation of the given vector.
+ *  @param vector The vector.
+ *  @return A string with the format <code> {dx, dy}</code>.
+ **/
+NSString *__nonnull CPTStringFromVector(CGVector vector)
+{
+    return [NSString stringWithFormat:@"{%g, %g}", (double)vector.dx, (double)vector.dy];
 }
 
 #pragma mark -

@@ -253,7 +253,7 @@ typedef NSMutableArray<__kindof CPTPlot *> CPTMutablePlotArray;
 
 /// @name Data Source
 /// @{
-@property (nonatomic, readwrite, cpt_weak_property, nullable) cpt_weak id<CPTPlotDataSource> dataSource;
+@property (nonatomic, readwrite, cpt_weak_property, nullable) id<CPTPlotDataSource> dataSource;
 /// @}
 
 /// @name Identification
@@ -357,6 +357,8 @@ typedef NSMutableArray<__kindof CPTPlot *> CPTMutablePlotArray;
 /// @{
 -(nullable CPTPlotRange *)plotRangeForField:(NSUInteger)fieldEnum;
 -(nullable CPTPlotRange *)plotRangeForCoordinate:(CPTCoordinate)coord;
+-(nullable CPTPlotRange *)plotRangeEnclosingField:(NSUInteger)fieldEnum;
+-(nullable CPTPlotRange *)plotRangeEnclosingCoordinate:(CPTCoordinate)coord;
 /// @}
 
 /// @name Legends

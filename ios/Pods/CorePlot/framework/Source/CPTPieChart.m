@@ -32,9 +32,9 @@ NSString *const CPTPieChartBindingPieSliceRadialOffsets = @"sliceRadialOffsets";
 /// @cond
 @interface CPTPieChart()
 
-@property (nonatomic, readwrite, copy) CPTNumberArray *sliceWidths;
-@property (nonatomic, readwrite, copy) CPTFillArray *sliceFills;
-@property (nonatomic, readwrite, copy) CPTNumberArray *sliceRadialOffsets;
+@property (nonatomic, readwrite, copy, nullable) CPTNumberArray *sliceWidths;
+@property (nonatomic, readwrite, copy, nullable) CPTFillArray *sliceFills;
+@property (nonatomic, readwrite, copy, nullable) CPTNumberArray *sliceRadialOffsets;
 @property (nonatomic, readwrite, assign) NSUInteger pointingDeviceDownIndex;
 
 -(void)updateNormalizedData;
@@ -42,8 +42,8 @@ NSString *const CPTPieChartBindingPieSliceRadialOffsets = @"sliceRadialOffsets";
 -(CGFloat)normalizedPosition:(CGFloat)rawPosition;
 -(BOOL)angle:(CGFloat)touchedAngle betweenStartAngle:(CGFloat)startingAngle endAngle:(CGFloat)endingAngle;
 
--(void)addSliceToPath:(CGMutablePathRef)slicePath centerPoint:(CGPoint)center startingAngle:(CGFloat)startingAngle finishingAngle:(CGFloat)finishingAngle;
--(CPTFill *)sliceFillForIndex:(NSUInteger)idx;
+-(void)addSliceToPath:(nonnull CGMutablePathRef)slicePath centerPoint:(CGPoint)center startingAngle:(CGFloat)startingAngle finishingAngle:(CGFloat)finishingAngle;
+-(nullable CPTFill *)sliceFillForIndex:(NSUInteger)idx;
 
 @end
 
@@ -102,12 +102,12 @@ NSString *const CPTPieChartBindingPieSliceRadialOffsets = @"sliceRadialOffsets";
  **/
 @synthesize centerAnchor;
 
-/** @property CPTLineStyle *borderLineStyle
+/** @property nullable CPTLineStyle *borderLineStyle
  *  @brief The line style used to outline the pie slices.  If @nil, no border is drawn.  Defaults to @nil.
  **/
 @synthesize borderLineStyle;
 
-/** @property CPTFill *overlayFill
+/** @property nullable CPTFill *overlayFill
  *  @brief A fill drawn on top of the pie chart.
  *  Can be used to add shading and/or gloss effects. Defaults to @nil.
  **/
@@ -158,7 +158,7 @@ static const CGFloat colorLookupTable[10][3] =
  *  @return A new CPTColor instance corresponding to the default value for this pie slice index.
  **/
 
-+(CPTColor *)defaultPieSliceColorForIndex:(NSUInteger)pieSliceIndex
++(nonnull CPTColor *)defaultPieSliceColorForIndex:(NSUInteger)pieSliceIndex
 {
     return [CPTColor colorWithComponentRed:( colorLookupTable[pieSliceIndex % 10][0] + (CGFloat)(pieSliceIndex / 10) * CPTFloat(0.1) )
                                      green:( colorLookupTable[pieSliceIndex % 10][1] + (CGFloat)(pieSliceIndex / 10) * CPTFloat(0.1) )
@@ -206,13 +206,13 @@ static const CGFloat colorLookupTable[10][3] =
  *  @param newFrame The frame rectangle.
  *  @return The initialized CPTPieChart object.
  **/
--(instancetype)initWithFrame:(CGRect)newFrame
+-(nonnull instancetype)initWithFrame:(CGRect)newFrame
 {
     if ( (self = [super initWithFrame:newFrame]) ) {
         pieRadius                     = CPTFloat(0.8) * ( MIN(newFrame.size.width, newFrame.size.height) / CPTFloat(2.0) );
         pieInnerRadius                = CPTFloat(0.0);
         startAngle                    = CPTFloat(M_PI_2); // pi/2
-        endAngle                      = NAN;
+        endAngle                      = CPTNAN;
         sliceDirection                = CPTPieDirectionClockwise;
         centerAnchor                  = CPTPointMake(0.5, 0.5);
         borderLineStyle               = nil;
@@ -230,7 +230,7 @@ static const CGFloat colorLookupTable[10][3] =
 
 /// @cond
 
--(instancetype)initWithLayer:(id)layer
+-(nonnull instancetype)initWithLayer:(nonnull id)layer
 {
     if ( (self = [super initWithLayer:layer]) ) {
         CPTPieChart *theLayer = (CPTPieChart *)layer;
@@ -256,7 +256,7 @@ static const CGFloat colorLookupTable[10][3] =
 
 /// @cond
 
--(void)encodeWithCoder:(NSCoder *)coder
+-(void)encodeWithCoder:(nonnull NSCoder *)coder
 {
     [super encodeWithCoder:coder];
 
@@ -274,7 +274,7 @@ static const CGFloat colorLookupTable[10][3] =
     // pointingDeviceDownIndex
 }
 
--(instancetype)initWithCoder:(NSCoder *)coder
+-(nullable instancetype)initWithCoder:(nonnull NSCoder *)coder
 {
     if ( (self = [super initWithCoder:coder]) ) {
         pieRadius       = [coder decodeCGFloatForKey:@"CPTPieChart.pieRadius"];
@@ -404,7 +404,7 @@ static const CGFloat colorLookupTable[10][3] =
             while ( dataBytes < dataEnd ) {
                 double currentWidth = *dataBytes++;
                 if ( isnan(currentWidth) ) {
-                    *normalizedBytes++ = NAN;
+                    *normalizedBytes++ = (double)NAN;
                 }
                 else {
                     *normalizedBytes++ = currentWidth / valueSum;
@@ -558,7 +558,7 @@ static const CGFloat colorLookupTable[10][3] =
 
 /// @cond
 
--(void)renderAsVectorInContext:(CGContextRef)context
+-(void)renderAsVectorInContext:(nonnull CGContextRef)context
 {
     if ( self.hidden ) {
         return;
@@ -630,7 +630,7 @@ static const CGFloat colorLookupTable[10][3] =
             CGFloat xOffset = CPTFloat(0.0);
             CGFloat yOffset = CPTFloat(0.0);
             CGPoint center  = centerPoint;
-            if ( radialOffset != 0.0 ) {
+            if ( radialOffset != CPTFloat(0.0) ) {
                 CGFloat medianAngle = CPTFloat(0.5) * (startingAngle + finishingAngle);
                 xOffset = cos(medianAngle) * radialOffset;
                 yOffset = sin(medianAngle) * radialOffset;
@@ -689,7 +689,7 @@ static const CGFloat colorLookupTable[10][3] =
         CGMutablePathRef fillPath = CGPathCreateMutable();
 
         CGFloat innerRadius = self.pieInnerRadius;
-        if ( innerRadius > 0.0 ) {
+        if ( innerRadius > CPTFloat(0.0) ) {
             CGPathAddArc(fillPath, NULL, centerPoint.x, centerPoint.y, self.pieRadius, CPTFloat(0.0), CPTFloat(2.0 * M_PI), false);
             CGPathAddArc(fillPath, NULL, centerPoint.x, centerPoint.y, innerRadius, CPTFloat(2.0 * M_PI), CPTFloat(0.0), true);
         }
@@ -727,12 +727,12 @@ static const CGFloat colorLookupTable[10][3] =
     return angle;
 }
 
--(void)addSliceToPath:(CGMutablePathRef)slicePath centerPoint:(CGPoint)center startingAngle:(CGFloat)startingAngle finishingAngle:(CGFloat)finishingAngle
+-(void)addSliceToPath:(nonnull CGMutablePathRef)slicePath centerPoint:(CGPoint)center startingAngle:(CGFloat)startingAngle finishingAngle:(CGFloat)finishingAngle
 {
     bool direction      = (self.sliceDirection == CPTPieDirectionClockwise) ? true : false;
     CGFloat innerRadius = self.pieInnerRadius;
 
-    if ( innerRadius > 0.0 ) {
+    if ( innerRadius > CPTFloat(0.0) ) {
         CGPathAddArc(slicePath, NULL, center.x, center.y, self.pieRadius, startingAngle, finishingAngle, direction);
         CGPathAddArc(slicePath, NULL, center.x, center.y, innerRadius, finishingAngle, startingAngle, !direction);
     }
@@ -742,7 +742,7 @@ static const CGFloat colorLookupTable[10][3] =
     }
 }
 
--(CPTFill *)sliceFillForIndex:(NSUInteger)idx
+-(nullable CPTFill *)sliceFillForIndex:(NSUInteger)idx
 {
     CPTFill *currentFill = [self cachedValueForKey:CPTPieChartBindingPieSliceFills recordIndex:idx];
 
@@ -753,7 +753,7 @@ static const CGFloat colorLookupTable[10][3] =
     return currentFill;
 }
 
--(void)drawSwatchForLegend:(CPTLegend *)legend atIndex:(NSUInteger)idx inRect:(CGRect)rect inContext:(CGContextRef)context
+-(void)drawSwatchForLegend:(nonnull CPTLegend *)legend atIndex:(NSUInteger)idx inRect:(CGRect)rect inContext:(nonnull CGContextRef)context
 {
     [super drawSwatchForLegend:legend atIndex:idx inRect:rect inContext:context];
 
@@ -835,7 +835,7 @@ static const CGFloat colorLookupTable[10][3] =
     NSParameterAssert(idx < sampleCount);
 
     if ( sampleCount == 0 ) {
-        return NAN;
+        return CPTNAN;
     }
 
     CGFloat startingWidth = CPTFloat(0.0);
@@ -856,7 +856,7 @@ static const CGFloat colorLookupTable[10][3] =
     }
 
     // Searched every pie slice but couldn't find one that corresponds to the given index
-    return NAN;
+    return CPTNAN;
 }
 
 #pragma mark -
@@ -864,7 +864,7 @@ static const CGFloat colorLookupTable[10][3] =
 
 /// @cond
 
-+(BOOL)needsDisplayForKey:(NSString *)aKey
++(BOOL)needsDisplayForKey:(nonnull NSString *)aKey
 {
     static NSSet<NSString *> *keys   = nil;
     static dispatch_once_t onceToken = 0;
@@ -897,7 +897,7 @@ static const CGFloat colorLookupTable[10][3] =
     return 1;
 }
 
--(CPTNumberArray *)fieldIdentifiers
+-(nonnull CPTNumberArray *)fieldIdentifiers
 {
     return @[@(CPTPieChartFieldSliceWidth)];
 }
@@ -909,7 +909,7 @@ static const CGFloat colorLookupTable[10][3] =
 
 /// @cond
 
--(void)positionLabelAnnotation:(CPTPlotSpaceAnnotation *)label forIndex:(NSUInteger)idx
+-(void)positionLabelAnnotation:(nonnull CPTPlotSpaceAnnotation *)label forIndex:(NSUInteger)idx
 {
     CPTLayer *contentLayer   = label.contentLayer;
     CPTPlotArea *thePlotArea = self.plotArea;
@@ -982,7 +982,7 @@ static const CGFloat colorLookupTable[10][3] =
  *  @param idx The index of the desired title.
  *  @return The title of the legend entry at the requested index.
  **/
--(NSString *)titleForLegendEntryAtIndex:(NSUInteger)idx
+-(nullable NSString *)titleForLegendEntryAtIndex:(NSUInteger)idx
 {
     NSString *legendTitle = nil;
 
@@ -1003,7 +1003,7 @@ static const CGFloat colorLookupTable[10][3] =
  *  @param idx The index of the desired title.
  *  @return The styled title of the legend entry at the requested index.
  **/
--(NSAttributedString *)attributedTitleForLegendEntryAtIndex:(NSUInteger)idx
+-(nullable NSAttributedString *)attributedTitleForLegendEntryAtIndex:(NSUInteger)idx
 {
     NSAttributedString *legendTitle = nil;
 
@@ -1086,7 +1086,7 @@ static const CGFloat colorLookupTable[10][3] =
  *  @param interactionPoint The coordinates of the interaction.
  *  @return Whether the event was handled or not.
  **/
--(BOOL)pointingDeviceDownEvent:(CPTNativeEvent *)event atPoint:(CGPoint)interactionPoint
+-(BOOL)pointingDeviceDownEvent:(nonnull CPTNativeEvent *)event atPoint:(CGPoint)interactionPoint
 {
     CPTGraph *theGraph       = self.graph;
     CPTPlotArea *thePlotArea = self.plotArea;
@@ -1151,7 +1151,7 @@ static const CGFloat colorLookupTable[10][3] =
  *  @param interactionPoint The coordinates of the interaction.
  *  @return Whether the event was handled or not.
  **/
--(BOOL)pointingDeviceUpEvent:(CPTNativeEvent *)event atPoint:(CGPoint)interactionPoint
+-(BOOL)pointingDeviceUpEvent:(nonnull CPTNativeEvent *)event atPoint:(CGPoint)interactionPoint
 {
     NSUInteger selectedDownIndex = self.pointingDeviceDownIndex;
 
@@ -1247,11 +1247,11 @@ static const CGFloat colorLookupTable[10][3] =
 
     switch ( self.sliceDirection ) {
         case CPTPieDirectionClockwise:
-            if ( isnan(theEndAngle) || ( 2.0 * M_PI == ABS(theEndAngle - theStartAngle) ) ) {
+            if ( isnan(theEndAngle) || ( CPTFloat(2.0 * M_PI) == ABS(theEndAngle - theStartAngle) ) ) {
                 widthFactor = CPTFloat(1.0);
             }
             else {
-                widthFactor = (CGFloat)(2.0 * M_PI) / ( (CGFloat)(2.0 * M_PI) - ABS(theEndAngle - theStartAngle) );
+                widthFactor = CPTFloat(2.0 * M_PI) / ( CPTFloat(2.0 * M_PI) - ABS(theEndAngle - theStartAngle) );
             }
 
             for ( NSUInteger currentIndex = 0; currentIndex < sampleCount; currentIndex++ ) {
@@ -1269,7 +1269,7 @@ static const CGFloat colorLookupTable[10][3] =
                 CGFloat offsetTouchedAngle    = touchedAngle;
                 CGFloat offsetDistanceSquared = distanceSquared;
                 CGFloat radialOffset          = [(NSNumber *)[self cachedValueForKey:CPTPieChartBindingPieSliceRadialOffsets recordIndex:currentIndex] cgFloatValue];
-                if ( radialOffset != 0.0 ) {
+                if ( radialOffset != CPTFloat(0.0) ) {
                     CGPoint offsetCenter;
                     CGFloat medianAngle = CPTFloat(M_PI) * (startingAngle + endingAngle);
                     offsetCenter = CPTPointMake(centerPoint.x + cos(medianAngle) * radialOffset,
@@ -1325,7 +1325,7 @@ static const CGFloat colorLookupTable[10][3] =
                 CGFloat offsetTouchedAngle    = touchedAngle;
                 CGFloat offsetDistanceSquared = distanceSquared;
                 CGFloat radialOffset          = [(NSNumber *)[self cachedValueForKey:CPTPieChartBindingPieSliceRadialOffsets recordIndex:currentIndex] cgFloatValue];
-                if ( radialOffset != 0.0 ) {
+                if ( radialOffset != CPTFloat(0.0) ) {
                     CGPoint offsetCenter;
                     CGFloat medianAngle = CPTFloat(M_PI) * (startingAngle + endingAngle);
                     offsetCenter = CPTPointMake(centerPoint.x + cos(medianAngle) * radialOffset,
@@ -1370,34 +1370,34 @@ static const CGFloat colorLookupTable[10][3] =
 
 /// @cond
 
--(CPTNumberArray *)sliceWidths
+-(nullable CPTNumberArray *)sliceWidths
 {
     return [[self cachedNumbersForField:CPTPieChartFieldSliceWidth] sampleArray];
 }
 
--(void)setSliceWidths:(CPTNumberArray *)newSliceWidths
+-(void)setSliceWidths:(nullable CPTNumberArray *)newSliceWidths
 {
     [self cacheNumbers:newSliceWidths forField:CPTPieChartFieldSliceWidth];
     [self updateNormalizedData];
 }
 
--(CPTFillArray *)sliceFills
+-(nullable CPTFillArray *)sliceFills
 {
     return [self cachedArrayForKey:CPTPieChartBindingPieSliceFills];
 }
 
--(void)setSliceFills:(CPTFillArray *)newSliceFills
+-(void)setSliceFills:(nullable CPTFillArray *)newSliceFills
 {
     [self cacheArray:newSliceFills forKey:CPTPieChartBindingPieSliceFills];
     [self setNeedsDisplay];
 }
 
--(CPTNumberArray *)sliceRadialOffsets
+-(nullable CPTNumberArray *)sliceRadialOffsets
 {
     return [self cachedArrayForKey:CPTPieChartBindingPieSliceRadialOffsets];
 }
 
--(void)setSliceRadialOffsets:(CPTNumberArray *)newSliceRadialOffsets
+-(void)setSliceRadialOffsets:(nullable CPTNumberArray *)newSliceRadialOffsets
 {
     [self cacheArray:newSliceRadialOffsets forKey:CPTPieChartBindingPieSliceRadialOffsets];
     [self setNeedsDisplay];
@@ -1448,7 +1448,7 @@ static const CGFloat colorLookupTable[10][3] =
     }
 }
 
--(void)setBorderLineStyle:(CPTLineStyle *)newStyle
+-(void)setBorderLineStyle:(nullable CPTLineStyle *)newStyle
 {
     if ( borderLineStyle != newStyle ) {
         borderLineStyle = [newStyle copy];

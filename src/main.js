@@ -20,6 +20,7 @@ var InfoPlist = require('react-native').NativeModules.InfoPlist;
 var TimerMixin = require('react-timer-mixin');
 var ReactNativeAutoUpdater = require('react-native-auto-updater');
 var Orientation = require('react-native-orientation');
+var feedViewDate;
 
 var {
   View,
@@ -253,15 +254,16 @@ module.exports = React.createClass({
   },
   _getFeedCount: function() {
     // don't use parse if no feedViewDate or no current user
-    if (!this.state.feedViewDate || !global.currentUser) {
+    if (!feedViewDate || !global.currentUser) {
         global.feedBadgeCount = 0;
         return;
     }
+    console.log("feedViewDate = " + feedViewDate.toString());
     var Feed = Parse.Object.extend("Feed");
     // first find all Feeds in the Feed table
     var _this = this;  // always use this to get to the root component
     var query = new Parse.Query(Feed);
-    query.greaterThan("createdAt", this.state.feedViewDate);
+    query.greaterThan("createdAt", feedViewDate);
     query.count({
       success: function(count) {
         global.feedBadgeCount = count;
@@ -283,23 +285,24 @@ module.exports = React.createClass({
       // It can be set to false to always return data provided by sync method when expired.(Of course it's slower)
       syncInBackground: true
     }).then( ret => {
-      this.setState({
-        feedViewDate: ret.feedViewDate,
-      });
+      if (ret.feedViewDate instanceof Date) {
+        feedViewDate = ret.feedViewDate;
+      } else {
+        feedViewDate = new Date(ret.feedViewDate);
+      }
       // this._getFeedCount();
     }).catch( err => {
       // save today's date
       this._saveFeedInfoToStorage(new Date());
     });
   },
-  _saveFeedInfoToStorage: function(feedViewDate) {
+  _saveFeedInfoToStorage: function(viewDate) {
 // FIXME:  test only
 // var date = feedViewDate.getDate() - 1;
 // feedViewDate.setDate(date);
     global.feedBadgeCount = 0;
-    this.setState({
-      feedViewDate: feedViewDate,
-    });
+    feedViewDate = viewDate,
+    console.log("saved feedViewDate = " + feedViewDate.toString());
     global.storage.save({
       key: global.FEED_STORAGE_TOKEN,   // Note: Do not use underscore("_") in key!
       rawData: {

@@ -3,13 +3,13 @@
 // For example:
 /*
 Parse.Cloud.define("hello", function(request, response) {
+  console.log("hello call success");
   response.success("Hello world!");
 });
 */
 
-
 function saveUserPassword(userEmail, newPassword, callback) {
-  Parse.Cloud.useMasterKey();
+  // Parse.Cloud.useMasterKey();
   var query = new Parse.Query(Parse.User);
   query.equalTo("email", userEmail);
 
@@ -31,19 +31,25 @@ function saveUserPassword(userEmail, newPassword, callback) {
             },
             error: function(SMLogin, error){
                 callback.error("Unable to set a new password.");
-            }
+            },
+            useMasterKey: true
         });
       },
       error: function(error){
           callback.error("Unable to query your email in our system.");
-      }
+      },
+      useMasterKey: true
   });
 }
 
 Parse.Cloud.define("resetUserPassword", function(request, response) {
 
-  var client = require('cloud/myMailModule-1.0.0.js');
+// response.success("resetUserPassword called!");
+
+  // var client = require('cloud/myMailModule-1.0.0.js');
+  var client = require('./myMailModule-1.0.0.js');
   client.initialize('sandbox2b785383c4144bbfa77aadf236ee7141.mailgun.org', 'key-50ae8c67309ad8248834e8fc24a9af30');
+//  console.log("email client initilized");
 
   var toEmail = request.params.email;
 
@@ -54,6 +60,7 @@ Parse.Cloud.define("resetUserPassword", function(request, response) {
   saveUserPassword(toEmail, newPassword, {
     success: function(user) {
 
+      console.log("saveUserPassword call success");
       var username = user.get('username');
 
       var emailHtml =
@@ -88,16 +95,18 @@ The 3TEN8 Team!";
       });
     },
     error: function(error) {
+      console.log("saveUserPassword call failure");
       response.error(error);
-    }
+    },
+    useMasterKey: true
   });
 });
 
 Parse.Cloud.afterSave("Feed", function(request) {
   // get the user of the Feed comment
-  console.log(request);
+  // console.log(request);
   var user = request.user;
-  console.log(user);
+  // console.log(user);
   var friendlyName = "@" + user.get('friendlyName').toLowerCase();
   var entityType = request.object.get('entityType');
   var entityName = request.object.get('entityName');
@@ -113,7 +122,13 @@ Parse.Cloud.afterSave("Feed", function(request) {
   // find all users except the requeste.user
   // var pushQuery = new Parse.Query(Parse.User);
   // pushQuery.notEqualTo("username", user.get('username'));
-  console.log(pushQuery);
+  // console.log(pushQuery);
+  /*
+  if (Parse.Push.send) {
+    console.log("pushing comment...");
+  }
+  */
+
   Parse.Push.send({
     // where: userQuery, // Set our Installation query
     where: pushQuery, // Set our Installation query
@@ -125,13 +140,16 @@ Parse.Cloud.afterSave("Feed", function(request) {
     }
   }, {
     success: function() {
-      // console.log("Beeper morning reminder sent!");
+      console.log("Beeper Feed aftersave send successful");
     },
     error: function(error) {
       console.error("Beeper Feed aftersave send failure");
       throw "Got an error " + error.code + " : " + error.message;
-    }
+    },
+    useMasterKey: true
   });
+
+  // console.log("pushing comment ended.");
 });
 
 // Parse background job
@@ -151,7 +169,8 @@ Parse.Cloud.job("morningReminder", function(request, status) {
     }, error: function(error) {
       status.error("Beeper monring reminder send failure");
     // Handle error
-    }
+    },
+    useMasterKey: true
   });
 });
 
@@ -172,7 +191,8 @@ Parse.Cloud.job("pushTest", function(request, status) {
     }, error: function(error) {
       status.error("Beeper test push send failure");
     // Handle error
-    }
+    },
+    useMasterKey: true
   });
 });
 
