@@ -324,3 +324,4 @@ Release 0.2.3 is on TestFlight:
   - check out react-native-activity-view: https://github.com/naoufal/react-native-activity-view for sharing on IOS only
   - check out react-native-navbar for nav bar component: https://github.com/react-native-fellowship/react-native-navbar
   - (No support of multi-line so line chart still stay with coreplot!) Swap out coreplot chart with react native chart: https://github.com/tomauty/react-native-chart
+  - checkout Deco IDE, which allows all-in-one solution for building RN app, still in beta: https://github.com/decosoftware/deco-ide

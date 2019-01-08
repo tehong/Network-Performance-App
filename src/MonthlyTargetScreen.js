@@ -43,7 +43,8 @@ var AreaScreen = require('./AreaScreen');
 
 // Dev DB access: 54.165.24.76
 // var MONTHLY_TARGET_URL = 'http://54.165.24.76:3010/kpis/v1/monthly/target/kpi/all';
-var MONTHLY_TARGET_URL = 'http://52.20.201.145:3010/kpis/v1/monthly/target/kpi/all';
+var MONTHLY_TARGET_URL = 'http://54.165.23.214:3010/kpis/v1/monthly/target/kpi/all';
+// var MONTHLY_TARGET_URL = 'http://52.20.201.145:3010/kpis/v1/monthly/target/kpi/all';
 // var MONTHLY_TARGET_URL = 'http://localhost:3010/kpis/v1/monthly/target/kpi/all';
 
 var resultsCache = {
@@ -142,9 +143,11 @@ var MonthlyTargetScreen = React.createClass({
     console.log("monthly target queryString = " + queryString);
     var _this = this;  // ready for promise processing
     fetch(queryString, {
+      /*
       headers: {
         'networkid': 'thumb',
       },
+      */
     })
     .then((response) => response.json())
     .then((responseData) => {
